@@ -1,0 +1,34 @@
+{
+  "name": "capstone-project",
+  "version": "1.0.0",
+  "description": "Gift organisation app",
+  "main": "server.js",
+  "directories": {
+    "test": "test"
+  },
+  "dependencies": {
+    "body-parser": "^1.15.2",
+    "chai": "^3.5.0",
+    "chai-http": "^3.0.0",
+    "express": "^4.12.4",
+    "faker": "^3.1.0",
+    "mocha": "^4.0.1",
+    "mongoose": "^4.13.9",
+    "uuid": "^2.0.3"
+  },
+  "scripts": {
+    "start": "node server.js",
+    "test": "mocha --exit"
+  },
+  "author": "",
+  "license": "MIT",
+  "keywords": [
+    "node",
+    "hyperdev",
+    "express"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/rob137/node-capstone.git"
+  }
+}
