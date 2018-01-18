@@ -1,5 +1,8 @@
 Work in progress!
 
+Heroku: https://cryptic-springs-72805.herokuapp.com/
+Travis CI: https://travis-ci.org/rob137/node-capstone
+
 High-level description:
 An app that will help people stay ahead of gift-giving obligations (Birthdays, Christmas, anniversaries etc).
 The app will allow users to keep their Google Calendar up-to-date with reminders to buy gifts.
