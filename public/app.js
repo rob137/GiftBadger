@@ -120,7 +120,7 @@ function createUpcomingEventsListHtml(events) {
 		giftListsHtml += `<li>-${event.eventName} on ${eventDateText}.`
 		if (event.finalDecision !== "none") {
 			giftListsHtml += 
-				` Gift: <a href="${event.finalDecision.giftLink}">${event.finalDecision.giftName}"<a>`
+				` Gift: <a href="${event.finalDecision.giftLink}">${event.finalDecision.giftName}<a>`
 		};
 		giftListsHtml += `</li>`;
 	});
