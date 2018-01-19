@@ -18,7 +18,7 @@
   },
   "scripts": {
     "start": "node server.js",
-    "test": "mocha"
+    "test": "mocha --exit"
   },
   "author": "",
   "license": "MIT",
