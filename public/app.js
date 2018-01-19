@@ -6,14 +6,14 @@ const MOCK_GIFT_LISTS = {
 		"gender": "female",
 		"events": [{
 			"eventName": "Christmas",
-			"eventDate": "25 Dec",
+			"eventDate": "25 Dec 2018",
 			"finalDecision": "none",
 			"budget": "10",
 			// default 30 days, but use can alternative
 			"remindBefore": "30"
 		}, {
 			"eventName": "Birthday",
-			"eventDate": "01 Jan",
+			"eventDate": "1 Jan",
 			"finalDecision": {
 				"giftName": "Cocoa Powder",
 				"giftLink": "https://www.amazon.co.uk/Organic-Raw-Cacao-Powder-250g/dp/B005GT94GG",
@@ -29,13 +29,13 @@ const MOCK_GIFT_LISTS = {
 		"gender": "male",
 		"events": [{
 			"eventName": "Christmas",
-			"eventDate": "25 Dec",
+			"eventDate": "25 Dec 2018",
 			"finalDecision": "none",
 			"budget": "10",
 			"remindBefore": "30"
 		}, {
 			"eventName": "Birthday",
-			"eventDate": "20 Feb",
+			"eventDate": "20 Feb 2018",
 			"finalDecision": {
 				"giftName": "Pot Plant",
 				"giftLink": "https://www.amazon.co.uk/Ceramic-Ancient-Succulent-Container-Planter/dp/B01EMXFCJE/ref=sr_1_1_sspa?ie=UTF8&qid=1516359016&sr=8-1-spons&keywords=plant+pot&psc=1",
@@ -50,13 +50,13 @@ const MOCK_GIFT_LISTS = {
 		"gender": "female",
 		"events": [{
 			"eventName": "Christmas",
-			"eventDate": "25 Dec",
+			"eventDate": "25 Dec 2018",
 			"finalDecision": "none",
 			"budget": "10",
 			"remindBefore": "30"
 		}, {
 			"eventName": "Birthday",
-			"eventDate": "10 Mar",
+			"eventDate": "10 Mar 2018",
 			"finalDecision": "none",
 			"budget": "10",
 			"remindBefore": "30"
@@ -64,6 +64,11 @@ const MOCK_GIFT_LISTS = {
 		"giftIdeas": ["Spice Rack", "Woollen Hat", "Bicycle Helmet"]
 	}]
 };
+
+// To make dates easy to read
+const monthNames = ["January", "February", "March", "April", "May", "June",
+  "July", "August", "September", "October", "November", "December"
+];
 
 // Kickstarts chain of functions. Called on pageload.
 function showGiftLists() {
@@ -107,9 +112,12 @@ function createGiftListsHtml(data) {
 
 function createUpcomingEventsListHtml(events) {
 	console.log('createUpcomingEventsListHtml');
-	let giftListsHtml = `<ul>`
+	let giftListsHtml = `<ul>`, monthName;
 	events.forEach(event => {
-		giftListsHtml += `<li>-${event.eventName} on ${event.eventDate}.`
+		let eventDate = new Date(event.eventDate);
+		monthName = monthNames[eventDate.getMonth()];
+		let eventDateText = `${eventDate.getDate()} ${monthName}, ${eventDate.getFullYear()}`;
+		giftListsHtml += `<li>-${event.eventName} on ${eventDateText}.`
 		if (event.finalDecision !== "none") {
 			giftListsHtml += 
 				` Gift: <a href="${event.finalDecision.giftLink}">${event.finalDecision.giftName}"<a>`
