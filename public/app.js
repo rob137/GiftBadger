@@ -23,7 +23,7 @@ const MOCK_GIFT_LISTS = {
 			"remindBefore": "30"
 		}],
 		// Could be presented as order of preference in UI:
-		"giftIdeas": ["Cocoa Powder", "Sweater", "Bottle Of Red Wine"]
+		"giftIdeas": ["Cocoa Powder", "Sweater", "Tartan Scarf", "Ski boots", "Bottle Of Red Wine"]
 	}, {
 		"name": "Dan",
 		"gender": "male",
@@ -61,7 +61,7 @@ const MOCK_GIFT_LISTS = {
 			"budget": "10",
 			"remindBefore": "30"
 		}],
-		"giftIdeas": ["Spice Rack", "Woollen Hat", "Bicycle Helmet"]
+		"giftIdeas": ["Swimming hat", "Woollen Hat", "Bicycle Helmet", "Remote Control Car", "Bucket and Spade"]
 	}]
 };
 
@@ -101,7 +101,7 @@ function createGiftListsHtml(data) {
 		// Final Html returned to showGiftLists()
 		giftListsHtml +=
 			`<h2>${giftListArrItem.name}</h2>
-			<h3>Gift Ideas</h3>
+			<h3>Gift Ideas So Far</h3>
 			${giftIdeasHtml}
 			<h3>Upcoming Events</h3>
 			${upcomingEventsListHtml}`;
@@ -136,7 +136,7 @@ function createGiftIdeasHtml(giftIdeas) {
 	// giftIdeas.join(', ');
 	giftIdeas.forEach(giftIdea => {
 		shoppingUrl = `https://www.google.co.uk/search?tbm=shop&q=${giftIdea}`
-		giftIdeasHtml += `<li><a href="${shoppingUrl}">${giftIdea}"</a></li>
+		giftIdeasHtml += `<li><a href="${shoppingUrl}">${giftIdea}</a></li>
 		`
 	})
 	giftIdeasHtml += `</ul>`;
