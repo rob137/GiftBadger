@@ -91,18 +91,18 @@ function getGiftListsData() {
 	return MOCK_GIFT_LISTS;
 }
 
-// Organises and displays html (relies on other functions for html subsections)
+// Organises and displays html (relies on other functions for html sub-sections)
 function createGiftListsHtml(data) {
 	// console.log('createGiftListsHtml');
 	let giftListsArr = data.giftLists, giftListsHtml = ``;
-	// Html subsections populated by other functions
+	// Html sub-sections populated by other functions
 	let upcomingEventsListHtml, addToCalendarHtml, giftIdeasHtml;
 
 	giftListsArr.forEach(giftListArrItem => {
 
 		// Populate html subsection variables using other functions
 		giftIdeasHtml = createGiftIdeasHtml(giftListArrItem.giftIdeas).join(', ');
-		upcomingEventsListHtml = createUpcomingEventsListHtml(giftListArrItem.events, giftListArrItem.name, giftListArrItem);
+		upcomingEventsListHtml = createUpcomingEventsListHtml(giftListArrItem);
 
 		// Final Html returned to showGiftLists()
 		giftListsHtml +=
@@ -116,10 +116,10 @@ function createGiftListsHtml(data) {
 	return giftListsHtml;
 }
 
-function createUpcomingEventsListHtml(events, name, giftListArrItem) {
+function createUpcomingEventsListHtml(giftListArrItem) {
 	// console.log('createUpcomingEventsListHtml');
 	let upcomingEventsListHtml = `<ul>`, addToCalendarHtml, monthName;
-	events.forEach(event => {
+	giftListArrItem.events.forEach(event => {
 		let eventDate = new Date(event.eventDate);
 		monthName = monthNames[eventDate.getMonth()];
 		let eventDateText = `${eventDate.getDate()} ${monthName}, ${eventDate.getFullYear()}`;
@@ -129,7 +129,7 @@ function createUpcomingEventsListHtml(events, name, giftListArrItem) {
 				` Gift chosen: <a target="_blank" href="${event.finalDecision.giftLink}">${event.finalDecision.giftName}</a>`
 		};
 		upcomingEventsListHtml += `</li>`;
-	addToCalendarHtml = prepareAddToCalendarHtml(event, name, giftListArrItem);
+	addToCalendarHtml = prepareAddToCalendarHtml(event, giftListArrItem);
 	});
 	upcomingEventsListHtml += `</ul>`;
 	
@@ -141,8 +141,8 @@ function createUpcomingEventsListHtml(events, name, giftListArrItem) {
 
 
 // prepares 
-function prepareAddToCalendarHtml(event, name, giftListArrItem) {
-	let encodedBodyText, giftIdeasHtml, encodedGiftIdeasHtml, encodedGiftLink, encodedGiftName;
+function prepareAddToCalendarHtml(event, giftListArrItem) {
+	let encodedBodyText, giftIdeasHtml, encodedGiftIdeasHtml, addToCalendarHtml;
 	let eventDate = new Date(event.eventDate);
 	// To get the right format for Google Calendar URLs
   let	eventDatePlusOneDay = new Date(eventDate.getYear(),eventDate.getMonth(),eventDate.getDate()+1);
@@ -151,23 +151,27 @@ function prepareAddToCalendarHtml(event, name, giftListArrItem) {
 	let addToCalendarLink = 
 		`https://www.google.com/calendar/render?action=TEMPLATE&
 		sf=true&output=xml&
-		text=${event.eventName}:+${name}&
+		text=${event.eventName}:+${giftListArrItem.name}&
 		dates=${eventDate}/${eventDatePlusOneDay}&
 		details=`
-	// Will display link for chosen gift if provided by user
-	if (event.finalDecision !== "none") {
-		encodedGiftLink = encodeURIComponent(event.finalDecision.giftLink); 
-		encodedBodyText = encodeURI(`You've decided to get this gift: <a target="_blank" href="${encodedGiftLink}">${event.finalDecision.giftName}</a>`)
+	if (event.finalDecision !== "none") { 
+		// Will display shoppingsite link for chosen gift if provided by user... 
+		encodedBodyText = encodeURIComponent(
+			`You've decided to get this gift: ` + 
+			`<a target="_blank" href="${event.finalDecision.giftLink}">` +
+			`${event.finalDecision.giftName}</a>`
+		);
 		addToCalendarLink += encodedBodyText;
 	} else { 
+		// ... or will display shopping search links for gift ideas. 
 		giftIdeasHtml = createGiftIdeasHtml(giftListArrItem.giftIdeas).join(', '); 
-		// To prevent URL issues with ampersands:
-		encodedGiftIdeasHtml =  encodeURIComponent(giftIdeasHtml);
-		encodedBodyText = encodeURI(`You still need to decide on a gift!\n\nGift ideas so far: `) + encodedGiftIdeasHtml;
+		encodedBodyText = encodeURIComponent(
+			`You still need to decide on a gift!\n\nGift ideas so far: ${giftIdeasHtml}`
+		);
 		addToCalendarLink += encodedBodyText;
 	}
 
-	let addToCalendarHtml = `<a target="_blank" href="${addToCalendarLink}">Add to your Google Calendar (opens new tab)</a>`;	
+	addToCalendarHtml = `<a target="_blank" href="${addToCalendarLink}">Add to your Google Calendar (opens new tab)</a>`;	
 
 	return addToCalendarHtml;
 }

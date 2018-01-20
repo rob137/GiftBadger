@@ -3,7 +3,7 @@ body {
 }
 
 body {  
-    background-size: 5px 5px;
+    background-size: 8px 8px;
     background-image: linear-gradient(to right, #c4c4c4 1px, transparent 1px), linear-gradient(to bottom, #c4c4c4 1px, transparent 1px);
 
 }
