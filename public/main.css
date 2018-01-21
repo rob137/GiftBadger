@@ -5,7 +5,6 @@ body {
 body {  
     background-size: 8px 8px;
     background-image: linear-gradient(to right, #c4c4c4 1px, transparent 1px), linear-gradient(to bottom, #c4c4c4 1px, transparent 1px);
-
 }
 
 h3 {
@@ -23,13 +22,54 @@ li {
 	padding-left: 0;
 }
 
-.calendar {
-	margin-top: 30px;
+
+/* Budget <section> */
+.budget-meter { 
+	margin: 0 auto;
+	margin-top: 10px;
+	height: 20px;  
+	width: 80%;
+	max-width: 800px;
+	position: relative;
+	background: #919191;
+	-moz-border-radius: 25px;
+	-webkit-border-radius: 25px;
+	border-radius: 25px;
+	padding: 5px;
+	box-shadow: inset 0 -1px 1px rgba(255,255,255,0.3);
 }
 
+.budget-meter > span {
+  display: block;
+  height: 100%;
+  border-top-right-radius: 8px;
+  border-bottom-right-radius: 8px;
+  border-top-left-radius: 20px;
+  border-bottom-left-radius: 20px;
+  background-color: rgb(43,194,83);
+  background-image: linear-gradient(
+    center bottom,
+    rgb(43,194,83) 37%,
+    rgb(84,240,84) 69%
+  );
+  box-shadow: 
+    inset 0 2px 9px  rgba(255,255,255,0.3),
+    inset 0 -2px 6px rgba(0,0,0,0.4);
+  position: relative;
+  overflow: hidden;
+}
+
+
+/* Celndar <section> */
+.calendar {
+	margin: 0 auto;
+	max-width: 80%;
+}
+
+/* for 'edit' links */
 .edit {
-	font-size: 0.8em;
 	position: absolute;
+	font-size: 0.7em;
 	margin-top: -7px;
 	margin-left: 10px; 
 }

@@ -1,6 +1,7 @@
 'use strict';
 
-const MOCK_GIFT_LISTS = {
+const MOCK_USER_DATA = {
+	"budget": "30",
 	"giftLists": [{
 		"name": "Sarah",
 		"gender": "female",
@@ -8,7 +9,6 @@ const MOCK_GIFT_LISTS = {
 			"eventName": "Christmas",
 			"eventDate": "25 Dec 2018",
 			"finalDecision": "none",
-			"budget": "10",
 			// default 30 days, but use can alternative
 			"remindBefore": "30"
 		}, {
@@ -19,7 +19,6 @@ const MOCK_GIFT_LISTS = {
 				"giftLink": "https://www.amazon.co.uk/Organic-Raw-Cacao-Powder-250g/dp/B005GT94GG",
 				"cost": "7.55"
 			},
-			"budget": "10",
 			"remindBefore": "30"
 		}],
 		// Could be presented as order of preference in UI:
@@ -31,7 +30,6 @@ const MOCK_GIFT_LISTS = {
 			"eventName": "Christmas",
 			"eventDate": "25 Dec 2018",
 			"finalDecision": "none",
-			"budget": "10",
 			"remindBefore": "30"
 		}, {
 			"eventName": "Birthday",
@@ -41,7 +39,6 @@ const MOCK_GIFT_LISTS = {
 				"giftLink": "https://www.amazon.co.uk/Ceramic-Ancient-Succulent-Container-Planter/dp/B01EMXFCJE/ref=sr_1_1_sspa?ie=UTF8&qid=1516359016&sr=8-1-spons&keywords=plant+pot&psc=1",
 				"cost": "9.50"
 			},
-			"budget": "10",
 			"remindBefore": "30"
 		}],
 		"giftIdeas": ["Plant Pot", "Headphones", "Espresso Cups"]
@@ -52,18 +49,18 @@ const MOCK_GIFT_LISTS = {
 			"eventName": "Christmas",
 			"eventDate": "25 Dec 2018",
 			"finalDecision": "none",
-			"budget": "10",
 			"remindBefore": "30"
 		}, {
 			"eventName": "Birthday",
 			"eventDate": "10 Mar 2018",
 			"finalDecision": "none",
-			"budget": "10",
 			"remindBefore": "30"
 		}],
 		"giftIdeas": ["Swimming hat", "Woollen Hat", "Bicycle Helmet", "Remote Control Car", "Bucket and Spade"]
 	}]
 };
+
+
 
 // To make dates easy to read
 const monthNames = ["January", "February", "March", "April", "May", "June",
@@ -75,20 +72,21 @@ let userEmail = `robertaxelkirby@gmail.com`;
 
 function loadPersonalisedPage() {
 	showGiftLists();
-	showCalendar();
+  showCalendar();
 }
 
 // Kickstarts chain of functions that show gift list. Called on pageload.
 function showGiftLists() {
 	// console.log('showGiftLists');
-	let giftListsData = getGiftListsData();
-	let giftListsHtml = createGiftListsHtml(giftListsData);
-	$('.js-gift-lists').html(giftListsHtml);
+	let userData = getUserData();
+	let giftListsHtml = createGiftListsHtml(userData);
+  $('.js-gift-lists').html(giftListsHtml);
+	showBudget(userData);
 }
 
 // Mock GET request
-function getGiftListsData() {
-	return MOCK_GIFT_LISTS;
+function getUserData() {
+	return MOCK_USER_DATA;
 }
 
 // Organises and displays html (relies on other functions for html sub-sections)
@@ -112,7 +110,6 @@ function createGiftListsHtml(data) {
 			<h3>Upcoming Events <a target="_blank" href="javascript:;"><span class="js-edit-events edit">edit</span></a></h3>
 			${upcomingEventsListHtml}`;
 	});
-
 	return giftListsHtml;
 }
 
@@ -188,14 +185,53 @@ function createGiftIdeasHtml(giftIdeas) {
 	return giftIdeasHtmlArr;
 }
 
+// Needs refactor for conciseness
+function showBudget(data) {
+	let totalBudget = data.budget;
+	let giftLists = data.giftLists;
+	let eventsArr = [], spendSoFar = 0, spanWidth = 0, percentageSpend;
+	giftLists.forEach(giftList => {
+		for (let event in giftList.events) { 
+			eventsArr.push(giftList.events[event]);
+		}
+	})
+	eventsArr.forEach(event => {
+		if (event.finalDecision !== "none") { 
+			spendSoFar += Number(event.finalDecision.cost);
+		}
+	})
+	
+	spanWidth = spendSoFar/totalBudget*100;
+	percentageSpend = Math.floor(spanWidth);
+	// in case they are over budget
+	if (spanWidth > 100) {
+		spanWidth = 100;
+	}
+
+	console.log(spanWidth);
+	let budgetHtml = `
+				<h2>Your Budget</h2>
+				<p>So far, you've spent £${spendSoFar} of your budget of £${totalBudget} (${percentageSpend}%).</p>
+				<div class="budget-meter">
+  				<span class="budget-span" style="width: ${spanWidth}%"></span>
+				</div>`;
+
+	$('.js-budget').append(budgetHtml);
+
+}
+
 function showCalendar() {
 	$('.calendar')
-		.html(`<iframe src="https://calendar.google.com/calendar/embed?
+		.html(`
+			<h2>Your Calendar</h2>
+			<iframe class="calendar" src="https://calendar.google.com/calendar/embed?
 			src=${userEmail}" style="border: 0" width="800" height="600" 
 			frameborder="0" scrolling="no"></iframe>`);
 }
 
-//
+
+
+
 // Starts chain of functions on pageload
 loadPersonalisedPage();
 
