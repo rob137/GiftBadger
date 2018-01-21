@@ -61,7 +61,6 @@ const MOCK_USER_DATA = {
 };
 
 
-
 // To make dates easy to read
 const monthNames = ["January", "February", "March", "April", "May", "June",
   "July", "August", "September", "October", "November", "December"
@@ -115,6 +114,8 @@ function createGiftListsHtml(data) {
 
 function createUpcomingEventsListHtml(giftListArrItem) {
 	// console.log('createUpcomingEventsListHtml');
+	// *** Opening ul tag *** 
+	//
 	let upcomingEventsListHtml = `<ul>`, addToCalendarHtml, monthName;
 	giftListArrItem.events.forEach(event => {
 		let eventDate = new Date(event.eventDate);
@@ -128,6 +129,8 @@ function createUpcomingEventsListHtml(giftListArrItem) {
 		upcomingEventsListHtml += `</li>`;
 	addToCalendarHtml = prepareAddToCalendarHtml(event, giftListArrItem);
 	});
+
+	// *** Closing ul tag *** 
 	upcomingEventsListHtml += `</ul>`;
 	
 	
@@ -208,7 +211,6 @@ function showBudget(data) {
 		spanWidth = 100;
 	}
 
-	console.log(spanWidth);
 	let budgetHtml = `
 				<h2>Your Budget</h2>
 				<p>So far, you've spent £${spendSoFar} of your budget of £${totalBudget} (${percentageSpend}%).</p>
