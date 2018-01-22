@@ -76,3 +76,9 @@ li {
 	margin-top: -7px;
 	margin-left: 10px; 
 }
+
+.edit-budget {
+	font-weight: bold;
+	color: #3707EE;
+	cursor: pointer;
+}
