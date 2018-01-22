@@ -69,8 +69,56 @@ const monthNames = ["January", "February", "March", "April", "May", "June",
 // Will ask user for their email on login and use it as a variable?
 let userEmail = `robertaxelkirby@gmail.com`;
 
-function loadPersonalisedPage() {
-	showGiftLists();
+function handleLogin() {
+	let user = "Rob"
+	// if (notLoggedIn) {
+	if (true) { 
+		loadLoginOrRegisterHtml();
+		handleLoginOrRegister();
+	} else {
+		loadPersonalisedPage(user);
+	}
+}
+
+function loadLoginOrRegisterHtml() {
+	let loginOrRegisterHtml = `
+	<h1>Gift App</h1>
+				<form>
+					<label for="username">Username:</label>
+					<input type="text" id="username" name="username" class="js-username-input"><br>
+					<label for="password">Password:</label>
+					<input type="password" id="password" name="password" class="js-password-input"><br>
+					<button class="js-login-button">Login</button>
+					<button class="js-register-button">Register</button>
+				</form>
+	`
+	$(".js-login-or-register").html(loginOrRegisterHtml);
+}
+
+// For when user clicks 'login' or 'register'
+function handleLoginOrRegister() {
+	$('.js-login-button').on('click', function(event) {
+		event.preventDefault();
+		let usernameInput = $('.js-username-input').val();
+		// ??? Seem insecure!  For testing only until best practise found:
+		let userPassword = $('.js-password-input').val();
+	});
+
+	$('.js-register-button').on('click', function(event) {
+		event.preventDefault();
+		loadRegisterHtml();
+	});
+}
+
+// loads registration page
+function loadRegisterHtml() {
+	let registerHtml = `
+	`
+	$(".js-login-or-register").html(registerHtml);	
+}
+
+function loadPersonalisedPage(user) {
+	showGiftLists(user);
   showCalendar();
 }
 
@@ -91,14 +139,14 @@ function getUserData() {
 // Organises and displays html (relies on other functions for html sub-sections)
 function createGiftListsHtml(data) {
 	// console.log('createGiftListsHtml');
-	let giftListsArr = data.giftLists, giftListsHtml = ``;
+	let giftListsArr = data.giftLists, giftListsHtml = `<h1>Gift List</h1>`;
 	// Html sub-sections populated by other functions
 	let upcomingEventsListHtml, addToCalendarHtml, giftIdeasHtml;
 
 	giftListsArr.forEach(giftListArrItem => {
 
 		// Populate html subsection variables using other functions
-		giftIdeasHtml = createGiftIdeasHtml(giftListArrItem.giftIdeas).join(', ');
+		giftIdeasHtml += createGiftIdeasHtml(giftListArrItem.giftIdeas).join(', ');
 		upcomingEventsListHtml = createUpcomingEventsListHtml(giftListArrItem);
 
 		// Final Html returned to showGiftLists()
@@ -235,5 +283,7 @@ function showCalendar() {
 
 
 // Starts chain of functions on pageload
-loadPersonalisedPage();
+handleLogin();
+
+// loadPersonalisedPage();
 
