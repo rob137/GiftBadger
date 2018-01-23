@@ -3,20 +3,28 @@
 	<head>
 		<meta charset="utf-8">
 		<meta description="A web application for organising your gifts">
+		<meta name="viewport" content="width=device-width">
 		<title>Capstone</title>
 		<link rel="stylesheet" type="text/css" href="main.css">
 	</head>
 	<body>
 		<main>
-			<section class="js-login-or-register">
-				
-
-			</section>
+		
+			<!-- Content is loaded into these elements by app.js -->
+			<h1 class="js-personalised-header"></h1>
+			<section class="js-login-or-register"></section>
 			<section class="js-budget budget"></section>
 			<section class="js-gift-lists gift-lists"></section>
 			<section class="js-calendar calendar"></section>
+			<section class="js-edit-panel edit-panel" hidden>
+				<div class="js-edit-panel-inner">
+				</div>
+			</section>
+		
 		</main>
 		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
 		<script type="text/javascript" src="app.js"></script>
 	</body>
 </html>
+
+<!-- Final Decision -->
