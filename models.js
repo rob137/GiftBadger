@@ -8,8 +8,8 @@ const userDataSchema = mongoose.Schema({
 	email: {type: String, required: true},
 	budget: {type: Number, required: true},
 	// giftLists is an Array... Is this ok?
-	giftLists: {type: Array, required: true}
-});
+  giftLists: {type: Array, required: true}
+}, { collection : 'users' });
 
 // Not added a virtual yet.
 

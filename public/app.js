@@ -1,146 +1,18 @@
 'use strict';
 
-let userData;
+let globalUserData;
+const monthNames = ["January", "February", "March", "April", "May", "June",
+  "July", "August", "September", "October", "November", "December"
+];
 
 // Object constructor for new users;
 function User(username, firstName, email) {
-	this.userName = firstName;
+	this.userName = username;
 	this.firstName = firstName;
 	this.email = email;
 	this.giftLists = [];
 	this.budget = 0;
 };
-
-
-const MOCK_USER_DATA = { 
-	// Final form: {"users": [rob, gemma]}?
-	"rob": {	
-		"username": 'rob',
-		"firstName": "rob",
-		"email": "robertaxelkirby@gmail.com",
-		"budget": "20",
-		"giftLists": [{
-			"name": "Sarah",
-			"gender": "female",
-			"events": [{
-				"eventName": "Christmas",
-				"eventDate": "25 Dec 2018",
-				"GiftPicked": "none",
-				"remindBefore": "30"
-			}, {
-				"eventName": "Birthday",
-				"eventDate": "1 Jan 2019",
-				"GiftPicked": {
-					"giftName": "Cocoa Powder",
-					"giftLink": "",
-					"cost": "7.55"
-				},
-				"remindBefore": "30"
-			}],
-			"giftIdeas": ["Cocoa Powder", "Sweater", "Tartan Scarf", "Ski boots", "Bottle Of Red Wine"]
-		}, {
-			"name": "Dan",
-			"gender": "male",
-			"events": [{
-				"eventName": "Christmas",
-				"eventDate": "25 Dec 2018",
-				"GiftPicked": "none",
-				"remindBefore": "30"
-			}, {	
-				"eventName": "Birthday",
-				"eventDate": "20 Feb 2018",
-				"GiftPicked": {
-					"giftName": "Pot Plant",
-					"giftLink": "https://www.amazon.co.uk/Ceramic-Ancient-Succulent-Container-Planter/dp/B01EMXFCJE/ref=sr_1_1_sspa?ie=UTF8&qid=1516359016&sr=8-1-spons&keywords=plant+pot&psc=1",
-					"cost": "9.50"
-				},
-				"remindBefore": "30"
-			}],
-			"giftIdeas": ["Plant Pot", "Headphones", "Espresso Cups"]
-		}, {
-			"name": "Angie",
-			"gender": "female",
-			"events": [{
-				"eventName": "Christmas",
-				"eventDate": "25 Dec 2018",
-				"GiftPicked": "none",
-				"remindBefore": "30"
-			}, {
-				"eventName": "Birthday",
-				"eventDate": "10 Mar 2018",
-				"GiftPicked": "none",
-				"remindBefore": "30"
-			}],
-			"giftIdeas": ["Swimming hat", "Woollen Hat", "Bicycle Helmet", "Remote Control Car", "Bucket and Spade"]
-		}]
-	},
-	"gemma": {	
-		"username": 'gemma',
-		"firstName": "gemma",
-		"email": "gemmakirby16@gmail.com",
-		"budget": "80",
-		"giftLists": [{
-			"name": "Mike",
-			"gender": "Male",
-			"events": [{
-				"eventName": "Christmas",
-				"eventDate": "25 Dec 2018",
-				"GiftPicked": "none",
-				"remindBefore": "30"
-			}, {
-				"eventName": "Birthday",
-				"eventDate": "1 Jan 2019",
-				"GiftPicked": {
-					"giftName": "Potpourri",
-					"giftLink": "https://www.amazon.co.uk/Various-Dried-Flowers-lavender-marigold/dp/B00ENG2DAC/ref=sr_1_2?s=kitchen&ie=UTF8&qid=1516614907&sr=1-2&refinements=p_4%3ADried+Flowers",
-					"cost": "4"
-				},
-				"remindBefore": "30"
-			}],
-			"giftIdeas": ["Potpourri", "Shopping bags", "Coffee table", "Toolkit"]
-		}, {
-			"name": "Rebecca",
-			"gender": "Female",
-			"events": [{
-				"eventName": "Christmas",
-				"eventDate": "25 Dec 2018",
-				"GiftPicked": "none",
-				"remindBefore": "30"
-			}, {
-				"eventName": "Birthday",
-				"eventDate": "20 Feb 2018",
-				"GiftPicked": {
-					"giftName": "Samsung Galaxy J5",
-					"giftLink": "https://www.carphonewarehouse.com/samsung/galaxy-j5-2017.html",
-					"cost": "20"
-				},
-				"remindBefore": "30"
-			}],
-			"giftIdeas": ["Samsung Galaxy J5", "Paintbrushes", "Coffee pods"]
-		}, {
-			"name": "Nadia",
-			"gender": "female",
-			"events": [{
-				"eventName": "Christmas",
-				"eventDate": "25 Dec 2018",
-				"GiftPicked": "none",
-				"remindBefore": "30"
-			}, {
-				"eventName": "Birthday",
-				"eventDate": "10 Mar 2018",
-				"GiftPicked": "none",
-				"remindBefore": "30"
-			}],
-			"giftIdeas": ["Tennis racket", "Pool cue", "Snooker table", "Beats headphones"]
-		}]
-	}
-};
-
-
-// To make dates easy to read
-const monthNames = ["January", "February", "March", "April", "May", "June",
-  "July", "August", "September", "October", "November", "December"
-];
 
 function checkUserLoggedIn() {
 	// ===== Aspiration: app remembers whether user is logged in. ===== 
@@ -175,7 +47,7 @@ function handleLoginOrRegister() {
 	$('.js-login-button').on('click', function(event) {
 		event.preventDefault();
 		let usernameInput = $('.js-username-input').val().toLowerCase();
-		// ===== ??? Seem insecure!  For testing only until best practise found: =====
+		// ===== ??? Seem insecure!  For testing only until best practice found =====
 		let passwordInput = $('.js-password-input').val();
 		attemptLogin(usernameInput, passwordInput);
 	});
@@ -189,7 +61,7 @@ function handleLoginOrRegister() {
 
 // When user submits username/password
 function attemptLogin(usernameInput, passwordInput) {
-	// ===== Aspiration: talk to server to validate login fields username/password... =====
+	// ===== Aspiration: talk to server to validate login with username/password =====
 	// For now:
 	if (usernameInput) {
 		// remove login page
@@ -249,7 +121,7 @@ function handleRegistrationSubmission() {
 }
 
 
-// ------------------------------ FORM VALIDATION -----------------------------------
+// --------------------- REGISTRATION FORM VALIDATION ----------------------------
 function checkFormIsCompleted(usernameInput, firstNameInput, /*, passwordInput*/ emailInput) {
 	
 	if (!validateName(usernameInput)) {
@@ -284,17 +156,25 @@ function validateUrl(input) {
 	return re.test(input);
 }
 
+// -------------------------- LOAD PERSONALISED CONTENT ---------------------------
 // Kickstarts functions that rely on user json
-function loadPersonalisedPage(username) {
-	showPersonalisedHeader(username);
-	showGiftLists(username);
-  showCalendar(username);
-  handleOpenEditPanelClicks();
-  listenForEscapeOnEditPanel();
+function loadPersonalisedPage() {
+	let firstName;
+	$.getJSON('/users/5a674a9e9de7468757dc512b', function(userJson) {
+		globalUserData = userJson;
+		firstName = globalUserData.firstName;
+		setTimeout(function() {
+			showPersonalisedHeader(firstName);
+			showGiftLists(firstName);
+  		showCalendar(firstName);
+  		handleOpenEditPanelClicks();
+  		listenForEscapeOnEditPanel();
+  	}, 1000);
+	});
 }
 
-function showPersonalisedHeader(username) {
-	let titleName = username.charAt(0).toUpperCase() + username.slice(1, username.length);
+function showPersonalisedHeader(firstName) {
+	let titleName = firstName.charAt(0).toUpperCase() + firstName.slice(1, firstName.length);
 	$('.js-personalised-header').html(`<h1>${titleName}'s Gift Organiser</h1>`)
 }
 
@@ -303,34 +183,25 @@ function showPersonalisedHeader(username) {
 Each gift list is associated with a recipient and takes the following form:
 [Name of recipient]
 [Gift Ideas So Far](editable)
-	[For each gift idea: a link to google shopping search for that gift]
-[Upcoming events (editable), listing gifts chosen for those specific events (also editable)]
-	[For gift chosen for an event: 
-		either: a link to a specific online shopping page (provided user provides one)
-		or: a link to a google shopping search for that gift]
-	[For Each event - a link to add to user's google calendar]
-*/ 
+	- For each gift idea: a link to google shopping search for that gift
+[Upcoming events] (editable), listing gifts chosen for those specific events (also editable)
+	- For each event:
+		- A link to add to user's google calendar]
+		- For gift(s) chosen for the event: 
+			- either: a link to a specific online shopping page (if user has provided one)
+			- or: a link to a google shopping search for that gift
+	*/ 
 
 // Kickstarts the chain of functions that render user's gift lists.
-function showGiftLists(username) {
-	userData = getUserData(username);
+function showGiftLists(firstName) {
 	let giftListsHtml = createGiftListsHtml();
   $('.js-gift-lists').html(giftListsHtml);
 	showBudget();
 }
 
-// GET request 
-// ===== Currently to mock data.  Will hook up to MongoDb later =====
-function getUserData(username) {
-	// here we need to use the username to find the database entry.
-	// Need to setup a url for get requests, then call $().getjson() to the url
-	// For uid requests will need password and unique id for user
-	return MOCK_USER_DATA[username];
-}
-
 // Organises and displays html (relies on other functions for html sub-sections)
 function createGiftListsHtml() {
-	let giftListsArr = userData.giftLists, giftListsHtml = `<h1>Gift List</h1>`, giftIdeasHtmlArr;
+	let giftListsArr = globalUserData.giftLists, giftListsHtml = `<h1>Gift List</h1>`, giftIdeasHtmlArr;
 	// Html sub-sections populated by other functions
 	let upcomingEventsListHtml, addToCalendarHtml, giftIdeasHtml = ``;
 
@@ -450,13 +321,13 @@ function createGoogleShoppimgUrl(gift) {
 // Needs refactor for conciseness
 function showBudget() {
 	let budgetHtml;
-	if (userData.budget < 1) {
+	if (globalUserData.budget < 1) {
 		budgetHtml = `
 		<h2>Your Remaining Budget</h2>
 		<p>Click <span class="js-edit-budget js-edit edit-budget">here</span> to enter your budget!</p>`
 	} else {
-		let totalBudget = userData.budget;
-		let giftLists = userData.giftLists;
+		let totalBudget = globalUserData.budget;
+		let giftLists = globalUserData.giftLists;
 		let eventsArr = [], spendSoFar = 0, spanWidth = 0, percentageSpend;
 		giftLists.forEach(giftList => {
 			for (let event in giftList.events) { 
@@ -493,7 +364,7 @@ function showCalendar() {
 		.html(`
 			<h2>Your Calendar</h2>
 			<iframe class="calendar" src="https://calendar.google.com/calendar/embed?
-			src=${userData.email}" style="border: 0" width="800" height="600" 
+			src=${globalUserData.email}" style="border: 0" width="800" height="600" 
 			frameborder="0" scrolling="no"></iframe>`);
 }
 
@@ -601,7 +472,7 @@ function checkEventDateIsInFuture() {
 function generateEditBudgetHtml() {
 	return `<form>
 					<label for="budget">Enter your budget:</label>
-					<input type="number" min="0" name="budget" id="budget" placeholder="${userData.budget}">
+					<input type="number" min="0" name="budget" id="budget" placeholder="${globalUserData.budget}">
 					<input type="submit" class="firstNameInput" name="submit" value="Save changes">
 					<button class="js-cancel-edit">Discard Changes</button>
 				</form>`;
@@ -610,7 +481,7 @@ function generateEditBudgetHtml() {
 function generateEditGiftIdeasHtml(recipientName) {
 // creates editable list of gift ideas so far for the recipient 
 	let lis = '', ul = '', recipient;
-	recipient = userData.giftLists.find(item => item.name == recipientName);
+	recipient = globalUserData.giftLists.find(item => item.name == recipientName);
 	recipient.giftIdeas.forEach(giftIdea => {
 		lis += `<li>${giftIdea} <a target="_blank" href="javascript:;" class="js-remove remove">remove</a></li>`
 	})
@@ -632,7 +503,7 @@ function generateEditGiftIdeasHtml(recipientName) {
 
 function generateEditEventsHtml(recipientName) {
 	let lis = '', ul = '', recipient;
-	recipient = userData.giftLists.find(item => item.name == recipientName);
+	recipient = globalUserData.giftLists.find(item => item.name == recipientName);
 	recipient.events.forEach(event => {
 		lis += `<li>${event.eventName} on ${event.eventDate} <a target="_blank" href="javascript:;" class="js-remove remove">remove</a></li>`
 	})
@@ -665,7 +536,7 @@ function generateEditGiftPickedHtml(recipientName, userEventName, userEventDate)
 	// like with gift ideas. 
 
 	let lis = '', ul = '', recipient;
-	recipient = userData.giftLists.find(item => item.name == recipientName);
+	recipient = globalUserData.giftLists.find(item => item.name == recipientName);
 	recipient.giftIdeas.forEach(giftIdea => {
 		lis += `<li><span class="js-gift-idea">${giftIdea}</span> <a target="_blank" href="javascript:;" class="js-give give">Give this gift</a></li>`
 	})
@@ -711,5 +582,16 @@ function listenForEscapeOnEditPanel() {
 
 // Starts chain of functions on pageload
 // checkUserLoggedIn();
+loadPersonalisedPage();
 
-loadPersonalisedPage("rob");
+/*
+// Kickstarts functions that rely on user json
+function loadPersonalisedPage(username) {
+	showPersonalisedHeader(username);
+	showGiftLists(username);
+  showCalendar(username);
+  handleOpenEditPanelClicks();
+  listenForEscapeOnEditPanel();
+}
+
+*/
