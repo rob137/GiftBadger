@@ -449,7 +449,7 @@ function showBudget() {
 	let budgetHtml;
 	if (userData.budget < 1) {
 		budgetHtml = `
-		<h2>Your Budget</h2>
+		<h2>Your Remaining Budget</h2>
 		<p>Click <span class="js-edit-budget js-edit edit-budget">here</span> to enter your budget!</p>`
 	} else {
 		let totalBudget = userData.budget;
@@ -474,7 +474,7 @@ function showBudget() {
 		}
 	
 		budgetHtml = `
-					<h2>Your Budget</h2>
+					<h2>Your Remaining Budget</h2>
 					<p>So far, you've spent £${spendSoFar} (${percentageSpend}%) of your £${totalBudget} budget.
 					<a target="_blank" href="javascript:;"><span class="js-edit-budget js-edit edit">edit</span></a></p>
 					<div class="budget-meter">

@@ -105,3 +105,7 @@ li {
 	position: relative;
 	top: 20px;
 }
+
+.user-event-name {
+	font-weight: bold;
+} 
