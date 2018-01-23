@@ -322,6 +322,9 @@ function showGiftLists(username) {
 // GET request 
 // ===== Currently to mock data.  Will hook up to MongoDb later =====
 function getUserData(username) {
+	// here we need to use the username to find the database entry.
+	// Need to setup a url for get requests, then call $().getjson() to the url
+	// For uid requests will need password and unique id for user
 	return MOCK_USER_DATA[username];
 }
 
