@@ -5,15 +5,6 @@ const monthNames = ["January", "February", "March", "April", "May", "June",
   "July", "August", "September", "October", "November", "December"
 ];
 
-// Object constructor for new users;
-function User(username, firstName, email) {
-	this.userName = username;
-	this.firstName = firstName;
-	this.email = email;
-	this.giftLists = [];
-	this.budget = 0;
-};
-
 function checkUserLoggedIn() {
 	// ===== Aspiration: app remembers whether user is logged in. ===== 
 	/* if (user is logged in) {
@@ -104,12 +95,24 @@ function handleRegistrationSubmission() {
 		usernameInput = $('.js-username-input').val().toLowerCase();
 		firstNameInput = $('.js-first-name-input').val().toLowerCase();
 			
-		if (checkFormIsCompleted(usernameInput, firstNameInput, /*passwordInput,*/ emailInput)) {;
-			
-			newUserDetails = new User(usernameInput, firstNameInput, emailInput);
-			
+		if (checkFormIsCompleted(usernameInput, firstNameInput, /*passwordInput,*/ emailInput)) {
 			// ===== Aspiration: create new user in Db! ===== 
-			alert('Registration complete!')
+			$.ajax({
+				url: "/users",
+				contentType: 'application/json',
+				data: JSON.stringify({
+					username: usernameInput,
+					firstName: firstNameInput,
+					email: emailInput
+				}),
+				success: function(data) {
+					alert('Registration complete!');
+				},
+				error: function (){
+					console.log('Error')
+				},
+				type: 'POST'
+			});
 
 			// remove login page
 			$(".js-login-or-register").html('');
@@ -158,9 +161,9 @@ function validateUrl(input) {
 
 // -------------------------- LOAD PERSONALISED CONTENT ---------------------------
 // Kickstarts functions that rely on user json
-function loadPersonalisedPage() {
+function loadPersonalisedPage(usernameInput) {
 	let firstName;
-	$.getJSON('/users/5a674a9e9de7468757dc512b', function(userJson) {
+	$.getJSON(`/users/${usernameInput}`, function(userJson) {
 		globalUserData = userJson;
 		firstName = globalUserData.firstName;
 		setTimeout(function() {
@@ -204,9 +207,7 @@ function createGiftListsHtml() {
 	let giftListsArr = globalUserData.giftLists, giftListsHtml = `<h1>Gift List</h1>`, giftIdeasHtmlArr;
 	// Html sub-sections populated by other functions
 	let upcomingEventsListHtml, addToCalendarHtml, giftIdeasHtml = ``;
-
-		giftListsArr.forEach(giftListArrItem => {
-
+	giftListsArr.forEach(giftListArrItem => {
 		// Creates Html for gift ideas: create a gift idea list for each gift list in user's profile
 		giftIdeasHtmlArr = [];
 		// Populate html subsection variables using other functions
@@ -229,6 +230,9 @@ function createGiftListsHtml() {
 			${upcomingEventsListHtml}
 			</div>`;
 	});
+	giftListsHtml += `
+			<p>Click <a  class="js-create-new-gift-list js-edit edit-alt" target="_blank" href="javascript:;">here</a> to add a new person to the list!</p>`
+	
 	return giftListsHtml;
 }
 
@@ -321,10 +325,11 @@ function createGoogleShoppimgUrl(gift) {
 // Needs refactor for conciseness
 function showBudget() {
 	let budgetHtml;
-	if (globalUserData.budget < 1) {
+	// default budget is 0, so this checks user has provided a budget
+	if (!globalUserData.budget || !(globalUserData.budget > 0)) {
 		budgetHtml = `
 		<h2>Your Remaining Budget</h2>
-		<p>Click <span class="js-edit-budget js-edit edit-budget">here</span> to enter your budget!</p>`
+		<p>Click <a class="js-edit-budget js-edit edit-alt" target="_blank" href="javascript:;">here</a> to enter your budget!</p>`
 	} else {
 		let totalBudget = globalUserData.budget;
 		let giftLists = globalUserData.giftLists;
@@ -382,6 +387,9 @@ function handleOpenEditPanelClicks() {
 		// edit panel for changing budget
 		if ($(event.target).hasClass('js-edit-budget')) {
 			editHtml = generateEditBudgetHtml();
+		// edit panel for adding a new gift list
+		} else if ($(event.target).hasClass('js-create-new-gift-list')) { 
+			editHtml = generateEditNewGiftListHtml();
 		// edit panel for changing gift ideas
 		} else if ($(event.target).hasClass('js-edit-gift-ideas')) {
 			editHtml = generateEditGiftIdeasHtml(recipientName);
@@ -473,13 +481,22 @@ function generateEditBudgetHtml() {
 	return `<form>
 					<label for="budget">Enter your budget:</label>
 					<input type="number" min="0" name="budget" id="budget" placeholder="${globalUserData.budget}">
-					<input type="submit" class="firstNameInput" name="submit" value="Save changes">
+					<input type="submit" class="js-submit-edit" name="submit" value="Save changes">
 					<button class="js-cancel-edit">Discard Changes</button>
 				</form>`;
 };
 
+function generateEditNewGiftListHtml() {
+	return `<form>
+					<label for="name">Enter the name of someone you will need to buy a gift for:</label>
+					<input type="text" name="name" id="name" class="js-name-input">
+					<input type="submit" class="js-submit-edit" name="submit" value="Save changes">
+					<button class="js-cancel-edit">Discard Changes</button>
+				</form>`
+}
+// creates editable list of gift ideas so far for the recipient
 function generateEditGiftIdeasHtml(recipientName) {
-// creates editable list of gift ideas so far for the recipient 
+ 
 	let lis = '', ul = '', recipient;
 	recipient = globalUserData.giftLists.find(item => item.name == recipientName);
 	recipient.giftIdeas.forEach(giftIdea => {
@@ -580,18 +597,7 @@ function listenForEscapeOnEditPanel() {
 	});
 }
 
-// Starts chain of functions on pageload
+// kickstarts chain of functions
 // checkUserLoggedIn();
-loadPersonalisedPage();
-
-/*
-// Kickstarts functions that rely on user json
-function loadPersonalisedPage(username) {
-	showPersonalisedHeader(username);
-	showGiftLists(username);
-  showCalendar(username);
-  handleOpenEditPanelClicks();
-  listenForEscapeOnEditPanel();
-}
-
-*/
+// For testing:
+loadPersonalisedPage('sue');

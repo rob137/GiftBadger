@@ -14,8 +14,6 @@ app.use(bodyParser.json());
 
 app.use(express.static('public'));
 
-let server;
-
 // -------------------- GET ----------------------
 app.get('/users', (req, res) => {
 	console.log('GET request received');
@@ -33,22 +31,92 @@ app.get('/users', (req, res) => {
 		});
 });
 
-app.get('/users/:id', (req, res) => {
+app.get('/users/:username', (req, res) => {
 	console.log('GET request received.');
 	UserData
-		.findById(req.params.id)
-		.then(user => res.json(user.serialize()))
+		.findOne({"username": req.params.username})
+		.then(user => {console.log(user);res.json(user.serialize())})
 		.catch(err => {
 			console.log(err);
 			res.status(500).json({ message: 'Internal server error '})
 		});
 });
 
+
+
+
+
 // --------------------- POST ----------------------
+app.post('/users', (req, res) => {
+	const requiredFields = ['username', 'firstName', 'email'];
+	for (let num in requiredFields) {
+		const field = requiredFields[num];
+		if(!(field in req.body)) {
+			const message = `missing ${field} in request body`;
+			console.error(message);
+			return res.status(400).send(message);
+		}
+	}
+	UserData
+		.create({
+			username: req.body.username,
+			firstName: req.body.firstName,
+			email: req.body.email
+		})
+		.then(console.log('Creating a new user profile...'))
+		.then(user => res.status(201).json(user.serialize()))
+		.catch(err => {
+			console.error(err);
+			res.status(500).json({ message: 'Internal server error '});
+		})
+})
+
+
+
+
 // --------------------- PUT -----------------------
+app.put('/users/:id', (req, res) => {
+	if (!(req.params.id && req.body.id && req.params.id === req.body.id)) {
+		res.status(400).json({
+			error: 'Request path id and request body id values must match'
+		});
+	}
+
+	const updated = {};
+	const updateableFields = ['budget', 'giftLists'];
+	updateableFields.forEach(field => {
+		if (field in req.body) {
+			updated[field] = req.body[field];
+		}
+	})
+
+	UserData
+		.findByIdAndUpdate(req.params.id, { $set: updated }, { new: true })
+		.then(updatedUser => res.status(204).end())
+		.catch(err => res.status(500).json({ message: 'Something went wrong' }))
+})
+
+
+
+
+
 // -------------------- DELETE ---------------------
+app.delete('/users/:id', (req, res) => {
+	UserData
+		.findByIdAndRemove(req.params.id)
+		.then(console.log('Deleting a user profile'))
+		.then(user => res.status(204).end())
+		.catch(err => res.status(500).json({ message: 'Intenal server error '}));
+})
+
+
+
+
+
 
 // --------------- RUN/CLOSE SERVER  -----------------
+
+let server;
 
 function runServer(databaseUrl = DATABASE_URL, port = PORT) {
 	return new Promise((resolve, reject) => {

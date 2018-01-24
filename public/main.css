@@ -10,6 +10,10 @@ label {
 	cursor: pointer;
 }
 
+h1 {
+	 font-size: 1em;
+}
+
 h3 {
 	line-height: .1em;
 }
@@ -79,7 +83,7 @@ li {
 	font-weight: bold;
 }
 
-.edit-budget {
+.edit-alt {
 	font-size: 1em;
 	font-weight: bold;
 	color: #3707EE;
