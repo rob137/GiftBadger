@@ -270,10 +270,16 @@ function createUpcomingEventsListHtml(giftListArrItem) {
 };
 
 function generateGiftsPickedHtml(event, elementClass) {
-	let giftsPickedHtml = `<span class="${elementClass}">`;
+	let giftsPickedHtml = `<span class="${elementClass}">`, giftLink, giftPrice;
 	(event.giftsPicked).forEach(giftPicked => {
+		if (giftPicked.giftLink != "") {
+			giftLink = giftPicked.giftLink;
+		} else {
+			giftLink = createGoogleShoppimgUrl(giftPicked.giftName);
+		}
+		giftPrice = giftPicked.cost;
 		giftsPickedHtml += 
-		`<a target="_blank" class="js-gift-picked" href="${giftPicked.giftLink}">${giftPicked.giftName}</a>, `
+		`<a target="_blank" href="${giftLink}" class="js-gift-picked"><span class="js-gift-picked-name">${giftPicked.giftName}</span></a> <span class="js-gift-price">(£${giftPrice})</span>, `
 	});
 	giftsPickedHtml += `</span>`
 	return giftsPickedHtml
@@ -417,17 +423,24 @@ function handleOpenEditPanelClicks() {
 			userEventDate = $(event.target).parent().find('.js-event-date').html();
 			editHtml = generateEditGiftPickedHtml(recipientName, userEventName, userEventDate);
 		}
-		// ... and populate the edit panel with it, and show the panel.
+		
+		// for gift picker edit panel - listener for clicks to ideas  
+		if ($(event.target).hasClass('js-edit-gift-ideas')) {
+			listenForClickToAddGiftIdeaToEvent()
+		}
+		// Populate the edit panel with the HTML, and show the panel.
 		$('.js-edit-panel').show();
 		$('.js-edit-panel-inner').append(editHtml);
-		let newHtml = getGiftsAlreadyPicked()
-			.replace(/<a target="_blank" c/g, '<li><a target="_blank" c')
-			.replace(/<\/a>,/g, '</a> <a target="_blank" href="javascript:;" class="js-remove remove">remove</a><br></li>')
-			.replace(/class="js-gift-picked"/g, 'class="js-gift-picked-edit-list-items"');
-		$('.js-edit-panel-gifts-picked-list').html(newHtml);
-		listenForClickToGiftIdeaToEvent();
 		handleClicksWithinEditPanel();
-	})
+
+		// for 'gifts picker' edit panel  
+		/// !!!!!!!!!!!! 26/1 I INTEND TO MAKE THIS DEFUNCT THROUGH WISER USAGE OF 'SPAN'
+		// js-gift-picked-name, js-gift-picked-price, and href
+		if ($(event.target).hasClass('js-edit-gift-picked')) {
+			let newHtml = getGiftsAlreadyPicked();
+			$('.js-edit-panel-gifts-picked-list').html(newHtml);
+		}
+	});
 }
 
 
@@ -437,29 +450,43 @@ function handleClicksWithinEditPanel() {
 	let usersNewGiftIdea, usersNewGiftIdeaHtml, usersNewGiftName, usersNewGiftPrice, 
 	usersNewGiftPickedHtml, usersNewGiftUrl;
 	$(".js-edit-panel").on('click', function(event) {
-		event.stopPropagation();
-		event.preventDefault();
+		if ($(event.target).is('button') || $(event.target).is('input')) {
+			event.stopPropagation();
+			event.preventDefault();
+		}
 	// for events - when user submits shopping url of gift for a specific event
 		if ($(event.target).hasClass('js-add-to-gift-picked-list')) {
 			// Validation
 			usersNewGiftName = $('.js-user-gift-picked').val(); 
 			usersNewGiftUrl = $('.js-user-gift-picked-url').val();
 			usersNewGiftPrice = $('.js-user-gift-picked-price').val();
-			console.log(usersNewGiftName, usersNewGiftUrl, usersNewGiftPrice);
-			if (usersNewGiftName && usersNewGiftPrice && usersNewGiftUrl && validateUrl(usersNewGiftUrl)) {
-				usersNewGiftPickedHtml = `<a href="${usersNewGiftUrl}"><span class="js-gift-picked-input">${usersNewGiftName}</span></a> (£${usersNewGiftPrice}) <a target="_blank" href="javascript:;" class="js-remove remove">remove</a>`
+			
+			// For gifts with no url from user - gives gift a google shopping search url
+			if (usersNewGiftUrl === "") {
+				 usersNewGiftUrl = createGoogleShoppimgUrl(usersNewGiftName);
+			}
+
+			// If user provides an (optional) url, check it
+			if (usersNewGiftUrl.length > 0) {
+				if (!validateUrl(usersNewGiftUrl)) {
+					alert('Incomplete Url!  Please either copy-paste a valid url or leave url field blank.');
+					return;
+				}
+			}
+			// Then check the other fields and add relevant html, and wipe the input fields
+			if (usersNewGiftName && usersNewGiftPrice) {
+				usersNewGiftPickedHtml = `
+				<li class="js-gift-picked-edit-list-item">
+					<a target="_blank" href="${usersNewGiftUrl}">
+						<span class="js-gift-picked-input js-gift-picked-name">${usersNewGiftName}</span></a> (£<span class="js-gift-picked-price">${usersNewGiftPrice}</span>) 
+						<a target="_blank" href="javascript:;" class="js-remove remove">remove</a>,
+					</li>`
 				$('.js-edit-panel-gifts-picked-list').append(usersNewGiftPickedHtml);
 				$('.js-user-gift-picked').val('');
-				$('.js-user-gift-url').val('');
-				$('.js-user-gift-price').val('');
+				$('.js-user-gift-picked-url').val('');
+				$('.js-user-gift-picked-price').val('');
 			} else {
-				alert('Please enter a gift, its price and copy/paste a valid url!')
-			}
-		} else if ($(event.target).hasClass('js-check-url')) {	
-				// Validation
-			if (!validateUrl($(event.target).parent().find('.js-user-gift-picked-url').val())) {				
-				alert('Please copy-paste a valid url');
-				return;
+				alert('Please enter a gift and its price!')
 			}
 		} else if ($(event.target).hasClass('js-submit-edit')) {
 			handleEditSubmit(event.target);
@@ -468,7 +495,6 @@ function handleClicksWithinEditPanel() {
 		// For when user clicks 'Add' button to add a gift idea
 		}	else if ($(event.target).hasClass('js-add-to-gift-idea-list')) {
 			// Validation
-			console.log(1);
 			if ($('.js-user-gift-idea').val()) {
 				usersNewGiftIdea = $('.js-user-gift-idea').val(); 
 				usersNewGiftIdeaHtml = `<li><span class="js-gift-idea-input">${usersNewGiftIdea}</span>  <a target="_blank" href="javascript:;" class="js-remove remove">remove</a></li>`
@@ -497,7 +523,8 @@ function handleClicksWithinEditPanel() {
 function handleEditSubmit(target) {
 	let newBudget, newGiftList, newGiftIdeaListArr = [], newEventListArr = [], 
 	newEventListObjArr = [], eventDateArr = [], eventDateObjArr = [], giftsPicked,
-	newGiftName, newGiftUrl, newGiftsPickedArr = [];
+	newGiftName, newGiftUrl, newGiftsPickedArr = [], aElement, giftPickedName,
+	giftPickedPrice, giftPickedUrl;
 	
 		// for saving changes to budget
 	if ($(target).hasClass('js-submit-edit-budget')) {
@@ -535,12 +562,33 @@ function handleEditSubmit(target) {
 		
 		// for saving changes to the 'picked items' list 
 	} else if ($(target).hasClass('js-submit-edit-gift-picked')) {
-		$('.js-gift-picked-edit-list-items').each( (index, value) => {
-			newGiftIdeaListArr.push($(value).text())
-		});
 		
-		//  WANT TO SUBMIT an object to the db: {}
-		/*
+		function GiftPicked(newGiftPickedArr) {
+			this.giftName = newGiftPickedArr[0];
+			this.giftLink = newGiftPickedArr[1];
+			this.cost = newGiftPickedArr[2];
+		} // !!!!!!
+		
+		$('.js-gift-picked-edit-list-item').each( (index, value) => {
+			aElement = $(value).html();
+			giftPickedUrl = $(aElement).attr("href");
+			giftPickedName = "";
+			giftPickedPrice = "";
+			console.log(giftPickedUrl,giftPickedName,giftPickedPrice);
+		})
+			// newGiftIdeaListArr.push($(value).text())
+	
+		
+/*
+		js-gift-picked-name
+		js-gift-picked-price
+		giftPickedName
+		giftPickedPrice
+		giftPickedUrl
+*/
+
+
+	/*
 			"giftsPicked": [{
 					"giftName": "Cocoa Powder",
 					"giftLink": "",
@@ -550,12 +598,6 @@ function handleEditSubmit(target) {
 			] 
 		
 
-		function GiftPicked(giftName, giftLink, cost) {
-			this.giftName = ;
-			this.giftLink = ;
-			this.cost = ;
-		} 
-		
 		$('.js-gift-idea-input').each( (index, value) => {
 			newGiftIdeaListArr.push($(value).text())
 		});
@@ -563,8 +605,8 @@ function handleEditSubmit(target) {
 
 		giftPicked = new GiftPicked(giftName, giftLink, cost);
 		giftsPicked.push(giftPicked)
-
-*/
+	
+	*/
 		
 	} else {
 		console.error('Submission type error!');
@@ -676,14 +718,14 @@ function generateEditGiftPickedHtml(recipientName, userEventName, userEventDate)
 	});
 	return `					<form>
 						<h3>${recipientName}: <span class="js-event-header">${userEventName} on ${userEventDate}</span></h3>
-						<p>Gifts chosen so far:<br> <span class="js-edit-panel-gifts-picked-list"></span></p>
+						<p>Gifts chosen so far:</p><ul class="js-edit-panel-gifts-picked-list"></ul>
 						<label for="gift-picked">The name of a new gift you will get for this event:</label>
 						<input type="text" name="gift-picked" id="gift-picked" class="js-user-gift-picked" value="" required>
 						<br>
-						<label for="gift-picked-url">Paste the link to the online shopping page for this gift</label>
+						<label for="gift-picked-url">Paste the link to an online shopping page for this gift</label>
 						<input type="text" name="gift-picked-url" id="gift-picked-url" class="js-user-gift-picked-url" required>
 						<label for="gift-picked-price">Enter the price for this gift</label>
-						<input type="text" name="gift-picked-price" id="gift-picked-price" class="js-user-gift-picked-price" required>
+						<input type="number" name="gift-picked-price" id="gift-picked-price" class="js-user-gift-picked-price" required>
 						<button class="js-add-to-gift-picked-list js-check-url">Add</button>
 						<input type="submit" class="js-submit-edit js-submit-edit-gift-picked" value="Save Changes and Close" name="submit">
 						<button class="js-cancel-edit">Discard Changes</button>
@@ -695,7 +737,7 @@ function generateEditGiftPickedHtml(recipientName, userEventName, userEventDate)
 
 // For adding gift ideas to 'gifts picked for event'. 
 // Gets the gift name and puts it in the gift name input box.
-function listenForClickToGiftIdeaToEvent() {
+function listenForClickToAddGiftIdeaToEvent() {
 	let giftForGiving;
 	$('.js-give').on('click', function(event) {
 		giftForGiving = $(event.target).siblings(".js-gift-idea").text();
