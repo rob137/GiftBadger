@@ -16,6 +16,8 @@ function checkUserLoggedIn() {
 	handleLoginOrRegister();
 }
 
+
+
 // ------------------------------ LOGIN PAGE ------------------------------
 function loadLoginOrRegisterHtml() {
 	let loginOrRegisterHtml = `
@@ -61,6 +63,8 @@ function attemptLogin(usernameInput, passwordInput) {
 		loadPersonalisedPage(usernameInput)
 	} 
 }
+
+
 
 // -------------------------- REGISTRATION PAGE --------------------------------
 function loadRegisterHtml() {
@@ -118,10 +122,12 @@ function handleRegistrationSubmission() {
 			$(".js-login-or-register").html('');
 			// Load user's gift list!
 			loadPersonalisedPage(usernameInput);
+			
 		} 
 	});
 
 }
+
 
 
 // --------------------- REGISTRATION FORM VALIDATION ----------------------------
@@ -159,27 +165,55 @@ function validateUrl(input) {
 	return re.test(input);
 }
 
+
+
 // -------------------------- LOAD PERSONALISED CONTENT ---------------------------
 // Kickstarts functions that rely on user json
 function loadPersonalisedPage(usernameInput) {
-	let firstName;
+	let firstName, email;
 	$.getJSON(`/users/${usernameInput}`, function(userJson) {
 		globalUserData = userJson;
 		firstName = globalUserData.firstName;
+		email = globalUserData.email;
 		setTimeout(function() {
 			showPersonalisedHeader(firstName);
 			showGiftLists(firstName);
-  		showCalendar(firstName);
+  		showCalendar(email);
   		handleOpenEditPanelClicks();
   		listenForEscapeOnEditPanel();
+  		handleLogout();
   	}, 1000);
 	});
 }
 
+// Returns user to login page
+function handleLogout() {
+	$('main').on('click', function(event) {
+		if ($(event.target).hasClass('js-logout')) {
+			resetHtml();
+			checkUserLoggedIn()
+		}
+	});
+}
+
+// Wipes all dynamically loaded html from DOM
+function resetHtml() {
+	$('.js-personalised-header').html('');
+	$('.js-budget').html('');
+	$('.js-gift-lists').html('');
+	$('.js-calendar').html('');
+	hideAndWipeEditPanel();
+}
+
+// displays page banner with user's first name 
 function showPersonalisedHeader(firstName) {
 	let titleName = firstName.charAt(0).toUpperCase() + firstName.slice(1, firstName.length);
-	$('.js-personalised-header').html(`<h1>${titleName}'s Gift Organiser</h1>`)
+	$('.js-personalised-header')
+		.html(`<h1>${titleName}'s Gift Organiser</h1>
+					<p><a  class="js-logout" target="_blank" href="javascript:;">Logout</a></p>`);
 }
+
+
 
 // ---------------------------- LOAD GIFT LISTS ---------------------------------
 /*
@@ -202,7 +236,7 @@ function showGiftLists(firstName) {
 	showBudget();
 }
 
-// Organises and displays html (relies on other functions for html sub-sections)
+// Returns html for user's gift lists to showGiftsLists() (calls other functions for html sub-sections)
 function createGiftListsHtml() {
 	let giftListsArr = globalUserData.giftLists, giftListsHtml = `<h1>Gift List</h1>`, giftIdeasHtmlArr;
 	// Html sub-sections populated by other functions
@@ -237,7 +271,7 @@ function createGiftListsHtml() {
 	return giftListsHtml;
 }
 
-// Prepares events html for each gift list in user's profile
+// Prepares events html for each gift list in user's profile; returns it to createGiftListsHtml()
 function createUpcomingEventsListHtml(giftListArrItem) {
 	// *** Opening ul tag *** 
 	let upcomingEventsListHtml = `<ul>`, addToCalendarHtml, monthName, shoppingUrl, giftPickedHtml, eventDateText, eventDate;
@@ -270,6 +304,7 @@ function createUpcomingEventsListHtml(giftListArrItem) {
 	return upcomingEventsListHtml;
 };
 
+// As above, but html is for gifts picked for specific events
 function generateGiftsPickedHtml(event) {
 	let giftsPickedHtml = ``, giftLink, giftPrice;
 	(event.giftsPicked).forEach(giftPicked => {
@@ -328,7 +363,6 @@ function prepareAddToCalendarHtml(event, giftListArrItem) {
 	;
 }
 
-
 // Creates text and link for user's gift ideas
 function createGiftIdeasHtml(giftIdea) {
 	let giftIdeasHtmlArr = [], shoppingUrl;
@@ -340,7 +374,7 @@ function createGoogleShoppimgUrl(gift) {
 	return `https://www.google.co.uk/search?tbm=shop&q=${gift}`
 }
 
-// Needs refactor for conciseness
+// Called by showGiftLists(). Creates and shows a budget 'progress bar' and numbers  
 function showBudget() {
 	let budgetHtml, totalBudget, giftLists, eventsArr, spendSoFar, spanWidth, percentageSpend;
 	// default budget is 0, so this checks user has provided a budget
@@ -381,17 +415,18 @@ function showBudget() {
 					</div>`;
 	}
 	$('.js-budget').append(budgetHtml);
-
 }
 
-function showCalendar() {
+// Loads iFrame for google calendar using user's email account 
+function showCalendar(email) {
 	$('.calendar')
 		.html(`
 			<h2>Your Calendar</h2>
 			<iframe class="calendar" src="https://calendar.google.com/calendar/embed?
-			src=${globalUserData.email}" style="border: 0" width="800" height="600" 
+			src=${email}" style="border: 0" width="800" height="600" 
 			frameborder="0" scrolling="no"></iframe>`);
 }
+
 
 
 // ------------------ OPEN EDIT PANEL & ASSOCIATED HTML ------------------------------
@@ -430,8 +465,6 @@ function handleOpenEditPanelClicks() {
 		handleClicksWithinEditPanel();
 
 		// for 'gifts picker' edit panel  
-		/// !!!!!!!!!!!! 26/1 I INTEND TO MAKE THIS DEFUNCT THROUGH WISER USAGE OF 'SPAN'
-		// js-gift-picked-name, js-gift-picked-price, and href
 		if ($(event.target).hasClass('js-edit-gift-picked')) {
 			let newHtml = getGiftsAlreadyPicked();
 			$('.js-edit-panel-gifts-picked-list').html(newHtml);
@@ -446,6 +479,7 @@ function handleOpenEditPanelClicks() {
 function handleClicksWithinEditPanel() {
 	let usersNewGiftIdea, usersNewGiftIdeaHtml, usersNewGiftName, usersNewGiftPrice, 
 	usersNewGiftPickedHtml, usersNewGiftUrl, usersNewGiftlistName;
+
 	$(".js-edit-panel").on('click', function(event) {
 		if ($(event.target).is('button') || $(event.target).is('input')) {
 			event.stopPropagation();
@@ -531,7 +565,7 @@ function handleRemoveClick(target) {
 }
 
 function handleEditSubmit(target) {
-	let newBudget, newGiftList, newGiftIdeaListArr = [], newEventListArr = [], 
+	let newBudget, newGiftList = [], newGiftIdeaListArr = [], newEventListArr = [], 
 	newEventListObjArr = [], eventDateArr = [], eventDateObjArr = [], giftsPicked,
 	newGiftName, newGiftUrl, aElement, giftPickedName,
 	giftPickedPrice, giftPickedUrl, giftsPickedDataArr, newGiftsPickedArr = [];
@@ -547,7 +581,8 @@ function handleEditSubmit(target) {
 		// for saving delete/add giftlists 
 		// (i.e. adding/removing a recipient name)
 	} else if ($(target).hasClass('js-submit-edit-giftlist')) {
-		newGiftList = $('.js-giftlist-name-list').val();
+		$('.js-giftlist-name').each((index,value) => newGiftList.push($(value).text()));
+
 		// ===== Need to submit newGiftList in put request ======
 		console.log('For adding/removing from giftLists arr:');
 		console.log(newGiftList);
@@ -691,8 +726,7 @@ function generateEditGiftIdeasHtml(recipientName) {
 					<br><br>
 					<p>Gift ideas for ${recipient.name} so far:</p> 
 					${ul}
-				</form>
-`;
+				</form>`;
 };
 
 function generateEditEventsHtml(recipientName) {
@@ -761,7 +795,7 @@ function listenForClickToAddGiftIdeaToEvent() {
 		$(event.target).closest('div').find('.js-added-message').remove();;
 		$(event.target).after('<span class="js-added-message"> Added - scroll up!</span>');
 		$(event.target).closest('div').find('.js-user-gift-picked').attr('value', giftForGiving);
-	})
+	});
 }
 
 
