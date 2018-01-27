@@ -16,11 +16,14 @@ The app will allow users to:
 This information (including reminders) will then be added to their Google Calendar.
 
 User stories.  As a user:
-- I should be able to sign up and log in/out.
-- I should be able to view (GET) the information I've entered in a list format and on a calendar.
-- It should be easy to create (POST) recipients and gift lists.
-- It should be easy to edit (PUT) entries (and obvious how).
-- I should be able to remove (DELETE) entries.
+- It should be easy to create (POST) a secure user profile.
+- I should be able to view log in to view (GET) the information I've entered in a list format and on a calendar.
+- It should be easy to edit (PUT) the following: 
+	- Recipients
+	- Gift ideas
+	- Decisions on which gifts to give
+	- My budget 
+- I should be able to remove (DELETE) my profile.
 - It should be clear to me what the app is for.
 - It should be possible to add the information to my Google Calendar.
 - I should be able to record my annual gift budget and see how much money I have remaining for each year.
