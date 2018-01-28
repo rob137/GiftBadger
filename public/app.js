@@ -5,10 +5,27 @@ const monthNames = ["January", "February", "March", "April", "May", "June",
   "July", "August", "September", "October", "November", "December"
 ];
 
+// Object constructors to enable PUT requests
+function Event(eventArr) {
+	this.eventName = eventArr[0];
+	this.eventDate = eventArr[1];
+	this.giftsPicked = [];
+}
+function GiftPicked(giftsPickedDataArr) {
+	this.giftName = giftsPickedDataArr[0];
+	this.giftLink = giftsPickedDataArr[1];
+	this.cost = giftsPickedDataArr[2];
+} 
+function GiftList(giftsListName) {
+	this.name = giftsListName;
+	this.events = [];
+	this.giftIdeas = [];
+} 
+
 function checkUserLoggedIn() {
 	// ===== Aspiration: app remembers whether user is logged in. ===== 
 	/* if (user is logged in) {
-		loadPersonalisedPage(for user)
+		getDataUsingUsername(for user)
 	} else {
 	*/
 	// for now, we assume user isn't logged in: 
@@ -21,7 +38,7 @@ function checkUserLoggedIn() {
 // ------------------------------ LOGIN PAGE ------------------------------
 function loadLoginOrRegisterHtml() {
 	let loginOrRegisterHtml = `
-	<h1>Gift App</h1>
+	<h1>Gift Organiser</h1>
 				<form>
 					<h2>Login</h2>
 					<label for="username">Username:</label>
@@ -48,7 +65,7 @@ function handleLoginOrRegister() {
 	$('.js-register-button').on('click', function(event) {
 		event.preventDefault();
 		loadRegisterHtml();
-		handleRegistrationSubmission();
+		listenForRegistrationClicks();
 	});
 }
 
@@ -58,9 +75,9 @@ function attemptLogin(usernameInput, passwordInput) {
 	// For now:
 	if (usernameInput) {
 		// remove login page
-		$(".js-login-or-register").html('');
+		$(".js-login-or-register").html('<p>Loading...</p>');
 		// load user's giftlist!
-		loadPersonalisedPage(usernameInput)
+		getDataUsingUsername(usernameInput)
 	} 
 }
 
@@ -69,62 +86,72 @@ function attemptLogin(usernameInput, passwordInput) {
 // -------------------------- REGISTRATION PAGE --------------------------------
 function loadRegisterHtml() {
 	let newUserDetails, setupHtml, registerHtml = `
-						<h2>Register</h2>
-				<form id="test">
+				<h1>Gift Organiser</h1>
+				<h2>Register</h2>
+				<form class="js-registration registration">
 					<label for="username">Username:</label>
 					<input type="text" name="username" id="username" class="js-username-input" required><br>
 					<label for="firstName">First Name:</label>
 					<input type="text" id="first-name" name="first name" class="js-first-name-input" required><br>
-					<label for="password">Password:</label>
-					<input type="password" name="password" id="password" class="js-password-input" required><br>
 					<label for="email">Email:</label>
 					<input type="text" name="email" id="email" class="js-email-input" required><br>
-					<input type="submit" class="js-register-submit-button">
+					<label for="password">Password:</label>
+					<input type="password" name="password" id="password" class="js-password-input" required><br>
+					<input type="submit" class="js-register-submit-button register-button">
+					<button class="js-registration-back register-button">Back</button>
 				</form>
 	`
 	$(".js-login-or-register").html(registerHtml);	
 }
 
-// Runs validation using other functions (see below), submits registration 
-// and then calls loadPersonalisedPage()
-function handleRegistrationSubmission() {
-	$(".js-register-submit-button").on("click", function(event) {
+function listenForRegistrationClicks() {
+	$(".js-registration").on("click", function(event) {
+		event.stopPropagation();
 		event.preventDefault();
-
-		// <input> 'required' attribute doesn't work in some browsers when loaded asynchronously
-		// So we check these fields are completed:
-		let emailInput, usernameInput, firstNameInput, passwordInput, registeringUser;
-		emailInput = $('.js-email-input').val();
-		// ===== deactivated for now: passwordInput = $('.js-password-input').val(); =====
-		usernameInput = $('.js-username-input').val().toLowerCase();
-		firstNameInput = $('.js-first-name-input').val().toLowerCase();
-			
-		if (checkFormIsCompleted(usernameInput, firstNameInput, /*passwordInput,*/ emailInput)) {
-			// ===== Aspiration: create new user in Db! ===== 
-			$.ajax({
-				url: "/users",
-				contentType: 'application/json',
-				data: JSON.stringify({
-					username: usernameInput,
-					firstName: firstNameInput,
-					email: emailInput
-				}),
-				success: function(data) {
-					alert('Registration complete!');
-				},
-				error: function (){
-					console.log('Error')
-				},
-				type: 'POST'
-			});
-
-			// remove login page
-			$(".js-login-or-register").html('');
-			// Load user's gift list!
-			loadPersonalisedPage(usernameInput);
-			
-		} 
+		if ($(event.target).hasClass('js-register-submit-button')) {
+			handleRegistrationSubmission()
+		} else if ($(event.target).hasClass('js-registration-back')) {
+			resetHtml();
+			checkUserLoggedIn()
+		};
 	});
+}
+
+// Runs validation using other functions (see below), submits registration 
+// and then calls getDataUsingUsername()
+function handleRegistrationSubmission() {
+	
+	// <input> 'required' attribute doesn't work in some browsers when loaded asynchronously
+	// So we check these fields are completed:
+	let emailInput, usernameInput, firstNameInput, passwordInput, registeringUser;
+	emailInput = $('.js-email-input').val();
+	// ===== deactivated for now: passwordInput = $('.js-password-input').val(); =====
+	usernameInput = $('.js-username-input').val().toLowerCase();
+	firstNameInput = $('.js-first-name-input').val().toLowerCase();
+			
+	if (checkFormIsCompleted(usernameInput, firstNameInput, /*passwordInput,*/ emailInput)) {
+		$.ajax({
+			url: "/users",
+			contentType: 'application/json',
+			data: JSON.stringify({
+				username: usernameInput,
+				firstName: firstNameInput,
+				email: emailInput
+			}),
+			success: function(data) {
+			},
+			error: function (){
+				console.log('Error')
+			},
+			type: 'POST'
+		});
+	
+		// remove login page
+		resetHtml();
+		// Load user's gift list!
+		setTimeout(getDataUsingUsername(usernameInput), 500);
+
+	} 
 
 }
 
@@ -169,36 +196,64 @@ function validateUrl(input) {
 
 // -------------------------- LOAD PERSONALISED CONTENT ---------------------------
 // Kickstarts functions that rely on user json
-function loadPersonalisedPage(usernameInput) {
-	let firstName, email;
+function getDataUsingUsername(usernameInput) {
 	$.getJSON(`/users/${usernameInput}`, function(userJson) {
 		globalUserData = userJson;
-		firstName = globalUserData.firstName;
-		email = globalUserData.email;
 		setTimeout(function() {
-			showPersonalisedHeader(firstName);
-			showGiftLists(firstName);
-  		showCalendar(email);
-  		handleOpenEditPanelClicks();
-  		listenForEscapeOnEditPanel();
-  		handleLogout();
-  	}, 1000);
+			loadPersonalisedPage();
+  	}, 300);
 	});
 }
 
+function loadPersonalisedPage() {
+	let firstName = globalUserData.firstName, email = globalUserData.email;
+	resetHtml();
+	showPersonalisedHeader(firstName);
+	showGiftLists(firstName);
+  showCalendar(email);
+  handleOpenEditPanelClicks();
+};
+
 // Returns user to login page
-function handleLogout() {
-	$('main').on('click', function(event) {
+function listenForClicksToHeader() {
+	$('.js-personalised-header').on('click', function(event) {
+		// For logging out
 		if ($(event.target).hasClass('js-logout')) {
 			resetHtml();
-			checkUserLoggedIn()
+			checkUserLoggedIn();
+		
+		// for deleting user profile
+		} else if ($(event.target).hasClass('js-delete-profile')) {
+			handleDeleteProfile();
 		}
 	});
+}
+
+function handleDeleteProfile() {
+	if (window.confirm(`This will permanently delete your profile! Are you sure?`)) {
+		$.ajax({
+			url: `/users/${globalUserData.id}`,
+			contentType: 'application/json',
+			data: JSON.stringify({
+				id: globalUserData.id
+			}),
+			success: function(data) {
+				alert('Your profile was deleted!');
+				resetHtml();
+				checkUserLoggedIn();
+			},
+			error: function (){
+				console.log('Error')
+			},
+			type: 'DELETE'
+		});
+	}		
 }
 
 // Wipes all dynamically loaded html from DOM
 function resetHtml() {
 	$('.js-personalised-header').html('');
+	$('.js-login-or-register').html('');
 	$('.js-budget').html('');
 	$('.js-gift-lists').html('');
 	$('.js-calendar').html('');
@@ -210,7 +265,8 @@ function showPersonalisedHeader(firstName) {
 	let titleName = firstName.charAt(0).toUpperCase() + firstName.slice(1, firstName.length);
 	$('.js-personalised-header')
 		.html(`<h1>${titleName}'s Gift Organiser</h1>
-					<p><a  class="js-logout" target="_blank" href="javascript:;">Logout</a></p>`);
+					<p><a  class="js-logout" target="_blank" href="javascript:;">Logout</a></p>
+					<p><a  class="js-delete-profile" target="_blank" href="javascript:;">Delete your profile</a></p>`);
 }
 
 
@@ -238,7 +294,7 @@ function showGiftLists(firstName) {
 
 // Returns html for user's gift lists to showGiftsLists() (calls other functions for html sub-sections)
 function createGiftListsHtml() {
-	let giftListsArr = globalUserData.giftLists, giftListsHtml = `<h1>Gift List</h1>`, giftIdeasHtmlArr;
+	let giftListsArr = globalUserData.giftLists, giftListsHtml = `<h2>Gift Lists</h2>`, giftIdeasHtmlArr;
 	// Html sub-sections populated by other functions
 	let upcomingEventsListHtml, addToCalendarHtml, giftIdeasHtml = ``;
 	giftListsHtml += `
@@ -455,8 +511,8 @@ function handleOpenEditPanelClicks() {
 		// edit panel for changing gifts picked for a particular event
 		} else if ($(event.target).hasClass('js-edit-gift-picked')) {
 			// Gets the event name from the dom - used to look up event object in json
-			userEventName = $(event.target).parent().find('.js-event-name').html();
-			userEventDate = $(event.target).parent().find('.js-event-date').html();
+			userEventName = $(event.target).parent().parent().find('.js-event-name').html();
+			userEventDate = $(event.target).parent().parent().find('.js-event-date').html();
 			editHtml = generateEditGiftPickedHtml(recipientName, userEventName, userEventDate);
 		}
 		// Populate the edit panel with the HTML, and show the panel.
@@ -478,14 +534,17 @@ function handleOpenEditPanelClicks() {
 // Handles clicks in edit panel (add, save, cancel etc)	
 function handleClicksWithinEditPanel() {
 	let usersNewGiftIdea, usersNewGiftIdeaHtml, usersNewGiftName, usersNewGiftPrice, 
-	usersNewGiftPickedHtml, usersNewGiftUrl, usersNewGiftlistName;
+	usersNewGiftPickedHtml, usersNewGiftUrl, usersNewGiftlistName,
+
+	//Events
+	userEventName, userEventDate, userEventHtml;
 
 	$(".js-edit-panel").on('click', function(event) {
 		if ($(event.target).is('button') || $(event.target).is('input')) {
 			event.stopPropagation();
 			event.preventDefault();
 		}
-	// for events - when user submits shopping url of gift for a specific event
+		// Gift decision: when user submits shopping url of gift for a specific event
 		if ($(event.target).hasClass('js-add-to-giftlist-name-list')) {
 			usersNewGiftlistName = $('.js-giftlist-input').val();
 			if (usersNewGiftlistName.length > 0) {
@@ -497,7 +556,7 @@ function handleClicksWithinEditPanel() {
 			usersNewGiftUrl = $('.js-user-gift-picked-url').val();
 			usersNewGiftPrice = $('.js-user-gift-picked-price').val();
 			
-			// For gifts with no url from user - gives gift a google shopping search url
+			// Google shopping search url: for gifts with no url from user
 			if (usersNewGiftUrl === "") {
 				 usersNewGiftUrl = createGoogleShoppimgUrl(usersNewGiftName);
 			}
@@ -528,7 +587,7 @@ function handleClicksWithinEditPanel() {
 			handleEditSubmit(event.target);
 		} else if ($(event.target).hasClass('js-cancel-edit')) {
 				hideAndWipeEditPanel();
-		// For when user clicks 'Add' button to add a gift idea
+		// Gift Ideas: For when user clicks 'Add' button to add a gift idea
 		}	else if ($(event.target).hasClass('js-add-to-gift-idea-list')) {
 			// Validation
 			if ($('.js-user-gift-idea').val()) {
@@ -538,18 +597,20 @@ function handleClicksWithinEditPanel() {
 			} else {
 				alert('Please enter a gift idea!')
 			}
-		// For when user clicks to 'Add' button to add changes to event list
+		// Events: For when user clicks to 'Add' button to add changes to event list
 		} else if ($(event.target).hasClass('js-add-to-event-list')) {
 			// Validation
 			if ($('.js-user-event-name').val()  && checkEventDateIsInFuture()) {
 				userEventName = $('.js-user-event-name').val();
 				userEventDate =  $('.js-user-event-date').val();
-				userEventHtml = `<li>${userEventName} on ${userEventDate} <a target="_blank" href="javascript:;" class="js-remove remove">remove</a></li>`
+				userEventHtml = `
+				<li><span class="js-event-list-input">${userEventName} on ${userEventDate}</span> 
+				<a target="_blank" href="javascript:;" class="js-remove remove">remove</a></li>`
 				$('.event-list').append(userEventHtml);
 			} else {
 				alert('Please enter an event name and future date!');
 			}
-		// For when user click 'Remove' on an existing gift idea or upcoming event
+		// Remove from edit panel: for when user clicks 'Remove' on an existing gift idea or upcoming event
 		}	else if ($(event.target).hasClass('js-remove')) {
 			handleRemoveClick(event.target); 
 		};
@@ -565,66 +626,87 @@ function handleRemoveClick(target) {
 }
 
 function handleEditSubmit(target) {
-	let newBudget, newGiftList = [], newGiftIdeaListArr = [], newEventListArr = [], 
+	let newBudget, newGiftIdeaListArr = [], newEventListArr = [], 
 	newEventListObjArr = [], eventDateArr = [], eventDateObjArr = [], giftsPicked,
 	newGiftName, newGiftUrl, aElement, giftPickedName,
-	giftPickedPrice, giftPickedUrl, giftsPickedDataArr, newGiftsPickedArr = [];
+
+	// Gift ideas?
+	currentNamesInDb = [], currentNamesInEditPanel =[], replacementGiftList = [], giftListName, newGiftList,
+	itemForRemoval, i, length,
+	
+	// GiftLists
+	recipient, giftListToChange,
+
+	// Gift Picked
+	giftPickedPrice, giftPickedUrl, giftsPickedDataArr, newGiftsPickedArr = [], 
+	eventName, eventDate, targetEvent, j;
+
 	
 		// for saving changes to budget
 	if ($(target).hasClass('js-submit-edit-budget')) {
 		newBudget = $('.js-budget-input').val();
-		// ===== Need to submit newBudget in put request ======
-		console.log('For changing budget:');
-		console.log(newBudget);
+		globalUserData.budget = newBudget;
 
-
-		// for saving delete/add giftlists 
-		// (i.e. adding/removing a recipient name)
+		// for saving changes to giftlists 
+		// (i.e. adding/deleting a recipient name)
 	} else if ($(target).hasClass('js-submit-edit-giftlist')) {
-		$('.js-giftlist-name').each((index,value) => newGiftList.push($(value).text()));
+		$('.js-giftlist-name').each((index,value) => {
+			currentNamesInEditPanel.push($(value).text());
+		});
+		globalUserData.giftLists.forEach(list => {
+			currentNamesInDb.push(list.name);
+		});
 
-		// ===== Need to submit newGiftList in put request ======
-		console.log('For adding/removing from giftLists arr:');
-		console.log(newGiftList);
+		// If a name is in db but not in edit panel, delete from db
+		currentNamesInDb.forEach(nameInDb => {
+			if (currentNamesInEditPanel.indexOf(nameInDb) < 0) {
+				itemForRemoval = globalUserData.giftLists.find(item => {
+					return item.name === nameInDb;
+				});
+				i = globalUserData.giftLists.indexOf(itemForRemoval);
+				length = globalUserData.giftLists.length;
+				globalUserData.giftLists[i] = globalUserData.giftLists[length-1];
+				globalUserData.giftLists.pop(); 
+			}
+		});
+
+		// If a name is in edit panel but not in db, add to db
+		currentNamesInEditPanel.forEach(nameInEditPanel => {
+			if (currentNamesInDb.indexOf(nameInEditPanel) < 0) {
+				globalUserData.giftLists.push(new GiftList(nameInEditPanel));
+			}
+		})
 		// for saving changes to gift ideas within a giftlist
 	} else if ($(target).hasClass('js-submit-edit-gift-idea-list')) {
 		$('.js-gift-idea-input').each( (index, value) => {
 			newGiftIdeaListArr.push($(value).text())
 		});
-		console.log('For giftIdeas in each giftList:');
-		console.log(newGiftIdeaListArr);
-
+		recipient = $('.js-giftlist-recipient').text()
+		giftListToChange = globalUserData.giftLists.find(item => {return item.name === recipient})
+		i = globalUserData.giftLists.indexOf(giftListToChange);
+		globalUserData.giftLists[i].giftIdeas = newGiftIdeaListArr; 
 		// for saving changes to the events list
 	} else if ($(target).hasClass('js-submit-edit-event-list')) {
 		$('.js-event-list-input').each( (index, value) => {
 			newEventListArr.push($(value).text())
 		});
-		function Event(eventArr) {
-			this.eventName = eventArr[0];
-			this.eventDate = eventArr[1];
-		}
 		newEventListArr.forEach(newEvent => {
 			let eventDateArr = newEvent.split(' on ');
 			let eventDateObjArr = new Event(eventDateArr);
 			newEventListObjArr.push(eventDateObjArr)
 		});
-		// ===== Need to submit newGiftList as part of giftlist in Put request ======
-		console.log('For Events in each giftList:');
-		console.log(newEventListObjArr);
+		recipient = $('.js-recipient-name').text();
+		recipient = globalUserData.giftLists.find(item => {return item.name === recipient})
+		i = globalUserData.giftLists.indexOf(recipient);
+		globalUserData.giftLists[i].events = newEventListObjArr;
 		
 		// for saving changes to the 'picked items' list 
 	} else if ($(target).hasClass('js-submit-edit-gift-picked')) {
 		
-		function GiftPicked(giftsPickedDataArr) {
-			this.giftName = giftsPickedDataArr[0];
-			this.giftLink = giftsPickedDataArr[1];
-			this.cost = giftsPickedDataArr[2];
-		} // !!!!!!
 		
 		$('.js-gift-picked-edit-list-item').each( (index, value) => {
 			giftsPickedDataArr = [];
 			aElement = $(value).html();
-
 			giftPickedName = $(value).find('.js-gift-picked-name').text();;
 			giftPickedUrl = $(aElement).attr("href");
 			giftPickedPrice = $(value).find('.js-gift-price').text();
@@ -633,14 +715,53 @@ function handleEditSubmit(target) {
 			giftsPickedDataArr.push(giftPickedPrice);
 			newGiftsPickedArr.push(new GiftPicked(giftsPickedDataArr));
 		})
-		console.log('For giftsPicked in Events in each giftList:');
-		console.log(newGiftsPickedArr);
+
+		// Repitition here - refactor out.
+		recipient = $('.js-recipient-name').text();
+		recipient = globalUserData.giftLists.find(item => {return item.name === recipient})
+		i = globalUserData.giftLists.indexOf(recipient);
+
+		eventName = $('.js-event-name-edit').text();
+		eventDate = new Date($('.js-event-date-edit').text());
+		console.log(i);
+		console.log(eventName);
+		console.log(eventDate);
+		targetEvent = globalUserData.giftLists[i].events.find(event => {
+			return event.eventName === eventName && event.eventDate == eventDate;
+		});
+		console.log(targetEvent);
+		j =	globalUserData.giftLists[i].events.indexOf(targetEvent);
+		globalUserData.giftLists[i].events[j].giftsPicked = newGiftsPickedArr;
+		console.log(globalUserData);
+
 	//	===== Need to submit newGiftsPickedArr as the value for 'giftsPicked' in each giftList in Put request ======
 		
 	} else {
 		console.error('Submission type error!');
 	}
+	submitAndRefresh();
 	hideAndWipeEditPanel();
+}
+
+function submitAndRefresh() {
+	$.ajax({
+			url: `/users/${globalUserData.id}`,
+			contentType: 'application/json',
+			data: JSON.stringify({
+				id: globalUserData.id,
+				username: globalUserData.username,
+				budget: globalUserData.budget,
+				giftLists: globalUserData.giftLists
+			}),
+			success: function(data) {
+				globalUserData = data;
+				loadPersonalisedPage();
+			},
+			error: function (){
+				console.log('Error')
+			},
+			type: 'PUT'
+		});
 }
 
 // For edit panel:  takes the heading of the edit panel for 'gifts picked' and
@@ -724,7 +845,7 @@ function generateEditGiftIdeasHtml(recipientName) {
 					<input type="submit" class="js-submit-edit js-submit-edit-gift-idea-list" value="Save Changes and Close" name="submit">
 					<button class="js-cancel-edit">Discard Changes</button>
 					<br><br>
-					<p>Gift ideas for ${recipient.name} so far:</p> 
+					<p>Gift ideas for <span class="js-giftlist-recipient">${recipient.name}</span> so far:</p> 
 					${ul}
 				</form>`;
 };
@@ -748,7 +869,7 @@ function generateEditEventsHtml(recipientName) {
 					<input type="submit" class="js-submit-edit js-submit-edit-event-list" value="Save Changes and Close" name="submit">
 					<button class="js-cancel-edit">Discard Changes</button>
 					<br><br> 
-					<span>Upcoming events for ${recipient.name}:</span>
+					<span>Upcoming events for <span class="js-recipient-name">${recipient.name}</span>:</span>
 					${ul}
 				</form>
 	`;
@@ -768,7 +889,7 @@ function generateEditGiftPickedHtml(recipientName, userEventName, userEventDate)
 		return event.eventName === userEventName 
 	});
 	return `					<form>
-						<h3>${recipientName}: <span class="js-event-header">${userEventName} on ${userEventDate}</span></h3>
+						<h3><span class="js-recipient-name">${recipientName}</span>: <span class="js-event-header"><span class="js-event-name-edit">${userEventName}</span> on <span class="js-event-date-edit">${userEventDate}</span></span></h3>
 						<p>Gifts chosen so far:</p><ul class="js-edit-panel-gifts-picked-list"></ul>
 						<label for="gift-picked">The name of a new gift you will get for this event:</label>
 						<input type="text" name="gift-picked" id="gift-picked" class="js-user-gift-picked" value="" required>
@@ -798,7 +919,6 @@ function listenForClickToAddGiftIdeaToEvent() {
 	});
 }
 
-
 // allows user to close edit panel (and discard changes) by hitting esc key
 function listenForEscapeOnEditPanel() {
 	$('body').keyup(function(event){
@@ -810,5 +930,9 @@ function listenForEscapeOnEditPanel() {
 
 // kickstarts chain of functions
 // checkUserLoggedIn();
+
+
+listenForEscapeOnEditPanel();
+listenForClicksToHeader();
 // For testing:
-loadPersonalisedPage('rob');
+getDataUsingUsername('rob');

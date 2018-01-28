@@ -92,7 +92,10 @@ app.put('/users/:id', (req, res) => {
 
 	UserData
 		.findByIdAndUpdate(req.params.id, { $set: updated }, { new: true })
-		.then(updatedUser => res.status(204).end())
+		.then(updatedUser => {
+			console.log(updatedUser);
+			res.json(updatedUser.serialize()).status(204).end()
+		})
 		.catch(err => res.status(500).json({ message: 'Something went wrong' }))
 })
 
@@ -108,7 +111,6 @@ app.delete('/users/:id', (req, res) => {
 		.then(user => res.status(204).end())
 		.catch(err => res.status(500).json({ message: 'Intenal server error '}));
 })
-
 
 
 
