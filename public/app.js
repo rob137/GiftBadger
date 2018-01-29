@@ -260,21 +260,6 @@ function createGiftIdeasHtml(giftIdea) {
   return `<a target="_blank" href="${shoppingUrl}">${giftIdea}</a>`;
 }
 
-// ---------------------------- LOAD GIFT LISTS ---------------------------------
-/*
-Each gift list is associated with a recipient and takes the following form:
-[Name of recipient]
-[Gift Ideas So Far](editable)
-  - For each gift idea: a link to google shopping search for that gift
-[Upcoming events] (editable), listing gifts chosen for those specific events (also editable)
-  - For each event:
-    - A link to add to user's google calendar]
-    - For gift(s) chosen for the event:
-      - either: a link to a specific online shopping page (if user has provided one)
-      - or: a link to a google shopping search for that gift
-  */
-
-
 // prepares link for adding event (and gift chosen) to calendar
 function prepareAddToCalendarHtml(event, giftListArrItem) {
   let encodedBodyText;
@@ -410,6 +395,18 @@ function createGiftListsHtml() {
   return giftListsHtml;
 }
 
+/*
+Each gift list is associated with a recipient and takes the following form:
+[Name of recipient]
+[Gift Ideas So Far](editable)
+  - For each gift idea: a link to google shopping search for that gift
+[Upcoming events] (editable), listing gifts chosen for those specific events (also editable)
+  - For each event:
+    - A link to add to user's google calendar]
+    - For gift(s) chosen for the event:
+      - either: a link to a specific online shopping page (if user has provided one)
+      - or: a link to a google shopping search for that gift
+  */
 // Kickstarts the chain of functions that render user's gift lists.
 function showGiftLists() {
   const giftListsHtml = createGiftListsHtml();
@@ -604,7 +601,6 @@ function handleEditSubmit(target) {
   hideAndWipeEditPanel();
 }
 
-// ---------------- EDIT PANEL CLICK HANDLERS ----------------------
 // Handles clicks in edit panel (add, save, cancel etc)
 function handleClicksWithinEditPanel() {
   let usersNewGiftIdea;
@@ -710,7 +706,6 @@ function handleClicksWithinEditPanel() {
   });
 }
 
-// ------------------ OPEN EDIT PANEL & ASSOCIATED HTML ------------------------------
 // The edit panel is hidden & blank until user clicks an edit option.
 function handleOpenEditPanelClicks() {
   let editHtml = '';
@@ -787,7 +782,6 @@ function getDataUsingUsername(usernameInput) {
   });
 }
 
-// --------------------- REGISTRATION FORM VALIDATION ----------------------------
 function checkFormIsCompleted(usernameInput, firstNameInput, /* , passwordInput */ emailInput) {
   if (!validateName(usernameInput)) {
     $('.js-validation-warning').text('Please ensure you have given a valid username. \nYour username should be between 3 and 18 characters and must not contain whitespace (" ").');
@@ -850,7 +844,6 @@ function attemptLogin(usernameInput/* , passwordInput */) {
   }
 }
 
-// -------------------------- REGISTRATION PAGE --------------------------------
 function loadRegisterHtml() {
   const registerHtml = `
         <h1>Gift Organiser</h1>
@@ -872,7 +865,6 @@ function loadRegisterHtml() {
   $('.js-login-or-register').html(registerHtml);
 }
 
-// ------------------------------ LOGIN PAGE ------------------------------
 function loadLoginOrRegisterHtml() {
   const loginOrRegisterHtml = `
   <h1>Gift Organiser</h1>
