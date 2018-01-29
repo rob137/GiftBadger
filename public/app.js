@@ -395,18 +395,6 @@ function createGiftListsHtml() {
   return giftListsHtml;
 }
 
-/*
-Each gift list is associated with a recipient and takes the following form:
-[Name of recipient]
-[Gift Ideas So Far](editable)
-  - For each gift idea: a link to google shopping search for that gift
-[Upcoming events] (editable), listing gifts chosen for those specific events (also editable)
-  - For each event:
-    - A link to add to user's google calendar]
-    - For gift(s) chosen for the event:
-      - either: a link to a specific online shopping page (if user has provided one)
-      - or: a link to a google shopping search for that gift
-  */
 // Kickstarts the chain of functions that render user's gift lists.
 function showGiftLists() {
   const giftListsHtml = createGiftListsHtml();
@@ -451,7 +439,6 @@ function getGiftsAlreadyPicked() {
   }
   return giftsPickedHtml;
 }
-
 
 function loadPersonalisedPage() {
   let firstName = '';
@@ -601,6 +588,7 @@ function handleEditSubmit(target) {
   hideAndWipeEditPanel();
 }
 
+// ---------------- EDIT PANEL CLICK HANDLERS ----------------------
 // Handles clicks in edit panel (add, save, cancel etc)
 function handleClicksWithinEditPanel() {
   let usersNewGiftIdea;
@@ -706,6 +694,7 @@ function handleClicksWithinEditPanel() {
   });
 }
 
+// ------------------ OPEN EDIT PANEL & ASSOCIATED HTML ------------------------------
 // The edit panel is hidden & blank until user clicks an edit option.
 function handleOpenEditPanelClicks() {
   let editHtml = '';
@@ -715,7 +704,7 @@ function handleOpenEditPanelClicks() {
 
   // Get the appropriate edit panel html...
   $('.js-gift-lists').on('click', (event) => {
-    if ($(event.target).hasClass('.js-edit')) {
+    if ($(event.target).hasClass('js-edit')) {
       hideAndWipeEditPanel();
       recipientName = $(event.target).closest('.js-recipient-list').find('h2').text();
       // edit panel for changing budget
@@ -752,7 +741,6 @@ function handleOpenEditPanelClicks() {
     }
   });
 }
-
 
 // allows user to close edit panel (and discard changes) by hitting esc key
 function listenForEscapeOnEditPanel() {
