@@ -1,6 +1,7 @@
 let globalUserData;
 const monthNames = ['January', 'February', 'March', 'April', 'May', 'June',
   'July', 'August', 'September', 'October', 'November', 'December'];
+const weekDaysArr = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
 
 // Object constructors to enable PUT requests
 function Event(eventArr) {
@@ -104,13 +105,22 @@ function generateEditGiftIdeasHtml(recipientName) {
           </form>`;
 }
 
+function makeHumanReadableDate(date) {
+  const d = new Date(date);
+  const output = `${weekDaysArr[d.getDay()]} ${d.getDate()} ${monthNames[d.getMonth()]} ${d.getFullYear()}`;
+  console.log(output);
+  return output;
+}
+
 function generateEditEventsHtml(recipientName) {
   let lis = '';
   let ul = '';
+  let date;
   const recipient = globalUserData.giftLists.find(item => item.name === recipientName);
   recipient.events.forEach((event) => {
+    date = makeHumanReadableDate(event.eventDate);
     lis += `<li>
-              <span class="js-event-list-input">${event.eventName} on ${event.eventDate}</span> 
+              <span class="js-event-list-input">${event.eventName} on ${date}</span> 
               <a target="_blank" href="javascript:;" class="js-remove remove">Remove</a>
             </li>`;
   });
@@ -135,6 +145,7 @@ function generateEditEventsHtml(recipientName) {
 
 // ============ Recipient should be declared early and passed down ============
 function generateEditGiftPickedHtml(recipientName, userEventName, userEventDate) {
+  console.log(recipientName, userEventDate);
   let lis = '';
   let ul = '';
   const recipient = globalUserData.giftLists.find(item => item.name === recipientName);
@@ -327,20 +338,16 @@ function createUpcomingEventsListHtml(giftListArrItem) {
   // *** Opening ul tag ***
   let upcomingEventsListHtml = '<ul>';
   let addToCalendarHtml;
-  let monthName;
-  let eventDateText;
   let eventDate;
   giftListArrItem.events.forEach((event) => {
     // Renders human readable dates
-    eventDate = new Date(event.eventDate);
-    monthName = monthNames[eventDate.getMonth()];
-    eventDateText = `${eventDate.getDate()} ${monthName}, ${eventDate.getFullYear()}`;
+    eventDate = makeHumanReadableDate(event.eventDate);
     // Dynamic html class/id to help lookup from edit forms
-    const dynamicHtmlIdentifier = (`${event.eventName} ${eventDateText}`).toLowerCase()
+    const dynamicHtmlIdentifier = (`${event.eventName} ${eventDate}`).toLowerCase()
       .replace(',', '').replace(/ /g, '-');
     // The class 'js-event-name' allows us to to look up giftLists.recipient.events[this event]
     // when the user clicks to choose a gift for the event.
-    upcomingEventsListHtml += `<li class="js-${dynamicHtmlIdentifier}"> <span class="js-event-name">${event.eventName}</span> on <span class="js-event-date">${eventDateText}</span>.`;
+    upcomingEventsListHtml += `<li class="js-${dynamicHtmlIdentifier}"> <span class="js-event-name">${event.eventName}</span> on <span class="js-event-date">${eventDate}</span>.`;
     if (event.giftsPicked.length > 0) {
       upcomingEventsListHtml += `
         Gift(s) chosen: 
@@ -604,7 +611,7 @@ function handleClicksWithinEditPanel() {
   let userEventDate;
   let userEventHtml;
 
-  $('.js-edit-panel').on('click', (event) => {
+  $('.js-budget-and-gift-lists').on('click', (event) => {
     if ($(event.target).is('button') || $(event.target).is('input')) {
       event.stopPropagation();
       event.preventDefault();
@@ -722,9 +729,9 @@ function handleOpenEditPanelClicks() {
         // edit panel for changing gifts picked for a particular event
       } else if ($(event.target).hasClass('js-edit-gift-picked')) {
         // Gets the event name from the dom - used to look up event object in json
-        userEventName = $(event.target).parent().find('.js-event-name')
+        userEventName = $(event.target).closest('.js-event-name')
           .html();
-        userEventDate = $(event.target).parent().find('.js-event-date')
+        userEventDate = $(event.target).closest('.js-event-date')
           .html();
         editHtml = generateEditGiftPickedHtml(recipientName, userEventName, userEventDate);
       }
