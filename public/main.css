@@ -113,3 +113,22 @@ li {
 .user-event-name {
 	font-weight: bold;
 } 
+
+.validation-warning {
+	margin: 0 auto;
+	color: red;
+	width: 80%;
+	max-width: 400px;
+	min-width: 30%
+} 
+
+.confirm {
+	position: fixed;
+	z-index: 1;
+	top: 0;
+	top: 30%;
+	transform: translateX(50%);
+	background: red;
+	height: 20%;
+	width: 50%;
+}
