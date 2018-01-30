@@ -71,10 +71,8 @@ function generateEditNewGiftListHtml() {
       <p class="js-validation-warning validation-warning"></p>
     </form>
     <p>People added so far: </p>`;
-  let lis = '';
-  globalUserData.giftLists.forEach((giftList) => {
-    lis += generateGiftlistsLi(giftList.name);
-  });
+  const lisArr = globalUserData.giftLists.map(x => generateGiftlistsLi(x.name));
+  const lis = lisArr.join();
   const ul = `<ul class="js-giftlist-name-list">${lis}</ul`;
   // !!!!! check ul closing tag
   return editNewGiftListHtml + ul;
@@ -82,15 +80,17 @@ function generateEditNewGiftListHtml() {
 
 // creates editable list of gift ideas so far for the recipient
 function generateEditGiftIdeasHtml(recipientName) {
-  let lis = '';
   let ul = '';
+  let html;
   const recipient = globalUserData.giftLists.find(item => item.name === recipientName);
-  recipient.giftIdeas.forEach((giftIdea) => {
-    lis += `<li>
-              <span class="js-gift-idea-input">${giftIdea}</span> 
+  const lisArr = recipient.giftIdeas.map((x) => {
+    html = `<li>
+              <span class="js-gift-idea-input">${x}</span> 
               <a target="_blank" href="javascript:;" class="js-remove remove">Remove</a>
             </li>`;
+    return html;
   });
+  const lis = lisArr.join();
   ul = `<ul class="gift-idea-list">${lis}</ul>`;
   return `<form>
             <label for="gift-idea">Add a gift idea: </label>
@@ -112,18 +112,17 @@ function makeHumanReadableDate(date) {
 }
 
 function generateEditEventsHtml(recipientName) {
-  let lis = '';
   let ul = '';
   let date;
   const recipient = globalUserData.giftLists.find(item => item.name === recipientName);
-  recipient.events.forEach((event) => {
+  const lisArr = recipient.events.map((event) => {
     date = makeHumanReadableDate(event.eventDate);
-    lis += `<li>
+    return `<li>
               <span class="js-event-list-input">${event.eventName} on ${date}</span> 
               <a target="_blank" href="javascript:;" class="js-remove remove">Remove</a>
             </li>`;
   });
-
+  const lis = lisArr.join();
   ul = `<ul class="event-list">
           ${lis}
         </ul>`;
@@ -144,15 +143,17 @@ function generateEditEventsHtml(recipientName) {
 
 // ============ Recipient should be declared early and passed down ============
 function generateEditGiftPickedHtml(recipientName, userEventName, userEventDate) {
-  let lis = '';
+  let html;
   let ul = '';
   const recipient = globalUserData.giftLists.find(item => item.name === recipientName);
-  recipient.giftIdeas.forEach((giftIdea) => {
-    lis += `<li>
+  const lisArr = recipient.giftIdeas.map((giftIdea) => {
+    html = `<li>
               <span class="js-gift-idea">${giftIdea}</span>
               <a target="_blank" href="javascript:;" class="js-give give">Give this gift</a>
             </li>`;
+    return html;
   });
+  const lis = lisArr.join();
   ul = `<ul class="gift-idea-list">
           ${lis}
         </ul>`;
@@ -273,7 +274,7 @@ function createGiftIdeasHtml(giftIdea) {
 function prepareAddToCalendarHtml(event, giftListArrItem) {
   let encodedBodyText;
   let giftIdeasHtml;
-  const giftIdeasHtmlArr = [];
+  let giftIdeasHtmlArr;
   let eventDate = new Date(event.eventDate);
   const year = eventDate.getYear();
   const month = eventDate.getMonth();
@@ -284,12 +285,7 @@ function prepareAddToCalendarHtml(event, giftListArrItem) {
   eventDatePlusOneDay = eventDatePlusOneDay.toISOString().slice(0, 10).replace(/-/g, '');
 
   let addToCalendarLink = `
-    https://www.google.com/calendar/render?action=TEMPLATE&
-    sf=true&output=xml&
-    text=${event.eventName}:+${giftListArrItem.name}&
-    dates=${eventDate}/${eventDatePlusOneDay}&
-    details=`;
-
+    https://www.google.com/calendar/render?action=TEMPLATE&sf=true&output=xml&text=${event.eventName}:+${giftListArrItem.name}&dates=${eventDate}/${eventDatePlusOneDay}&details=`;
   if (event.giftsPicked.length > 0) {
     // Will either display link for chosen gift(s)...
     encodedBodyText = encodeURIComponent('You\'ve decided to get this gift: ' +
@@ -298,9 +294,7 @@ function prepareAddToCalendarHtml(event, giftListArrItem) {
     addToCalendarLink += encodedBodyText;
   } else {
     // ... or will display links to google shopping searches for gift ideas.
-    ((giftListArrItem.giftIdeas)).forEach((giftIdea) => {
-      giftIdeasHtmlArr.push(createGiftIdeasHtml(giftIdea));
-    });
+    giftIdeasHtmlArr = giftListArrItem.giftIdeas.map(x => createGiftIdeasHtml(x));
     giftIdeasHtml = giftIdeasHtmlArr.join(', ');
     encodedBodyText = encodeURIComponent(`You still need to decide on a gift!\n\nGift ideas so far: ${giftIdeasHtml}`);
     addToCalendarLink += encodedBodyText;
@@ -311,24 +305,22 @@ function prepareAddToCalendarHtml(event, giftListArrItem) {
 
 // As above, but html is for gifts picked for specific events
 function generateGiftsPickedHtml(event) {
-  let giftsPickedHtml = '';
   let giftLink;
   let giftPrice;
-  (event.giftsPicked).forEach((giftPicked) => {
+  const giftsPickedHtmlArr = event.giftsPicked.map((giftPicked) => {
     if (giftPicked.giftLink !== '') {
       ({ giftLink } = giftPicked);
     } else {
       giftLink = createGoogleShoppingUrl(giftPicked.giftName);
     }
     giftPrice = giftPicked.price;
-    giftsPickedHtml += `
-      <a target="_blank" href="${giftLink}" class="js-gift-picked">
-        <span class="js-gift-picked-name">${giftPicked.giftName}</span>
-      </a>
-      (£<span class="js-gift-price">${giftPrice}</span>), `;
+    return `
+    <a target="_blank" href="${giftLink}" class="js-gift-picked">
+      <span class="js-gift-picked-name">${giftPicked.giftName}</span>
+    </a>
+    (£<span class="js-gift-price">${giftPrice}</span>), `;
   });
-  giftsPickedHtml += '';
-  return giftsPickedHtml;
+  return giftsPickedHtmlArr.join();
 }
 
 // Prepares events html for each gift list in user's profile; returns it to createGiftListsHtml()
@@ -337,7 +329,7 @@ function createUpcomingEventsListHtml(giftListArrItem) {
   let upcomingEventsListHtml = '<ul>';
   let addToCalendarHtml;
   let eventDate;
-  giftListArrItem.events.forEach((event) => {
+  upcomingEventsListHtml = giftListArrItem.events.map((event) => {
     // Renders human readable dates
     eventDate = makeHumanReadableDate(event.eventDate);
     // Dynamic html class/id to help lookup from edit forms
@@ -357,11 +349,12 @@ function createUpcomingEventsListHtml(giftListArrItem) {
     }
     upcomingEventsListHtml += '</li>';
     addToCalendarHtml = prepareAddToCalendarHtml(event, giftListArrItem);
+    upcomingEventsListHtml += addToCalendarHtml;
+    return upcomingEventsListHtml;
   });
 
   // *** Closing ul tag ***
   upcomingEventsListHtml += '</ul>';
-  upcomingEventsListHtml += addToCalendarHtml;
   return upcomingEventsListHtml;
 }
 
@@ -376,19 +369,16 @@ function createGiftListsHtml() {
   giftListsHtml += `
       <p>Click <a  class="js-create-new-gift-list js-edit edit-alt" target="_blank" href="javascript:;">here</a> to add/remove people!</p>`;
   // Creates Html for gift ideas: create a gift idea list for each gift list in user's profile
-  giftListsArr.forEach((giftListArrItem) => {
-    giftIdeasHtmlArr = [];
+  const giftListsHtmlArr = giftListsArr.map((giftListArrItem) => {
     // Populate html subsection variables using other functions
-    giftListArrItem.giftIdeas.forEach((giftIdea) => {
-      giftIdeasHtmlArr.push(createGiftIdeasHtml(giftIdea));
-    });
+    giftIdeasHtmlArr = giftListArrItem.giftIdeas.map(x => createGiftIdeasHtml(x));
     giftIdeasHtml = giftIdeasHtmlArr.join(', ');
 
     // Creates Html for the events list:
     upcomingEventsListHtml = createUpcomingEventsListHtml(giftListArrItem);
 
     // Final Html returned to showGiftLists()
-    giftListsHtml += `
+    return `
       <div class="js-recipient-list">
         <h2>${giftListArrItem.name}</h2>
         <h3>Gift Ideas So Far <a target="_blank" href="javascript:;"><span class="js-edit-gift-ideas js-edit edit">edit</span></a></h3> 
@@ -397,6 +387,7 @@ function createGiftListsHtml() {
         ${upcomingEventsListHtml}
       </div>`;
   });
+  giftListsHtml = giftListsHtmlArr.join();
 
   return giftListsHtml;
 }
@@ -483,16 +474,13 @@ function saveChangesToBudget() {
 }
 
 function saveChangesToGiftlists() {
-  const currentNamesInDb = [];
   const currentNamesInEditPanel = [];
   let itemForRemoval;
   let i;
   $('.js-giftlist-name').each((index, value) => {
     currentNamesInEditPanel.push($(value).text());
   });
-  globalUserData.giftLists.forEach((list) => {
-    currentNamesInDb.push(list.name);
-  });
+  const currentNamesInDb = globalUserData.giftLists.map(x => x.name);
 
   // If a name is in db but not in edit panel, delete from db
   currentNamesInDb.forEach((nameInDb) => {
@@ -505,10 +493,11 @@ function saveChangesToGiftlists() {
   });
 
   // If a name is in edit panel but not in db, add to db
-  currentNamesInEditPanel.forEach((nameInEditPanel) => {
-    if (currentNamesInDb.indexOf(nameInEditPanel) < 0) {
-      globalUserData.giftLists.push(new GiftList(nameInEditPanel));
+  globalUserData.giftLists = currentNamesInEditPanel.map((x) => {
+    if (!currentNamesInDb.indexOf(x) < 0) {
+      return new GiftList(x);
     }
+    return false;
   });
 }
 
@@ -526,17 +515,16 @@ function saveChangesToGiftIdeas() {
 
 function saveChangesToEventList() {
   const newEventListArr = [];
-  const newEventListObjArr = [];
   let eventDateArr = [];
   let eventDateObjArr = [];
   let recipient;
   $('.js-event-list-input').each((index, value) => {
     newEventListArr.push($(value).text());
   });
-  newEventListArr.forEach((newEvent) => {
-    eventDateArr = newEvent.split(' on ');
+  const newEventListObjArr = newEventListArr.map((x) => {
+    eventDateArr = x.split(' on ');
     eventDateObjArr = new Event(eventDateArr);
-    newEventListObjArr.push(eventDateObjArr);
+    return eventDateObjArr;
   });
   // Repetition here - refactor it out.
   recipient = $('.js-recipient-name').text();
