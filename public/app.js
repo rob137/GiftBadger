@@ -157,6 +157,7 @@ function generateEditGiftPickedHtml(recipientName, userEventName, userEventDate)
           ${lis}
         </ul>`;
   return `<form>
+            <p class="js-validation-warning validation-warning"></p>
             <h3><span class="js-recipient-name">${recipientName}</span>: <span class="js-event-header"><span class="js-event-name-edit">${userEventName}</span> on <span class="js-event-date-edit">${userEventDate}</span></span></h3>
             <p>Gifts chosen so far: </p><ul class="js-edit-panel-gifts-picked-list"></ul>
             <label for="gift-picked">The name of a new gift you will get for this event: </label>
@@ -264,6 +265,11 @@ function createGoogleShoppingUrl(gift) {
 }
 
 // Creates text and link for user's gift ideas
+function createGiftsPickedHtml(giftPicked) {
+  const { giftName, giftLink, price } = giftPicked;
+  return `<a target="_blank" href="${giftLink}">${giftName}</a> (£${price})`;
+}
+// Creates text and link for user's gift ideas
 function createGiftIdeasHtml(giftIdea) {
   const shoppingUrl = createGoogleShoppingUrl(giftIdea);
   return `<a target="_blank" href="${shoppingUrl}">${giftIdea}</a>`;
@@ -285,13 +291,11 @@ function prepareGoogleCalendarBodyText(event, giftListArrItem) {
   let giftIdeasHtml;
   let giftIdeasHtmlArr;
   let calendarBodyText;
-  console.log(event);
-  console.log(giftListArrItem);
   if (event.giftsPicked.length > 0) {
     // Will either display link for chosen gift(s)...
-    encodedBodyText = encodeURIComponent('You\'ve decided to get this gift: ' +
-      `<a target="_blank" href="${event.giftsPicked.giftLink}">` +
-      `${event.giftsPicked.giftName}</a>`);
+    const listHtmlArr = event.giftsPicked.map(x => createGiftsPickedHtml(x));
+    const listHtml = listHtmlArr.join(', ');
+    encodedBodyText = encodeURIComponent(`You've decided to get these gift(s): ${listHtml}`);
     calendarBodyText = encodedBodyText;
   } else {
     // ... or will display links to google shopping searches for gift ideas.
@@ -379,25 +383,24 @@ function createGiftListsHtml() {
       <h2>Gift Lists</h2>
       <p>Click <a  class="js-create-new-gift-list js-edit edit-alt" target="_blank" href="javascript:;">here</a> to add/remove people!</p>`;
   // Creates Html for gift ideas: create a gift idea list for each gift list in user's profile
+  console.log(giftListsArr);
   const giftListsHtmlArr = giftListsArr.map((giftListArrItem) => {
     // Populate html subsection variables using other functions
-    if (giftListArrItem) {
-      giftIdeasHtmlArr = giftListArrItem.giftIdeas.map(x => createGiftIdeasHtml(x));
-      giftIdeasHtml = giftIdeasHtmlArr.join(', ');
-      // Creates Html for the events list:
-      upcomingEventsListHtml = createUpcomingEventsListHtml(giftListArrItem);
-      // Final Html returned to showGiftLists()
-      return `
-        <div class="js-recipient-list">
-          <h2>${giftListArrItem.name}</h2>
-          <h3>Gift Ideas So Far <a target="_blank" href="javascript:;"><span class="js-edit-gift-ideas js-edit edit">edit</span></a></h3> 
-          ${giftIdeasHtml}
-          <h3>Upcoming Events <a target="_blank" href="javascript:;"><span class="js-edit-events js-edit edit">edit</span></a></h3>
-          <ul class="js-upcoming-events">
-            ${upcomingEventsListHtml}
-          </ul>
-        </div>`;
-    }
+    giftIdeasHtmlArr = giftListArrItem.giftIdeas.map(x => createGiftIdeasHtml(x));
+    giftIdeasHtml = giftIdeasHtmlArr.join(', ');
+    // Creates Html for the events list:
+    upcomingEventsListHtml = createUpcomingEventsListHtml(giftListArrItem);
+    // Final Html returned to showGiftLists()
+    return `
+      <div class="js-recipient-list">
+        <h2>${giftListArrItem.name}</h2>
+        <h3>Gift Ideas So Far <a target="_blank" href="javascript:;"><span class="js-edit-gift-ideas js-edit edit">edit</span></a></h3> 
+        ${giftIdeasHtml}
+        <h3>Upcoming Events <a target="_blank" href="javascript:;"><span class="js-edit-events js-edit edit">edit</span></a></h3>
+        <ul class="js-upcoming-events">
+          ${upcomingEventsListHtml}
+        </ul>
+      </div>`;
   });
   giftListsHtml += giftListsHtmlArr.join('');
   return giftListsHtml;
@@ -444,7 +447,6 @@ function getGiftsAlreadyPicked() {
       .replace(/<a target="_blank" h/g, '<li class="js-gift-picked-edit-list-item"><a target="_blank" h')
       .replace(/span>,/g, 'span>,</li>');
     giftsPickedHtml += ' <a target="_blank" href="javascript:;" class="js-remove remove">Remove</a></span>';
-
   }
   return giftsPickedHtml;
 }
@@ -505,7 +507,7 @@ function saveChangesToBudget() {
 
 function saveChangesToGiftlists() {
   const currentNamesInEditPanel = [];
-  let itemForRemoval;
+  let originalItem;
   let i;
   let currentNamesInDb = [];
   $('.js-giftlist-name').each((index, value) => {
@@ -516,21 +518,23 @@ function saveChangesToGiftlists() {
     }
   });
 
-  // If a name is in  db but not in edit panel, delete from db
+  // If a name is in db but not in edit panel, delete from db
   currentNamesInDb.forEach((nameInDb) => {
     if (currentNamesInEditPanel.indexOf(nameInDb) < 0) {
-      itemForRemoval = globalUserData.giftLists.find(item => item.name === nameInDb);
-      i = globalUserData.giftLists.indexOf(itemForRemoval);
+      originalItem = globalUserData.giftLists.find(item => item.name === nameInDb);
+      i = globalUserData.giftLists.indexOf(originalItem);
       globalUserData.giftLists[i] = globalUserData.giftLists[globalUserData.giftLists.length - 1];
       globalUserData.giftLists.pop();
     }
   });
 
   // If a name is in edit panel but not in db, add to db
-  globalUserData.giftLists = currentNamesInEditPanel.map((x) => {
-    if (!currentNamesInDb.indexOf(x) > -1) {
-      return new GiftList(x);
+  globalUserData.giftLists = currentNamesInEditPanel.map((nameInEditPanel) => {
+    if (!(currentNamesInDb.indexOf(nameInEditPanel) >= 0)) {
+      return new GiftList(nameInEditPanel);
     }
+    originalItem = globalUserData.giftLists.find(item => item.name === nameInEditPanel);
+    return originalItem;
   });
 }
 
@@ -595,7 +599,11 @@ function saveChangesToGiftsPicked() {
   const eventDate = new Date($('.js-event-date-edit').text()).toString();
   const targetEvent = globalUserData.giftLists[i].events
     .find(event => event.eventName === eventName && event.eventDate === eventDate);
-  const j = globalUserData.giftLists[i].events.indexOf(targetEvent);
+  let j = globalUserData.giftLists[i].events.indexOf(targetEvent);
+  // if there are no items already stored
+  if (j < 0) {
+    j = 0;
+  }
   globalUserData.giftLists[i].events[j].giftsPicked = newGiftsPickedArr;
 }
 
@@ -615,6 +623,10 @@ function handleEditSubmit(target) {
   }
   submitAndRefresh();
   hideAndWipeEditPanel();
+}
+
+function validateName(name) {
+  return name.length >= 2 && name.length <= 18 && name.indexOf(' ') <= 0;
 }
 
 // Handles clicks in edit panel (add, save, cancel etc)
@@ -640,8 +652,12 @@ function handleClicksWithinEditPanel() {
     // Gift decision: when user submits shopping url of gift for a specific event
     if ($(event.target).hasClass('js-add-to-giftlist-name-list') && $('.js-giftlist-input').val().length > 0) {
       usersNewGiftlistName = $('.js-giftlist-input').val();
-      $('.js-giftlist-name-list').append(generateGiftlistsLi(usersNewGiftlistName));
-      $('.js-giftlist-input').val('');
+      if (validateName(usersNewGiftlistName)) {
+        $('.js-giftlist-name-list').append(generateGiftlistsLi(usersNewGiftlistName));
+        $('.js-giftlist-input').val('');
+      } else {
+        $('.js-validation-warning').text('Please enter a valid name.');
+      }
     } else if ($(event.target).hasClass('js-add-to-gift-picked-list')) {
       // Validation
       usersNewGiftName = $('.js-user-gift-picked').val();
@@ -657,7 +673,6 @@ function handleClicksWithinEditPanel() {
       if (usersNewGiftUrl.length > 0) {
         if (!validateUrl(usersNewGiftUrl)) {
           $('.js-validation-warning').text('Incomplete Url!  Please either copy-paste a valid url or leave url field blank.');
-          return;
         }
       }
       // Then check the other fields and add relevant html, and wipe the input fields
@@ -674,6 +689,7 @@ function handleClicksWithinEditPanel() {
         $('.js-user-gift-picked').val('');
         $('.js-user-gift-picked-url').val('');
         $('.js-user-gift-picked-price').val('');
+        $('.js-validation-warning').text('');
       } else {
         $('.js-validation-warning').text('Please enter a gift and its price!');
       }
@@ -693,6 +709,7 @@ function handleClicksWithinEditPanel() {
           </li>`;
         $('.gift-idea-list').append(usersNewGiftIdeaHtml);
         $('.js-user-gift-idea').val('');
+        $('.js-validation-warning').text('');
       } else {
         $('.js-validation-warning').text('Please enter a gift idea!');
       }
@@ -784,10 +801,6 @@ function listenForEscapeOnEditPanel() {
       hideAndWipeEditPanel();
     }
   });
-}
-
-function validateName(name) {
-  return name.length >= 2 && name.length <= 18 && name.indexOf(' ') <= 0;
 }
 
 function validateEmail(emailInput) {
