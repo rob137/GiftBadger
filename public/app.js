@@ -270,22 +270,21 @@ function createGiftIdeasHtml(giftIdea) {
   return `<a target="_blank" href="${shoppingUrl}">${giftIdea}</a>`;
 }
 
-// prepares link for adding event (and gift chosen) to calendar
-function prepareAddToCalendarHtml(event, giftListArrItem) {
-  let encodedBodyText;
-  let giftIdeasHtml;
-  let giftIdeasHtmlArr;
-  let eventDate = new Date(event.eventDate);
+function prepareGoogleCalendarDate(eventDate) {
   const year = eventDate.getYear();
   const month = eventDate.getMonth();
   const theDate = eventDate.getDate();
-  // To get the right format for Google Calendar URLs
-  let eventDatePlusOneDay = new Date(year, month, theDate + 1);
-  eventDate = eventDate.toISOString().slice(0, 10).replace(/-/g, '');
-  eventDatePlusOneDay = eventDatePlusOneDay.toISOString().slice(0, 10).replace(/-/g, '');
+  const results = [];
+  const eventDatePlusOneDay = new Date(year, month, theDate + 1);
+  results.push(eventDate.toISOString().slice(0, 10).replace(/-/g, ''));
+  results.push(eventDatePlusOneDay.toISOString().slice(0, 10).replace(/-/g, ''));
+  return results;
+}
 
-  let addToCalendarLink = `
-    https://www.google.com/calendar/render?action=TEMPLATE&sf=true&output=xml&text=${event.eventName}:+${giftListArrItem.name}&dates=${eventDate}/${eventDatePlusOneDay}&details=`;
+/*function prepareGoogleCalendarBodyText() {
+  let encodedBodyText;
+  let giftIdeasHtml;
+  let giftIdeasHtmlArr;
   if (event.giftsPicked.length > 0) {
     // Will either display link for chosen gift(s)...
     encodedBodyText = encodeURIComponent('You\'ve decided to get this gift: ' +
@@ -299,8 +298,19 @@ function prepareAddToCalendarHtml(event, giftListArrItem) {
     encodedBodyText = encodeURIComponent(`You still need to decide on a gift!\n\nGift ideas so far: ${giftIdeasHtml}`);
     addToCalendarLink += encodedBodyText;
   }
+  return ;
+}*/
 
-  return `<a target="_blank" href="${addToCalendarLink}">Add to your Google Calendar (opens new tab)</a>`;
+// prepares google calendar link - see 'addToCalendarLink' for the template of the link.
+function prepareAddToCalendarHtml(event, giftListArrItem) {
+/*  let eventDate = new Date(event.eventDate);
+
+  // To get the right format for Google Calendar URLs
+  eventDate = prepareGoogleCalendarDate(eventDate);
+  let addToCalendarLink = `
+    https://www.google.com/calendar/render?action=TEMPLATE&sf=true&output=xml&text=${event.eventName}:+${giftListArrItem.name}&dates=${eventDate[0]}/${eventDate[1]}&details=`;
+  addToCalendarLink += prepareGoogleCalendarBodyText(); 
+  return `<a target="_blank" href="${addToCalendarLink}">Add to your Google Calendar (opens new tab)</a>`;*/
 }
 
 // As above, but html is for gifts picked for specific events
