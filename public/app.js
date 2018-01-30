@@ -281,36 +281,36 @@ function prepareGoogleCalendarDate(eventDate) {
   return results;
 }
 
-/*function prepareGoogleCalendarBodyText() {
+function prepareGoogleCalendarBodyText(event, giftListArrItem) {
   let encodedBodyText;
   let giftIdeasHtml;
   let giftIdeasHtmlArr;
+  let calendarBodyText;
   if (event.giftsPicked.length > 0) {
     // Will either display link for chosen gift(s)...
     encodedBodyText = encodeURIComponent('You\'ve decided to get this gift: ' +
       `<a target="_blank" href="${event.giftsPicked.giftLink}">` +
       `${event.giftsPicked.giftName}</a>`);
-    addToCalendarLink += encodedBodyText;
+    calendarBodyText = encodedBodyText;
   } else {
     // ... or will display links to google shopping searches for gift ideas.
     giftIdeasHtmlArr = giftListArrItem.giftIdeas.map(x => createGiftIdeasHtml(x));
     giftIdeasHtml = giftIdeasHtmlArr.join(', ');
     encodedBodyText = encodeURIComponent(`You still need to decide on a gift!\n\nGift ideas so far: ${giftIdeasHtml}`);
-    addToCalendarLink += encodedBodyText;
+    calendarBodyText = encodedBodyText;
   }
-  return ;
-}*/
+  return calendarBodyText;
+}
 
 // prepares google calendar link - see 'addToCalendarLink' for the template of the link.
 function prepareAddToCalendarHtml(event, giftListArrItem) {
-/*  let eventDate = new Date(event.eventDate);
-
+  let eventDate = new Date(event.eventDate);
   // To get the right format for Google Calendar URLs
   eventDate = prepareGoogleCalendarDate(eventDate);
   let addToCalendarLink = `
     https://www.google.com/calendar/render?action=TEMPLATE&sf=true&output=xml&text=${event.eventName}:+${giftListArrItem.name}&dates=${eventDate[0]}/${eventDate[1]}&details=`;
-  addToCalendarLink += prepareGoogleCalendarBodyText(); 
-  return `<a target="_blank" href="${addToCalendarLink}">Add to your Google Calendar (opens new tab)</a>`;*/
+  addToCalendarLink += prepareGoogleCalendarBodyText(event, giftListArrItem);
+  return `<a target="_blank" href="${addToCalendarLink}">Add to your Google Calendar (opens new tab)</a>`;
 }
 
 // As above, but html is for gifts picked for specific events
@@ -371,12 +371,12 @@ function createUpcomingEventsListHtml(giftListArrItem) {
 // Returns html for user's gift lists to showGiftsLists()
 function createGiftListsHtml() {
   const giftListsArr = globalUserData.giftLists;
-  let giftListsHtml = '<h2>Gift Lists</h2>';
   let giftIdeasHtmlArr;
   // Html sub-sections populated by other functions
   let upcomingEventsListHtml;
   let giftIdeasHtml = '';
-  giftListsHtml += `
+  let giftListsHtml = `
+      <h2>Gift Lists</h2>'
       <p>Click <a  class="js-create-new-gift-list js-edit edit-alt" target="_blank" href="javascript:;">here</a> to add/remove people!</p>`;
   // Creates Html for gift ideas: create a gift idea list for each gift list in user's profile
   const giftListsHtmlArr = giftListsArr.map((giftListArrItem) => {
@@ -397,8 +397,7 @@ function createGiftListsHtml() {
         ${upcomingEventsListHtml}
       </div>`;
   });
-  giftListsHtml = giftListsHtmlArr.join();
-
+  giftListsHtml += giftListsHtmlArr.join();
   return giftListsHtml;
 }
 
