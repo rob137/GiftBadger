@@ -105,6 +105,9 @@ function generateEditGiftIdeasHtml(recipientName) {
           </form>`;
 }
 
+// Mum !!!!! Reminders for gift events
+// Shaf !!!!! Allow gift lists to have names with spaces. Make it clearer that links are helpful... Grey out save when list is empty.... GCal Date set to 31 Jan... automatic notifications. 
+
 function makeHumanReadableDate(date) {
   const d = new Date(date);
   const output = `${weekDaysArr[d.getDay()]} ${d.getDate()} ${monthNames[d.getMonth()]} ${d.getFullYear()}`;
@@ -204,7 +207,7 @@ function listenForClickToAddGiftIdeaToEvent() {
 function showPersonalisedHeader(firstName) {
   const titleName = firstName.charAt(0).toUpperCase() + firstName.slice(1, firstName.length);
   $('.js-personalised-header')
-    .html(`<h1>${titleName}'s Gift Organiser</h1>
+    .html(`<h1>Gift Organiser For ${titleName}'s Google Calendar</h1>
           <p><a  class="js-logout" target="_blank" href="javascript:;">Logout</a></p>
           <p><a  class="js-delete-profile" target="_blank" href="javascript:;">Delete your profile</a></p>`);
 }
@@ -281,14 +284,14 @@ function createGiftIdeasHtml(giftIdea) {
 }
 
 function prepareGoogleCalendarDate(eventDate) {
-  const year = eventDate.getYear();
+  const year = eventDate.getYear() + 1900;
   const month = eventDate.getMonth();
   const theDate = eventDate.getDate();
-  const results = [];
+  const resultsArr = [];
   const eventDatePlusOneDay = new Date(year, month, theDate + 1);
-  results.push(eventDate.toISOString().slice(0, 10).replace(/-/g, ''));
-  results.push(eventDatePlusOneDay.toISOString().slice(0, 10).replace(/-/g, ''));
-  return results;
+  resultsArr.push(eventDate.toISOString().slice(0, 10).replace(/-/g, ''));
+  resultsArr.push(eventDatePlusOneDay.toISOString().slice(0, 10).replace(/-/g, ''));
+  return resultsArr;
 }
 
 function prepareGoogleCalendarBodyText(event, giftListArrItem) {
@@ -316,9 +319,9 @@ function prepareGoogleCalendarBodyText(event, giftListArrItem) {
 function prepareAddToCalendarHtml(event, giftListArrItem) {
   let eventDate = new Date(event.eventDate);
   // To get the right format for Google Calendar URLs
-  eventDate = prepareGoogleCalendarDate(eventDate);
+  eventDateArr = prepareGoogleCalendarDate(eventDate);
   let addToCalendarLink = `
-    https://www.google.com/calendar/render?action=TEMPLATE&sf=true&output=xml&text=${event.eventName}:+${giftListArrItem.name}&dates=${eventDate[0]}/${eventDate[1]}&details=`;
+    https://www.google.com/calendar/render?action=TEMPLATE&sf=true&output=xml&text=${event.eventName}:+${giftListArrItem.name}&dates=${eventDateArr[0]}/${eventDateArr[1]}&details=`;
   addToCalendarLink += prepareGoogleCalendarBodyText(event, giftListArrItem);
   return `<a target="_blank" href="${addToCalendarLink}">Add to your Google Calendar (opens new tab)</a>`;
 }
@@ -632,7 +635,7 @@ function handleEditSubmit(target) {
 }
 
 function validateName(name) {
-  return name.length >= 2 && name.length <= 18 && name.indexOf(' ') <= 0;
+  return name.length >= 2 && name.length <= 18;
 }
 
 // Handles clicks in edit panel (add, save, cancel etc)
@@ -1008,4 +1011,4 @@ function startFunctionChain() {
 startFunctionChain();
 
 // For testing:
-// getDataUsingEmail('mel');
+getDataUsingEmail('robertaxelkirby@gmail.com');
