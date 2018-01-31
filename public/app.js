@@ -228,11 +228,15 @@ function showBudget() {
     eventsArr = [];
     spendSoFar = 0;
     spanWidth = 0;
+
+    // !!!!! Use reduce
     giftLists.forEach((giftList) => {
       giftList.events.forEach((event) => {
         eventsArr.push(event);
       });
     });
+
+    // !!!!! Use reduce
     eventsArr.forEach((event) => {
       if (event.giftsPicked.length > 0) {
         (event.giftsPicked).forEach((giftPicked) => {
@@ -485,7 +489,6 @@ function submitAndRefresh() {
     contentType: 'application/json',
     data: JSON.stringify({
       id: globalUserData.id,
-      username: globalUserData.username,
       budget: globalUserData.budget,
       giftLists: globalUserData.giftLists,
     }),
@@ -505,6 +508,7 @@ function saveChangesToBudget() {
   globalUserData.budget = newBudget;
 }
 
+// !!!!! refactor
 function saveChangesToGiftlists() {
   const currentNamesInEditPanel = [];
   let originalItem;
@@ -523,6 +527,7 @@ function saveChangesToGiftlists() {
     if (currentNamesInEditPanel.indexOf(nameInDb) < 0) {
       originalItem = globalUserData.giftLists.find(item => item.name === nameInDb);
       i = globalUserData.giftLists.indexOf(originalItem);
+      // !!!!! use slice
       globalUserData.giftLists[i] = globalUserData.giftLists[globalUserData.giftLists.length - 1];
       globalUserData.giftLists.pop();
     }
@@ -809,8 +814,8 @@ function validateEmail(emailInput) {
 }
 
 // Kickstarts functions that rely on user json
-function getDataUsingUsername(usernameInput) {
-  $.getJSON(`/users/${usernameInput}`, (userJson) => {
+function getDataUsingEmail(emailInput) {
+  $.getJSON(`/users/${emailInput}`, (userJson) => {
     globalUserData = userJson;
     setTimeout(() => {
       loadPersonalisedPage();
@@ -818,11 +823,8 @@ function getDataUsingUsername(usernameInput) {
   });
 }
 
-function checkFormIsCompleted(usernameInput, firstNameInput, /* , passwordInput */ emailInput) {
-  if (!validateName(usernameInput)) {
-    $('.js-validation-warning').text('Please ensure you have given a valid username. \nYour username should be between 3 and 18 characters and must not contain whitespace (" ").');
-    return false;
-  } else if (!validateName(firstNameInput)) {
+function checkFormIsCompleted(firstNameInput, emailInput) {
+  if (!validateName(firstNameInput)) {
     $('.js-validation-warning').text('Please ensure you have given a valid first name. \nThe name provided should be between 3 and 18 characters and must not contain whitespace (" ").');
     return false;
   } else if (!validateEmail(emailInput)) {
@@ -830,28 +832,21 @@ function checkFormIsCompleted(usernameInput, firstNameInput, /* , passwordInput 
     return false;
   }
   return true;
-  /* deactivated for now: else if (!passwordInput)
-        $('.js-validation-warning').text('Please ensure that
-        //  you have filled in the password field correctly!');
-      } */
 }
 
 // Runs validation using other functions (see below), submits registration
-// and then calls getDataUsingUsername()
+// and then calls getDataUsingEmail()
 function handleRegistrationSubmission() {
   // <input> 'required' attribute doesn't work in some browsers when loaded asynchronously
   // So we check these fields are completed:
-  const usernameInput = $('.js-username-input').val().toLowerCase();
   const firstNameInput = $('.js-first-name-input').val().toLowerCase();
   const emailInput = $('.js-email-input').val();
-  // deactivated for now: const passwordInput = $('.js-password-input').val();
 
-  if (checkFormIsCompleted(usernameInput, firstNameInput, /* passwordInput, */ emailInput)) {
+  if (checkFormIsCompleted(firstNameInput, emailInput)) {
     $.ajax({
       url: '/users',
       contentType: 'application/json',
       data: JSON.stringify({
-        username: usernameInput,
         firstName: firstNameInput,
         email: emailInput,
       }),
@@ -866,18 +861,21 @@ function handleRegistrationSubmission() {
     // remove login page
     resetHtml();
     // Load user's gift list!
-    setTimeout(getDataUsingUsername(usernameInput), 500);
+    setTimeout(getDataUsingEmail(emailInput), 300);
   }
 }
 
-// When user submits username/password
-function attemptLogin(usernameInput/* , passwordInput */) {
-  // ===== Aspiration: talk to server to validate login with username/password =====
-  // For now, logs in without a password:
-  if (usernameInput) {
-    $('.js-login-or-register').html('<p>Loading...</p>');
-    getDataUsingUsername(usernameInput);
+function attemptLogin(emailInput) {
+  $('.js-login-or-register').html('<p>Loading...</p>');
+  if (emailInput) {
+    getDataUsingEmail(emailInput);
   }
+  setTimeout(() => {
+    if (!globalUserData) {
+      loadLoginOrRegisterHtml();
+      $('.js-login-not-found').text('Please check you have typed your email correctly and try again.');
+    }
+  }, 500);
 }
 
 function loadRegisterHtml() {
@@ -885,14 +883,10 @@ function loadRegisterHtml() {
         <h1>Gift Organiser</h1>
         <h2>Register</h2>
         <form class="js-registration registration">
-          <label for="username">Username: </label>
-          <input type="text" name="username" id="username" class="js-username-input" required><br>
           <label for="firstName">First Name: </label>
           <input type="text" id="first-name" name="first name" class="js-first-name-input" required><br>
           <label for="email">Email: </label>
           <input type="text" name="email" id="email" class="js-email-input" required><br>
-          <label for="password">Password: </label>
-          <input type="password" name="password" id="password" class="js-password-input" required><br>
           <input type="submit" class="js-register-submit-button register-button">
           <button class="js-registration-back register-button">Back</button>
         </form>
@@ -906,10 +900,9 @@ function loadLoginOrRegisterHtml() {
   <h1>Gift Organiser</h1>
   <form>
     <h2>Login</h2>
-    <label for="username">Username: </label>
-    <input type="text" id="username" name="username" class="js-username-input" required>
-    <br>
-    <label for="password">Password: </label><input type="password" id="password" name="password" class="js-password-input" required>
+    <p class="js-login-not-found login-not-found"></p>
+    <label for="email">Email: </label>
+    <input type="text" id="email" name="email" class="js-email-input" required>
     <br>
     <button class="js-login-button login-register-buttons">Login</button>
   </form>
@@ -937,10 +930,8 @@ function handleLoginOrRegister() {
     event.preventDefault();
     // For clicks to 'login': attempt login
     if ($(event.target).hasClass('js-login-button')) {
-      const usernameInput = $('.js-username-input').val().toLowerCase();
-      // ===== Insecure!  For testing only until best practice found
-      const passwordInput = $('.js-password-input').val();
-      attemptLogin(usernameInput, passwordInput);
+      const emailInput = $('.js-email-input').val().toLowerCase();
+      attemptLogin(emailInput);
       // For clicks to 'register': load registration page
     } else if ($(event.target).hasClass('js-register-button')) {
       loadRegisterHtml();
@@ -951,10 +942,6 @@ function handleLoginOrRegister() {
 
 function checkUserLoggedIn() {
   // ===== Aspiration: app remembers whether user is logged in. =====
-  /* if (user is logged in) {
-  getDataUsingUsername(for user)
-  } else {
-  */
   // for now, we assume user isn't logged in:
   loadLoginOrRegisterHtml();
 }
@@ -1020,4 +1007,4 @@ function startFunctionChain() {
 startFunctionChain();
 
 // For testing:
-// getDataUsingUsername('mel');
+// getDataUsingEmail('mel');

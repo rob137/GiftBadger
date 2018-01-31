@@ -30,10 +30,10 @@ app.get('/users', (req, res) => {
     });
 });
 
-app.get('/users/:username', (req, res) => {
+app.get('/users/:email', (req, res) => {
   console.log('GET request received.');
   UserData
-    .findOne({ username: req.params.username })
+    .findOne({ email: req.params.email })
     .then((user) => { console.log(user); res.json(user.serialize()); })
     .catch((err) => {
       console.log(err);
@@ -44,7 +44,7 @@ app.get('/users/:username', (req, res) => {
 
 // --------------------- POST ----------------------
 app.post('/users', (req, res) => {
-  const requiredFields = ['username', 'firstName', 'email'];
+  const requiredFields = ['firstName', 'email'];
   requiredFields.forEach((requiredField) => {
     if (!(requiredField in req.body)) {
       const message = `missing ${requiredField} in request body`;
@@ -55,7 +55,6 @@ app.post('/users', (req, res) => {
   });
   UserData
     .create({
-      username: req.body.username,
       firstName: req.body.firstName,
       email: req.body.email,
     })

@@ -1,22 +1,21 @@
 const chai = require('chai');
 const chaiHttp = require('chai-http');
 const expect = require('chai').expect;
-const {app, runServer, closeServer} = require('../server');
+const { app, runServer, closeServer } = require('../server');
+
 chai.use(chaiHttp);
 
 // --------- TEST PRECONDITIONS --------
-describe('server test', function() {
-	
-	before(function() {
+describe('server test', () => {
+  before(() => {
 		return runServer();
 	});
-	
-	after(function() {
+
+  after(() => {
 		return closeServer();
 	});
-
-	// --------- TESTS --------
-	describe('Root url', function() {
+  // --------- TESTS --------
+  describe('Root url', () => {
 		it('should give 200 status code', function() {
 			return chai.request(app)
 				.get('/')
@@ -26,6 +25,5 @@ describe('server test', function() {
 				})
 		});
 	});
-			
 });
 

@@ -114,7 +114,7 @@ li {
 	font-weight: bold;
 } 
 
-.validation-warning {
+.validation-warning, .login-not-found {
 	margin: 0 auto;
 	color: red;
 	width: 80%;

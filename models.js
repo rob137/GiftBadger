@@ -1,7 +1,6 @@
 const mongoose = require('mongoose');
 
 const userDataSchema = mongoose.Schema({
-  username: { type: String, required: true },
   firstName: { type: String, required: true },
   email: { type: String, required: true },
   budget: { type: Number },
@@ -14,7 +13,6 @@ const userDataSchema = mongoose.Schema({
 userDataSchema.methods.serialize = function UserDataSchema() {
   return {
     id: this.id,
-    username: this.username,
     firstName: this.firstName,
     email: this.email,
     budget: this.budget,
