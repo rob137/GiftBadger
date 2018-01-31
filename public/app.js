@@ -91,8 +91,9 @@ function generateEditGiftIdeasHtml(recipientName) {
   });
   const lis = lisArr.join('');
   ul = `<ul class="gift-idea-list">${lis}</ul>`;
-  return `<form>
-            <label for="gift-idea">Add a gift idea: </label>
+  return `<p>If you have ideas for gifts, record them here.  You can use this list to help make a decision later.</p> 
+          <form>
+            <label for="gift-idea">Write a gift idea here: </label>
             <input type="text" name="gift-idea" id="gift-idea" class="js-user-gift-idea" required>
             <button class="js-add-to-gift-idea-list">Add</button>
             <input type="submit" class="js-submit-edit js-submit-edit-gift-idea-list" value="Save Changes and Close" name="submit">
