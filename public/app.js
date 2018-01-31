@@ -91,8 +91,8 @@ function generateEditNewGiftListHtml() {
   return editNewGiftListHtml;
 }
 
-function findGiftList(name) {
-  return globalUserData.giftLists.find(item => item.name === name);
+function findGiftList(name, data) {
+  return data.giftLists.find(item => item.name === name);
 }
 
 function createUlFromArr(arr, htmlClassName) {
@@ -124,7 +124,7 @@ function generateGiftIdeasUl(giftList) {
 
 // creates editable list of gift ideas so far for the giftList
 function generateEditGiftIdeasHtml(giftListName) {
-  const giftList = findGiftList(giftListName);
+  const giftList = findGiftList(giftListName, globalUserData);
   const ul = generateGiftIdeasUl(giftList);
   const giftListNameInTitleCase = convertStringToTitleCase(giftList.name);
   return `<p>If you have ideas for gifts, record them here.  You can use this list to help make a decision later.</p> 
@@ -157,7 +157,7 @@ function prepareAndGenerateEventLi(event) {
 }
 
 function generateEditEventsHtml(giftListName) {
-  const giftList = findGiftList(giftListName);
+  const giftList = findGiftList(giftListName, globalUserData);
   const giftListNameInTitleCase = convertStringToTitleCase(giftList.name);
   const lisArr = giftList.events.map(event => prepareAndGenerateEventLi(event));
   const ul = createUlFromArr(lisArr, 'event-list');
@@ -184,22 +184,17 @@ function generateGiftIdeaLi(giftIdea) {
             </li>`;
 }
 
-
 function generateGiftIdeaUl(giftIdeas) {
   const lisArr = giftIdeas.map(giftIdea => generateGiftIdeaLi(giftIdea));
   const ul = createUlFromArr(lisArr, 'gift-idea-list');
   return ul;
 }
 
-function findRecipientObject(giftListName, userData) {
-  return userData.giftLists.find(item => item.name === giftListName);
-}
-
 function generateEditGiftPickedHtml(giftListName, userEventName, userEventDate) {
-  const giftList = findRecipientObject(giftListName, globalUserData);
-  const giftIdeasUl = generateGiftIdeaUl(giftList.giftIdeas);
   const giftListNameInTitleCase = convertStringToTitleCase(giftListName);
   const userEventNameInTitleCase = convertStringToTitleCase(userEventName);
+  const giftList = findGiftList(giftListName, globalUserData);
+  const giftIdeasUl = generateGiftIdeaUl(giftList.giftIdeas);
   return `<form>
             <p class="js-validation-warning validation-warning"></p>
             <h3><span class="js-gift-list-name">${giftListNameInTitleCase}</span>: <span class="js-event-header"><span class="js-event-name-edit">${userEventNameInTitleCase}</span> on <span class="js-event-date-edit">${userEventDate}</span></span></h3>
@@ -238,19 +233,20 @@ function displayAddedMessage(target) {
   $(target).after('<span class="js-added-message"> Added - scroll up!</span>');
 }
 
-function putGiftToAddInInputBox(target, giftForGiving) {
-  $(target).closest('div').find('.js-user-gift-picked').attr('value', giftForGiving);
+function insertGiftText(target, giftName) {
+  $(target).closest('div').find('.js-user-gift-picked').attr('value', giftName);
 }
 
 // For adding gift ideas to 'gifts picked for event'.
 function listenForClickToAddGiftIdeaToEvent() {
   $('.js-give').on('click', (event) => {
-    const giftForGiving = $(event.target).siblings('.js-gift-idea').text();
+    const giftName = $(event.target).siblings('.js-gift-idea').text();
     const closestDiv = $(event.target).closest('div');
     // Hides previous 'Added - scroll up!' message and adds a new one to target.
     hideAddedMessages(closestDiv);
     displayAddedMessage(event.target);
-    putGiftToAddInInputBox(event.target, giftForGiving);
+    // Puts gift name into input box
+    insertGiftText(event.target, giftName);
   });
 }
 
@@ -263,58 +259,64 @@ function showPersonalisedHeader(firstName) {
           <p><a  class="js-delete-profile" target="_blank" href="javascript:;">Delete your profile</a></p>`);
 }
 
-// Called by showGiftLists(). Creates and shows a budget 'progress bar' and numbers
-function showBudget() {
-  let budgetHtml;
-  let totalBudget;
-  let giftLists;
-  let eventsArr;
-  let spendSoFar;
-  let spanWidth;
-  let percentageSpend;
-  // default budget is 0, so this checks user has provided a budget
-  if (!globalUserData.budget || !(globalUserData.budget > 0)) {
-    budgetHtml = `
+function generateDefaultBudgetHtml() {
+  return `<h2>Your Remaining Budget</h2>
+          <p>Click <a class="js-edit-budget js-edit edit-alt" target="_blank" href="javascript:;">here</a> to enter your budget!</p>`;
+}
+
+function getPercentage(spendSoFar, totalBudget) {
+  return Math.floor((spendSoFar / totalBudget) * 100);
+}
+
+function getSpanWidthForProgressBar(percentageSpent) {
+  let spanWidth = 100 - percentageSpent;
+  // in case they are over budget
+  if (spanWidth > 100) {
+    spanWidth = 100;
+  }
+  return spanWidth;
+}
+
+function getAllGiftPrices(eventsArr) {
+  return eventsArr.map(event => event.giftsPicked)
+    .reduce((arrayOfGiftsObjs, giftsObj) => arrayOfGiftsObjs.concat(giftsObj))
+    .map(giftPicked => Number(giftPicked.price))
+    .reduce((priceOfGift, total) => priceOfGift + total);
+}
+
+function calculateSpendSoFar(giftLists) {
+  const eventsArr = giftLists.map(giftList => giftList.events)
+    .reduce((total, amount) => total.concat(amount));
+  const totalCost = getAllGiftPrices(eventsArr);
+  return totalCost
+}
+
+function generatePersonalisedBudgetHtml() {
+  const totalBudget = globalUserData.budget;
+  const { giftLists } = globalUserData;
+  // Get all gift prices in user profile
+  const spentSoFar = calculateSpendSoFar(giftLists);
+  const percentageSpent = getPercentage(spentSoFar, totalBudget);
+  const spanWidth = getSpanWidthForProgressBar(percentageSpent);
+  const budgetHtml = `
       <h2>Your Remaining Budget</h2>
-      <p>Click <a class="js-edit-budget js-edit edit-alt" target="_blank" href="javascript:;">here</a> to enter your budget!</p>`;
-  } else {
-    totalBudget = globalUserData.budget;
-    ({ giftLists } = globalUserData);
-    eventsArr = [];
-    spendSoFar = 0;
-    spanWidth = 0;
-
-    // !!!!! Use reduce
-    giftLists.forEach((giftList) => {
-      giftList.events.forEach((event) => {
-        eventsArr.push(event);
-      });
-    });
-
-    // !!!!! Use reduce
-    eventsArr.forEach((event) => {
-      if (event.giftsPicked.length > 0) {
-        (event.giftsPicked).forEach((giftPicked) => {
-          spendSoFar += Number(giftPicked.price);
-        });
-      }
-    });
-
-    percentageSpend = Math.floor((spendSoFar / totalBudget) * 100);
-    spanWidth = 100 - percentageSpend;
-    // in case they are over budget
-    if (spanWidth > 100) {
-      spanWidth = 100;
-    }
-
-    budgetHtml = `
-      <h2>Your Remaining Budget</h2>
-      <p>So far, you've spent £${spendSoFar} (${percentageSpend}%) of your £${totalBudget} budget.
+      <p>So far, you've spent £${spentSoFar} (${percentageSpent}%) of your £${totalBudget} budget.
         <a target="_blank" href="javascript:;"><span class="js-edit-budget js-edit edit">edit</span></a>
       </p>
       <div class="budget-meter">
         <span class="budget-span" style="width: ${spanWidth}%"></span>
       </div>`;
+  return budgetHtml;
+}
+
+// Called by showGiftLists(). Creates and shows a budget 'progress bar' and numbers
+function showBudget() {
+  let budgetHtml;
+  // default budget is 0, so this checks user has provided a budget
+  if (!globalUserData.budget || globalUserData.budget < 1) {
+    budgetHtml = generateDefaultBudgetHtml();
+  } else {
+    budgetHtml = generatePersonalisedBudgetHtml();
   }
   $('.js-budget').append(budgetHtml);
 }
@@ -1072,4 +1074,4 @@ function startFunctionChain() {
 startFunctionChain();
 
 // For testing:
-// getDataUsingEmail('robertaxelkirby@gmail.com');
+getDataUsingEmail('robertaxelkirby@gmail.com');
