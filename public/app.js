@@ -819,7 +819,7 @@ function getDataUsingEmail(emailInput) {
     globalUserData = userJson;
     setTimeout(() => {
       loadPersonalisedPage();
-    }, 300);
+    }, 50);
   });
 }
 
@@ -861,7 +861,7 @@ function handleRegistrationSubmission() {
     // remove login page
     resetHtml();
     // Load user's gift list!
-    setTimeout(getDataUsingEmail(emailInput), 300);
+    setTimeout(getDataUsingEmail(emailInput), 50);
   }
 }
 
@@ -875,12 +875,12 @@ function attemptLogin(emailInput) {
       loadLoginOrRegisterHtml();
       $('.js-login-not-found').text('Please check you have typed your email correctly and try again.');
     }
-  }, 500);
+  }, 1000);
 }
 
 function loadRegisterHtml() {
   const registerHtml = `
-        <h1>Gift Organiser</h1>
+        <h1>Gift Organiser For Your Google Calendar</h1>
         <h2>Register</h2>
         <form class="js-registration registration">
           <label for="firstName">First Name: </label>
@@ -897,7 +897,7 @@ function loadRegisterHtml() {
 
 function loadLoginOrRegisterHtml() {
   const loginOrRegisterHtml = `
-  <h1>Gift Organiser</h1>
+  <h1>Gift Organiser For Your Google Calendar</h1>
   <form>
     <h2>Login</h2>
     <p class="js-login-not-found login-not-found"></p>
