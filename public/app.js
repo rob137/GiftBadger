@@ -23,9 +23,15 @@ function GiftList(giftsListName) {
   this.giftIdeas = [];
 }
 
-
 function wipeListenerFromClass(target) {
   $(target).off('click');
+}
+
+// Strings are stored in db in lowercase, so this prepares them for insertion into GUI
+function convertStringToTitleCase(str) {
+  let strArr = str.split(' ');
+  strArr = strArr.map(item => item.charAt(0).toUpperCase() + item.slice(1, item.length));
+  return strArr.join(' ');
 }
 
 function checkEventDateIsInFuture(dateProvided) {
@@ -52,7 +58,8 @@ function generateEditBudgetHtml() {
 }
 
 function generateGiftlistsLi(name) {
-  return `<li><span class="js-giftlist-name">${name}</span> <a target="_blank" href="javascript:;" class="js-remove remove">Remove</a></li>`;
+  const nameWithTitleCase = convertStringToTitleCase(name);
+  return `<li><span class="js-giftlist-name">${nameWithTitleCase}</span> <a target="_blank" href="javascript:;" class="js-remove remove">Remove</a></li>`;
 }
 
 function generateSavedEventsHtml() {
@@ -84,21 +91,42 @@ function generateEditNewGiftListHtml() {
   return editNewGiftListHtml;
 }
 
-// GUD!
+function findGiftList(name) {
+  return globalUserData.giftLists.find(item => item.name === name);
+}
+
+function createUlFromArr(arr, htmlClassName) {
+  const lis = arr.join('');
+  return `<ul class="${htmlClassName}">
+            ${lis}
+          </ul>`;
+}
+
+
+function generateLiWithRemoveElement(spanClass, spanText) {
+  return `<li>
+             <span class="$(spanClass)">${spanText}</span>
+             <a target="_blank" href="javascript:;" class="js-remove remove">Remove</a>
+           </li>`;
+}
+
+function prepareAndGenerateGiftIdeaLi(giftIdea) {
+  const spanClass = 'js-gift-idea-input';
+  const spanText = convertStringToTitleCase(giftIdea);
+  return generateLiWithRemoveElement(spanClass, spanText);
+}
+
+function generateGiftIdeasUl(giftList) {
+  const lisArr = giftList.giftIdeas.map(giftIdea => prepareAndGenerateGiftIdeaLi(giftIdea));
+  const ul = createUlFromArr(lisArr, 'gift-idea-list');
+  return ul;
+}
+
 // creates editable list of gift ideas so far for the giftList
 function generateEditGiftIdeasHtml(giftListName) {
-  let ul = '';
-  let html;
-  const giftList = globalUserData.giftLists.find(item => item.name === giftListName);
-  const lisArr = giftList.giftIdeas.map((x) => {
-    html = `<li>
-              <span class="js-gift-idea-input">${x}</span> 
-              <a target="_blank" href="javascript:;" class="js-remove remove">Remove</a>
-            </li>`;
-    return html;
-  });
-  const lis = lisArr.join('');
-  ul = `<ul class="gift-idea-list">${lis}</ul>`;
+  const giftList = findGiftList(giftListName);
+  const ul = generateGiftIdeasUl(giftList);
+  const giftListNameInTitleCase = convertStringToTitleCase(giftList.name);
   return `<p>If you have ideas for gifts, record them here.  You can use this list to help make a decision later.</p> 
           <form>
             <label for="gift-idea">Write a gift idea here: </label>
@@ -108,7 +136,7 @@ function generateEditGiftIdeasHtml(giftListName) {
             <button class="js-cancel-edit">Discard Changes</button>
             <p class="js-validation-warning validation-warning"></p>
             <br><br>
-            <p>Gift ideas for <span class="js-giftlist-name">${giftList.name}</span> so far: </p> 
+            <p>Gift ideas for <span class="js-giftlist-name">${giftListNameInTitleCase}</span> so far: </p> 
             ${ul}
           </form>`;
 }
@@ -119,22 +147,20 @@ function makeHumanReadableDate(date) {
   return output;
 }
 
-function generateEventListLi(event) {
+function prepareAndGenerateEventLi(event) {
+  const eventNameInTitleCase = convertStringToTitleCase(event.eventName);
   const date = makeHumanReadableDate(event.eventDate);
-  return `<li>
-             <span class="js-event-list-input">${event.eventName} on ${date}</span> 
-             <a target="_blank" href="javascript:;" class="js-remove remove">Remove</a>
-           </li>`;
+  const spanText = `${eventNameInTitleCase} on ${date}`;
+  const spanClass = 'js-event-list-input';
+  const li = generateLiWithRemoveElement(spanClass, spanText);
+  return li;
 }
 
 function generateEditEventsHtml(giftListName) {
-  let ul = '';
-  const giftList = globalUserData.giftLists.find(item => item.name === giftListName);
-  const lisArr = giftList.events.map(event => generateEventListLi(event));
-  const lis = lisArr.join('');
-  ul = `<ul class="event-list">
-          ${lis}
-        </ul>`;
+  const giftListNameInTitleCase = convertStringToTitleCase(giftList.name);
+  const giftList = findGiftList(giftListName);
+  const lisArr = giftList.events.map(event => prepareAndGenerateEventLi(event));
+  const ul = createUlFromArr(lisArr, 'event-list');
   return `<form>
             <p class="js-validation-warning validation-warning"></p>
             <label for="event">Add an event: </label>
@@ -145,43 +171,39 @@ function generateEditEventsHtml(giftListName) {
             <input type="submit" class="js-submit-edit js-submit-edit-event-list" value="Save Changes and Close" name="submit">
             <button class="js-cancel-edit">Discard Changes</button>
             <br><br> 
-            <span>Upcoming events for <span class="js-gift-list-name">${giftList.name}</span>: </span>
+            <span>Upcoming events for <span class="js-gift-list-name">${giftListNameInTitleCase}</span>: </span>
             ${ul}
           </form>
   `;
 }
 
 function generateGiftIdeaLi(giftIdea) {
-  const li = `<li>
-              <span class="js-gift-idea">${giftIdea}</span>
+  const giftIdeaInTitleCase = convertStringToTitleCase(giftIdea);
+  return `<li>
+              <span class="js-gift-idea">${giftIdeaInTitleCase}</span>
               <a target="_blank" href="javascript:;" class="js-give give">Give this gift</a>
             </li>`;
-  return li;
 }
 
-function createUlFromArr(arr, htmlClassName) {
-  const lis = arr.join('');
-  return `<ul class="${htmlClassName}">
-            ${lis}
-          </ul>`;
-}
 
 function generateGiftIdeaUl(giftIdeas) {
   const lisArr = giftIdeas.map(giftIdea => generateGiftIdeaLi(giftIdea));
   const ul = createUlFromArr(lisArr, 'gift-idea-list');
   return ul;
 }
+
 function findRecipientObject(giftListName, userData) {
   return userData.giftLists.find(item => item.name === giftListName);
 }
 
-// GUD!
 function generateEditGiftPickedHtml(giftListName, userEventName, userEventDate) {
   const giftList = findRecipientObject(giftListName, globalUserData);
   const giftIdeasUl = generateGiftIdeaUl(giftList.giftIdeas);
+  const giftListNameInTitleCase = convertStringToTitleCase(giftListName);
+  const userEventNameInTitleCase = convertStringToTitleCase(userEventName);
   return `<form>
             <p class="js-validation-warning validation-warning"></p>
-            <h3><span class="js-gift-list-name">${giftListName}</span>: <span class="js-event-header"><span class="js-event-name-edit">${userEventName}</span> on <span class="js-event-date-edit">${userEventDate}</span></span></h3>
+            <h3><span class="js-gift-list-name">${giftListNameInTitleCase}</span>: <span class="js-event-header"><span class="js-event-name-edit">${userEventNameInTitleCase}</span> on <span class="js-event-date-edit">${userEventDate}</span></span></h3>
             <p>Gifts chosen so far: </p><ul class="js-edit-panel-gifts-picked-list"></ul>
             <label for="gift-picked">The name of a new gift you will get for this event: </label>
             <input type="text" name="gift-picked" id="gift-picked" class="js-user-gift-picked" value="" required>
@@ -194,14 +216,13 @@ function generateEditGiftPickedHtml(giftListName, userEventName, userEventDate) 
             <input type="submit" class="js-submit-edit js-submit-edit-gift-picked" value="Save Changes and Close" name="submit">
             <button class="js-cancel-edit">Discard Changes</button>
             <br>
-            <p>... Or choose a gift from your ideas for ${giftList.name} so far: </p> 
+            <p>... Or choose a gift from your ideas for ${giftListNameInTitleCase} so far: </p> 
             ${giftIdeasUl}
           </form>`;
 }
 
 function handleRemoveClick(target) {
-  const toDelete = $(target).closest('li');
-  $(toDelete).remove();
+  $(target).closest('li').remove();
 }
 
 // Called when user submits an online shopping site to accompany a gift choice.
@@ -210,23 +231,35 @@ function validateUrl(input) {
   return re.test(input);
 }
 
+function hideAddedMessages(target) {
+  $(target).find('.js-added-message').remove();
+}
+
+function displayAddedMessage(target) {
+  $(target).after('<span class="js-added-message"> Added - scroll up!</span>');
+}
+
+function putGiftToAddInInputBox(target, giftForGiving) {
+  $(target).closest('div').find('.js-user-gift-picked').attr('value', giftForGiving);
+}
+
 // For adding gift ideas to 'gifts picked for event'.
-// Gets the gift name and puts it in the gift name input box.
 function listenForClickToAddGiftIdeaToEvent() {
-  let giftForGiving;
   $('.js-give').on('click', (event) => {
-    giftForGiving = $(event.target).siblings('.js-gift-idea').text();
-    $(event.target).closest('div').find('.js-added-message').remove();
-    $(event.target).after('<span class="js-added-message"> Added - scroll up!</span>');
-    $(event.target).closest('div').find('.js-user-gift-picked').attr('value', giftForGiving);
+    const giftForGiving = $(event.target).siblings('.js-gift-idea').text();
+    const closestDiv = $(event.target).closest('div');
+    // Hides previous 'Added - scroll up!' message and adds a new one to target.
+    hideAddedMessages(closestDiv);
+    displayAddedMessage(event.target);
+    putGiftToAddInInputBox(event.target, giftForGiving);
   });
 }
 
 // displays page banner with user's first name
 function showPersonalisedHeader(firstName) {
-  const titleName = firstName.charAt(0).toUpperCase() + firstName.slice(1, firstName.length);
+  const nameInTitleCase = convertStringToTitleCase(firstName);
   $('.js-personalised-header')
-    .html(`<h1>Gift Organiser For ${titleName}'s Google Calendar</h1>
+    .html(`<h1>Gift Organiser For ${nameInTitleCase}'s Google Calendar</h1>
           <p><a  class="js-logout" target="_blank" href="javascript:;">Logout</a></p>
           <p><a  class="js-delete-profile" target="_blank" href="javascript:;">Delete your profile</a></p>`);
 }
@@ -294,12 +327,15 @@ function createGoogleShoppingUrl(gift) {
 // Creates text and link for user's gift ideas
 function createGiftsPickedHtml(giftPicked) {
   const { giftName, giftLink, price } = giftPicked;
-  return `<a target="_blank" href="${giftLink}">${giftName}</a> (£${price})`;
+  const giftNameInTitleCase = convertStringToTitleCase(giftName);
+  return `<a target="_blank" href="${giftLink}">${giftNameInTitleCase}</a> (£${price})`;
 }
+
 // Creates text and link for user's gift ideas
 function createGiftIdeasHtml(giftIdea) {
   const shoppingUrl = createGoogleShoppingUrl(giftIdea);
-  return `<a target="_blank" href="${shoppingUrl}">${giftIdea}</a>`;
+  const giftIdeaInTitleCase = convertStringToTitleCase(giftIdea);
+  return `<a target="_blank" href="${shoppingUrl}">${giftIdeaInTitleCase}</a>`;
 }
 
 function prepareGoogleCalendarDate(eventDate) {
@@ -339,8 +375,10 @@ function prepareAddToCalendarHtml(event, giftListArrItem) {
   const eventDate = new Date(event.eventDate);
   // To get the right format for Google Calendar URLs
   const eventDateArr = prepareGoogleCalendarDate(eventDate);
+  const giftListNameInTitleCase = convertStringToTitleCase(giftListArrItem.name);
+  const eventNameInTitleCase = convertStringToTitleCase(event.eventName);
   let addToCalendarLink = `
-    https://www.google.com/calendar/render?action=TEMPLATE&sf=true&output=xml&text=${event.eventName}:+${giftListArrItem.name}&dates=${eventDateArr[0]}/${eventDateArr[1]}&details=`;
+    https://www.google.com/calendar/render?action=TEMPLATE&sf=true&output=xml&text=${eventNameInTitleCase}:+${giftListNameInTitleCase}&dates=${eventDateArr[0]}/${eventDateArr[1]}&details=`;
   addToCalendarLink += prepareGoogleCalendarBodyText(event, giftListArrItem);
   return `<a target="_blank" href="${addToCalendarLink}">Add to your Google Calendar (opens new tab)</a>`;
 }
@@ -350,6 +388,7 @@ function generateGiftsPickedHtml(event) {
   let giftLink;
   let giftPrice;
   const giftsPickedHtmlArr = event.giftsPicked.map((giftPicked) => {
+    const giftPickedNameInTitleCase = convertStringToTitleCase(giftPicked.giftName);
     if (giftPicked.giftLink !== '') {
       ({ giftLink } = giftPicked);
     } else {
@@ -358,7 +397,7 @@ function generateGiftsPickedHtml(event) {
     giftPrice = giftPicked.price;
     return `
     <a target="_blank" href="${giftLink}" class="js-gift-picked">
-      <span class="js-gift-picked-name">${giftPicked.giftName}</span>
+      <span class="js-gift-picked-name">${giftPickedNameInTitleCase}</span>
     </a>
     (£<span class="js-gift-price">${giftPrice}</span>)`;
   });
@@ -373,13 +412,14 @@ function createUpcomingEventsListHtml(giftListArrItem) {
   let eventDate;
   const upcomingEventsListHtmlArr = giftListArrItem.events.map((event) => {
     // Renders human readable dates
+    const eventNameInTitleCase = convertStringToTitleCase(event.eventName);
     eventDate = makeHumanReadableDate(event.eventDate);
     // Dynamic html class/id to help lookup from edit forms
     const dynamicHtmlIdentifier = (`${event.eventName} ${eventDate}`).toLowerCase()
       .replace(',', '').replace(/ /g, '-');
     // The class 'js-event-name' allows us to to look up giftLists[n].events[this event]
     // when the user clicks to choose a gift for the event.
-    upcomingEventsListHtml = `<li class="js-${dynamicHtmlIdentifier}"> <span class="js-event-name">${event.eventName}</span> on <span class="js-event-date">${eventDate}</span>.`;
+    upcomingEventsListHtml = `<li class="js-${dynamicHtmlIdentifier}"> <span class="js-event-name">${eventNameInTitleCase}</span> on <span class="js-event-date">${eventDate}</span>.`;
     if (event.giftsPicked.length > 0) {
       upcomingEventsListHtml += `
         Gift(s) chosen: 
@@ -411,6 +451,7 @@ function createGiftListsHtml() {
       <p>Click <a  class="js-create-new-gift-list js-edit edit-alt" target="_blank" href="javascript:;">here</a> to add/remove people!</p>`;
   // Creates Html for gift ideas: create a gift idea list for each gift list in user's profile
   const giftListsHtmlArr = giftListsArr.map((giftListArrItem) => {
+    const giftListNameInTitleCase = convertStringToTitleCase(giftListArrItem.name);
     // Populate html subsection variables using other functions
     giftIdeasHtmlArr = giftListArrItem.giftIdeas.map(x => createGiftIdeasHtml(x));
     giftIdeasHtml = giftIdeasHtmlArr.join(', ');
@@ -419,7 +460,7 @@ function createGiftListsHtml() {
     // Final Html returned to showGiftLists()
     return `
       <div class="js-gift-list">
-        <h2>${giftListArrItem.name}</h2>
+        <h2>${giftListNameInTitleCase}</h2>
         <h3>Gift Ideas So Far <a target="_blank" href="javascript:;"><span class="js-edit-gift-ideas js-edit edit">edit</span></a></h3> 
         ${giftIdeasHtml}
         <h3>Upcoming Events <a target="_blank" href="javascript:;"><span class="js-edit-events js-edit edit">edit</span></a></h3>
@@ -688,6 +729,7 @@ function handleClicksWithinEditPanel() {
     } else if ($(event.target).hasClass('js-add-to-gift-picked-list')) {
       // Validation
       usersNewGiftName = $('.js-user-gift-picked').val();
+      const usersNewGiftNameInTitleCase = convertStringToTitleCase(usersNewGiftName);
       usersNewGiftUrl = $('.js-user-gift-picked-url').val();
       usersNewGiftPrice = $('.js-user-gift-picked-price').val();
 
@@ -707,7 +749,7 @@ function handleClicksWithinEditPanel() {
         usersNewGiftPickedHtml = `
           <li class="js-gift-picked-edit-list-item">
             <a target="_blank" href="${usersNewGiftUrl}">
-              <span class="js-gift-picked-input js-gift-picked-name">${usersNewGiftName}</span>
+              <span class="js-gift-picked-input js-gift-picked-name">${usersNewGiftNameInTitleCase}</span>
             </a> 
             (£<span class="js-gift-picked-price">${usersNewGiftPrice}</span>) 
             <a target="_blank" href="javascript:;" class="js-remove remove">Remove</a>,
@@ -729,9 +771,10 @@ function handleClicksWithinEditPanel() {
       // Validation
       if ($('.js-user-gift-idea').val()) {
         usersNewGiftIdea = $('.js-user-gift-idea').val();
+        const usersNewGiftIdeaInTitleCase = convertStringToTitleCase(usersNewGiftIdea);
         usersNewGiftIdeaHtml = `
           <li>
-            <span class="js-gift-idea-input">${usersNewGiftIdea}</span>
+            <span class="js-gift-idea-input">${usersNewGiftIdeaInTitleCase}</span>
             <a target="_blank" href="javascript:;" class="js-remove remove">Remove</a>
           </li>`;
         $('.gift-idea-list').append(usersNewGiftIdeaHtml);
@@ -743,24 +786,21 @@ function handleClicksWithinEditPanel() {
       // Events: For when user clicks to 'Add' button to add changes to event list
     } else if ($(event.target).hasClass('js-add-to-event-list')) {
       // Validation
-      console.log(0);
       if ($('.js-user-event-name').val() && checkEventDateIsInFuture($('.js-user-event-date').val())) {
-        console.log(1);
         userEventName = $('.js-user-event-name').val();
+        const userEventNameInTitleCase = convertStringToTitleCase(userEventName);
         userEventDate = makeHumanReadableDate($('.js-user-event-date').val());
         userEventHtml = `
           <li>
-            <span class="js-event-list-input">${userEventName} on ${userEventDate}</span> 
+            <span class="js-event-list-input">${userEventNameInTitleCase} on ${userEventDate}</span> 
             <a target="_blank" href="javascript:;" class="js-remove remove">Remove</a>
           </li>`;
         $('.event-list').append(userEventHtml);
         $('.js-user-event-name').val('');
         $('.js-user-event-date').val('');
       } else {
-        console.log(2);
         $('.js-validation-warning').text('Please enter an event name and future date!');
       }
-      console.log(3);
       // Remove from edit panel (existing gift idea or upcoming event)
     } else if ($(event.target).hasClass('js-remove')) {
       handleRemoveClick(event.target);
