@@ -55,6 +55,18 @@ function generateGiftlistsLi(name) {
   return `<li><span class="js-giftlist-name">${name}</span> <a target="_blank" href="javascript:;" class="js-remove remove">Remove</a></li>`;
 }
 
+function generateSavedEventsHtml() {
+  // defaults to returning an empty ul
+  let ul = '<ul class="js-giftlist-name-list"></ul>';
+  // if gifts are already listed, adds them to the ul
+  if ($('.js-upcoming-events').length > 0) {
+    const lisArr = globalUserData.giftLists.map(x => generateGiftlistsLi(x.name));
+    const lis = lisArr.join('');
+    ul = `<ul class="js-giftlist-name-list">${lis}</ul>`;
+  }
+  return ul;
+}
+
 function generateEditNewGiftListHtml() {
   let editNewGiftListHtml = `
     <form>
@@ -66,23 +78,19 @@ function generateEditNewGiftListHtml() {
       <p class="js-validation-warning validation-warning"></p>
     </form>
     <p>People added so far: </p>`;
-  let ul = '<ul class="js-giftlist-name-list"></ul>';
+  const ul = generateSavedEventsHtml();
   // provided there are events already saved, list them in the edit panel
-  if ($('.js-upcoming-events').length > 0) {
-    const lisArr = globalUserData.giftLists.map(x => generateGiftlistsLi(x.name));
-    const lis = lisArr.join('');
-    ul = `<ul class="js-giftlist-name-list">${lis}</ul>`;
-  }
   editNewGiftListHtml += ul;
   return editNewGiftListHtml;
 }
 
-// creates editable list of gift ideas so far for the recipient
-function generateEditGiftIdeasHtml(recipientName) {
+// GUD!
+// creates editable list of gift ideas so far for the giftList
+function generateEditGiftIdeasHtml(giftListName) {
   let ul = '';
   let html;
-  const recipient = globalUserData.giftLists.find(item => item.name === recipientName);
-  const lisArr = recipient.giftIdeas.map((x) => {
+  const giftList = globalUserData.giftLists.find(item => item.name === giftListName);
+  const lisArr = giftList.giftIdeas.map((x) => {
     html = `<li>
               <span class="js-gift-idea-input">${x}</span> 
               <a target="_blank" href="javascript:;" class="js-remove remove">Remove</a>
@@ -100,7 +108,7 @@ function generateEditGiftIdeasHtml(recipientName) {
             <button class="js-cancel-edit">Discard Changes</button>
             <p class="js-validation-warning validation-warning"></p>
             <br><br>
-            <p>Gift ideas for <span class="js-giftlist-recipient">${recipient.name}</span> so far: </p> 
+            <p>Gift ideas for <span class="js-giftlist-name">${giftList.name}</span> so far: </p> 
             ${ul}
           </form>`;
 }
@@ -111,17 +119,18 @@ function makeHumanReadableDate(date) {
   return output;
 }
 
-function generateEditEventsHtml(recipientName) {
+function generateEventListLi(event) {
+  const date = makeHumanReadableDate(event.eventDate);
+  return `<li>
+             <span class="js-event-list-input">${event.eventName} on ${date}</span> 
+             <a target="_blank" href="javascript:;" class="js-remove remove">Remove</a>
+           </li>`;
+}
+
+function generateEditEventsHtml(giftListName) {
   let ul = '';
-  let date;
-  const recipient = globalUserData.giftLists.find(item => item.name === recipientName);
-  const lisArr = recipient.events.map((event) => {
-    date = makeHumanReadableDate(event.eventDate);
-    return `<li>
-              <span class="js-event-list-input">${event.eventName} on ${date}</span> 
-              <a target="_blank" href="javascript:;" class="js-remove remove">Remove</a>
-            </li>`;
-  });
+  const giftList = globalUserData.giftLists.find(item => item.name === giftListName);
+  const lisArr = giftList.events.map(event => generateEventListLi(event));
   const lis = lisArr.join('');
   ul = `<ul class="event-list">
           ${lis}
@@ -136,31 +145,43 @@ function generateEditEventsHtml(recipientName) {
             <input type="submit" class="js-submit-edit js-submit-edit-event-list" value="Save Changes and Close" name="submit">
             <button class="js-cancel-edit">Discard Changes</button>
             <br><br> 
-            <span>Upcoming events for <span class="js-recipient-name">${recipient.name}</span>: </span>
+            <span>Upcoming events for <span class="js-gift-list-name">${giftList.name}</span>: </span>
             ${ul}
           </form>
   `;
 }
 
-// ============ Recipient should be declared early and passed down ============
-function generateEditGiftPickedHtml(recipientName, userEventName, userEventDate) {
-  let html;
-  let ul = '';
-  const recipient = globalUserData.giftLists.find(item => item.name === recipientName);
-  const lisArr = recipient.giftIdeas.map((giftIdea) => {
-    html = `<li>
+function generateGiftIdeaLi(giftIdea) {
+  const li = `<li>
               <span class="js-gift-idea">${giftIdea}</span>
               <a target="_blank" href="javascript:;" class="js-give give">Give this gift</a>
             </li>`;
-    return html;
-  });
-  const lis = lisArr.join('');
-  ul = `<ul class="gift-idea-list">
-          ${lis}
-        </ul>`;
+  return li;
+}
+
+function createUlFromArr(arr, htmlClassName) {
+  const lis = arr.join('');
+  return `<ul class="${htmlClassName}">
+            ${lis}
+          </ul>`;
+}
+
+function generateGiftIdeaUl(giftIdeas) {
+  const lisArr = giftIdeas.map(giftIdea => generateGiftIdeaLi(giftIdea));
+  const ul = createUlFromArr(lisArr, 'gift-idea-list');
+  return ul;
+}
+function findRecipientObject(giftListName, userData) {
+  return userData.giftLists.find(item => item.name === giftListName);
+}
+
+// GUD!
+function generateEditGiftPickedHtml(giftListName, userEventName, userEventDate) {
+  const giftList = findRecipientObject(giftListName, globalUserData);
+  const giftIdeasUl = generateGiftIdeaUl(giftList.giftIdeas);
   return `<form>
             <p class="js-validation-warning validation-warning"></p>
-            <h3><span class="js-recipient-name">${recipientName}</span>: <span class="js-event-header"><span class="js-event-name-edit">${userEventName}</span> on <span class="js-event-date-edit">${userEventDate}</span></span></h3>
+            <h3><span class="js-gift-list-name">${giftListName}</span>: <span class="js-event-header"><span class="js-event-name-edit">${userEventName}</span> on <span class="js-event-date-edit">${userEventDate}</span></span></h3>
             <p>Gifts chosen so far: </p><ul class="js-edit-panel-gifts-picked-list"></ul>
             <label for="gift-picked">The name of a new gift you will get for this event: </label>
             <input type="text" name="gift-picked" id="gift-picked" class="js-user-gift-picked" value="" required>
@@ -173,8 +194,8 @@ function generateEditGiftPickedHtml(recipientName, userEventName, userEventDate)
             <input type="submit" class="js-submit-edit js-submit-edit-gift-picked" value="Save Changes and Close" name="submit">
             <button class="js-cancel-edit">Discard Changes</button>
             <br>
-            <p>... Or choose a gift from your ideas for ${recipient.name} so far: </p> 
-            ${ul}
+            <p>... Or choose a gift from your ideas for ${giftList.name} so far: </p> 
+            ${giftIdeasUl}
           </form>`;
 }
 
@@ -356,7 +377,7 @@ function createUpcomingEventsListHtml(giftListArrItem) {
     // Dynamic html class/id to help lookup from edit forms
     const dynamicHtmlIdentifier = (`${event.eventName} ${eventDate}`).toLowerCase()
       .replace(',', '').replace(/ /g, '-');
-    // The class 'js-event-name' allows us to to look up giftLists.recipient.events[this event]
+    // The class 'js-event-name' allows us to to look up giftLists[n].events[this event]
     // when the user clicks to choose a gift for the event.
     upcomingEventsListHtml = `<li class="js-${dynamicHtmlIdentifier}"> <span class="js-event-name">${event.eventName}</span> on <span class="js-event-date">${eventDate}</span>.`;
     if (event.giftsPicked.length > 0) {
@@ -397,7 +418,7 @@ function createGiftListsHtml() {
     upcomingEventsListHtml = createUpcomingEventsListHtml(giftListArrItem);
     // Final Html returned to showGiftLists()
     return `
-      <div class="js-recipient-list">
+      <div class="js-gift-list">
         <h2>${giftListArrItem.name}</h2>
         <h3>Gift Ideas So Far <a target="_blank" href="javascript:;"><span class="js-edit-gift-ideas js-edit edit">edit</span></a></h3> 
         ${giftIdeasHtml}
@@ -547,8 +568,8 @@ function saveChangesToGiftlists() {
 
 function saveChangesToGiftIdeas() {
   const newGiftIdeaListArr = [];
-  const recipient = $('.js-giftlist-recipient').text();
-  const giftListToChange = globalUserData.giftLists.find(item => item.name === recipient);
+  const giftList = $('.js-giftlist-name').text();
+  const giftListToChange = globalUserData.giftLists.find(item => item.name === giftList);
   $('.js-gift-idea-input').each((index, value) => {
     newGiftIdeaListArr.push($(value).text());
   });
@@ -560,7 +581,7 @@ function saveChangesToEventList() {
   const newEventListArr = [];
   let eventDateArr = [];
   let eventDateObjArr = [];
-  let recipient;
+  let giftList;
   $('.js-event-list-input').each((index, value) => {
     newEventListArr.push($(value).text());
   });
@@ -570,9 +591,9 @@ function saveChangesToEventList() {
     return eventDateObjArr;
   });
   // Repetition here - refactor it out.
-  recipient = $('.js-recipient-name').text();
-  recipient = globalUserData.giftLists.find(item => item.name === recipient);
-  const i = globalUserData.giftLists.indexOf(recipient);
+  giftList = $('.js-gift-list-name').text();
+  giftList = globalUserData.giftLists.find(item => item.name === giftList);
+  const i = globalUserData.giftLists.indexOf(giftList);
   globalUserData.giftLists[i].events = newEventListObjArr;
 }
 
@@ -580,7 +601,7 @@ function saveChangesToGiftsPicked() {
   const newGiftsPickedArr = [];
   let aElement;
   let giftPickedName;
-  let recipient;
+  let giftList;
   let giftPickedPrice;
   let giftPickedUrl;
   let giftsPickedDataArr;
@@ -597,9 +618,9 @@ function saveChangesToGiftsPicked() {
     newGiftsPickedArr.push(new GiftPicked(giftsPickedDataArr));
   });
   // Repetition here - refactor it.
-  recipient = $('.js-recipient-name').text();
-  recipient = globalUserData.giftLists.find(item => item.name === recipient);
-  const i = globalUserData.giftLists.indexOf(recipient);
+  giftList = $('.js-gift-list-name').text();
+  giftList = globalUserData.giftLists.find(item => item.name === giftList);
+  const i = globalUserData.giftLists.indexOf(giftList);
 
   const eventName = $('.js-event-name-edit').text();
   const eventDate = new Date($('.js-event-date-edit').text()).toString();
@@ -722,9 +743,11 @@ function handleClicksWithinEditPanel() {
       // Events: For when user clicks to 'Add' button to add changes to event list
     } else if ($(event.target).hasClass('js-add-to-event-list')) {
       // Validation
-      if ($('.js-user-event-name').val() && checkEventDateIsInFuture($('.js-user-event-name').val())) {
+      console.log(0);
+      if ($('.js-user-event-name').val() && checkEventDateIsInFuture($('.js-user-event-date').val())) {
+        console.log(1);
         userEventName = $('.js-user-event-name').val();
-        userEventDate = $('.js-user-event-date').val();
+        userEventDate = makeHumanReadableDate($('.js-user-event-date').val());
         userEventHtml = `
           <li>
             <span class="js-event-list-input">${userEventName} on ${userEventDate}</span> 
@@ -734,8 +757,10 @@ function handleClicksWithinEditPanel() {
         $('.js-user-event-name').val('');
         $('.js-user-event-date').val('');
       } else {
+        console.log(2);
         $('.js-validation-warning').text('Please enter an event name and future date!');
       }
+      console.log(3);
       // Remove from edit panel (existing gift idea or upcoming event)
     } else if ($(event.target).hasClass('js-remove')) {
       handleRemoveClick(event.target);
@@ -747,7 +772,7 @@ function handleClicksWithinEditPanel() {
 // The edit panel is hidden & blank until user clicks an edit option.
 function handleOpenEditPanelClicks() {
   let editHtml = '';
-  let recipientName;
+  let giftListName;
   let userEventName;
   let userEventDate;
 
@@ -755,7 +780,7 @@ function handleOpenEditPanelClicks() {
   $('main').on('click', (event) => {
     if ($(event.target).hasClass('js-edit')) {
       hideAndWipeEditPanel();
-      recipientName = $(event.target).closest('.js-recipient-list').find('h2').text();
+      giftListName = $(event.target).closest('.js-gift-list').find('h2').text();
       // edit panel for changing budget
       if ($(event.target).hasClass('js-edit-budget')) {
         editHtml = generateEditBudgetHtml();
@@ -764,10 +789,10 @@ function handleOpenEditPanelClicks() {
         editHtml = generateEditNewGiftListHtml();
         // edit panel for changing gift ideas
       } else if ($(event.target).hasClass('js-edit-gift-ideas')) {
-        editHtml = generateEditGiftIdeasHtml(recipientName);
+        editHtml = generateEditGiftIdeasHtml(giftListName);
         // edit panel for changing upcoming events
       } else if ($(event.target).hasClass('js-edit-events')) {
-        editHtml = generateEditEventsHtml(recipientName);
+        editHtml = generateEditEventsHtml(giftListName);
         // edit panel for changing gifts picked for a particular event
       } else if ($(event.target).hasClass('js-edit-gift-picked')) {
         // Gets the event name from the dom - used to look up event object in json
@@ -784,7 +809,7 @@ function handleOpenEditPanelClicks() {
           userEventDate = $(event.target).parent().find('.js-event-date')
             .html();
         }
-        editHtml = generateEditGiftPickedHtml(recipientName, userEventName, userEventDate);
+        editHtml = generateEditGiftPickedHtml(giftListName, userEventName, userEventDate);
       }
       // Populate the edit panel with the HTML, and show the panel.
       $('.js-edit-panel').show();
