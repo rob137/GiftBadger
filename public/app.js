@@ -157,8 +157,8 @@ function prepareAndGenerateEventLi(event) {
 }
 
 function generateEditEventsHtml(giftListName) {
-  const giftListNameInTitleCase = convertStringToTitleCase(giftList.name);
   const giftList = findGiftList(giftListName);
+  const giftListNameInTitleCase = convertStringToTitleCase(giftList.name);
   const lisArr = giftList.events.map(event => prepareAndGenerateEventLi(event));
   const ul = createUlFromArr(lisArr, 'event-list');
   return `<form>
@@ -173,8 +173,7 @@ function generateEditEventsHtml(giftListName) {
             <br><br> 
             <span>Upcoming events for <span class="js-gift-list-name">${giftListNameInTitleCase}</span>: </span>
             ${ul}
-          </form>
-  `;
+          </form>`;
 }
 
 function generateGiftIdeaLi(giftIdea) {
@@ -1073,4 +1072,4 @@ function startFunctionChain() {
 startFunctionChain();
 
 // For testing:
-getDataUsingEmail('robertaxelkirby@gmail.com');
+// getDataUsingEmail('robertaxelkirby@gmail.com');
