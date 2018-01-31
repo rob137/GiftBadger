@@ -28,10 +28,10 @@ function wipeListenerFromClass(target) {
   $(target).off('click');
 }
 
-function checkEventDateIsInFuture() {
-  const userDate = new Date($('.js-user-event-date').val());
+function checkEventDateIsInFuture(dateProvided) {
+  const dateToTest = new Date(dateProvided);
   const now = new Date();
-  return userDate > now;
+  return dateToTest > now;
 }
 
 function generateEditBudgetHtml() {
@@ -105,9 +105,6 @@ function generateEditGiftIdeasHtml(recipientName) {
           </form>`;
 }
 
-// Mum !!!!! Reminders for gift events
-// Shaf !!!!! Allow gift lists to have names with spaces. Make it clearer that links are helpful... Grey out save when list is empty.... GCal Date set to 31 Jan... automatic notifications. 
-
 function makeHumanReadableDate(date) {
   const d = new Date(date);
   const output = `${weekDaysArr[d.getDay()]} ${d.getDate()} ${monthNames[d.getMonth()]} ${d.getFullYear()}`;
@@ -130,6 +127,7 @@ function generateEditEventsHtml(recipientName) {
           ${lis}
         </ul>`;
   return `<form>
+            <p class="js-validation-warning validation-warning"></p>
             <label for="event">Add an event: </label>
             <input type="text" name="event-name" id="event-name" class="js-user-event-name" required>
             <label for="event">Date: </label>
@@ -317,9 +315,9 @@ function prepareGoogleCalendarBodyText(event, giftListArrItem) {
 
 // prepares google calendar link - see 'addToCalendarLink' for the template of the link.
 function prepareAddToCalendarHtml(event, giftListArrItem) {
-  let eventDate = new Date(event.eventDate);
+  const eventDate = new Date(event.eventDate);
   // To get the right format for Google Calendar URLs
-  eventDateArr = prepareGoogleCalendarDate(eventDate);
+  const eventDateArr = prepareGoogleCalendarDate(eventDate);
   let addToCalendarLink = `
     https://www.google.com/calendar/render?action=TEMPLATE&sf=true&output=xml&text=${event.eventName}:+${giftListArrItem.name}&dates=${eventDateArr[0]}/${eventDateArr[1]}&details=`;
   addToCalendarLink += prepareGoogleCalendarBodyText(event, giftListArrItem);
@@ -368,7 +366,7 @@ function createUpcomingEventsListHtml(giftListArrItem) {
         <a target="_blank" class="js-edit js-edit-gift-picked edit" href="javascript:;">edit</a>`;
     } else {
       upcomingEventsListHtml +=
-        '<br><span>(Psst! Chosen them a gift yet? Click <a target="_blank" class="js-edit js-edit-gift-picked" href="javascript:;">here</a> to save your decision.)</span>';
+        '<br><span>(If you\'ve decided what you\'re giving them for this event, then click <a target="_blank" class="js-edit js-edit-gift-picked" href="javascript:;">here</a> to save your decision.)</span>';
     }
     upcomingEventsListHtml += '</li>';
     addToCalendarHtml = prepareAddToCalendarHtml(event, giftListArrItem);
@@ -391,7 +389,6 @@ function createGiftListsHtml() {
       <h2>Gift Lists</h2>
       <p>Click <a  class="js-create-new-gift-list js-edit edit-alt" target="_blank" href="javascript:;">here</a> to add/remove people!</p>`;
   // Creates Html for gift ideas: create a gift idea list for each gift list in user's profile
-  console.log(giftListsArr);
   const giftListsHtmlArr = giftListsArr.map((giftListArrItem) => {
     // Populate html subsection variables using other functions
     giftIdeasHtmlArr = giftListArrItem.giftIdeas.map(x => createGiftIdeasHtml(x));
@@ -725,7 +722,7 @@ function handleClicksWithinEditPanel() {
       // Events: For when user clicks to 'Add' button to add changes to event list
     } else if ($(event.target).hasClass('js-add-to-event-list')) {
       // Validation
-      if ($('.js-user-event-name').val() && checkEventDateIsInFuture()) {
+      if ($('.js-user-event-name').val() && checkEventDateIsInFuture($('.js-user-event-name').val())) {
         userEventName = $('.js-user-event-name').val();
         userEventDate = $('.js-user-event-date').val();
         userEventHtml = `
@@ -869,19 +866,6 @@ function handleRegistrationSubmission() {
   }
 }
 
-function attemptLogin(emailInput) {
-  $('.js-login-or-register').html('<p>Loading...</p>');
-  if (emailInput) {
-    getDataUsingEmail(emailInput);
-  }
-  setTimeout(() => {
-    if (!globalUserData) {
-      loadLoginOrRegisterHtml();
-      $('.js-login-not-found').text('Please check you have typed your email correctly and try again.');
-    }
-  }, 1000);
-}
-
 function loadRegisterHtml() {
   const registerHtml = `
         <h1>Gift Organiser For Your Google Calendar</h1>
@@ -913,6 +897,19 @@ function loadLoginOrRegisterHtml() {
   <button class="js-register-button login-register-buttons">Register</button>
   `;
   $('.js-login-or-register').html(loginOrRegisterHtml);
+}
+
+function attemptLogin(emailInput) {
+  $('.js-login-or-register').html('<p>Loading...</p>');
+  if (emailInput) {
+    getDataUsingEmail(emailInput);
+  }
+  setTimeout(() => {
+    if (!globalUserData) {
+      loadLoginOrRegisterHtml();
+      $('.js-login-not-found').text('Please check you have typed your email correctly and try again.');
+    }
+  }, 1000);
 }
 
 function listenForRegistrationClicks() {
