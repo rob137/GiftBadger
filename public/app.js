@@ -288,7 +288,7 @@ function calculateSpendSoFar(giftLists) {
   const eventsArr = giftLists.map(giftList => giftList.events)
     .reduce((total, amount) => total.concat(amount));
   const totalCost = getAllGiftPrices(eventsArr);
-  return totalCost
+  return totalCost;
 }
 
 function generatePersonalisedBudgetHtml() {
@@ -339,39 +339,46 @@ function createGiftIdeasHtml(giftIdea) {
   return `<a target="_blank" href="${shoppingUrl}">${giftIdeaInTitleCase}</a>`;
 }
 
+function getNextDay(inputDate) {
+  const year = inputDate.getYear() + 1900;
+  const month = inputDate.getMonth();
+  const date = inputDate.getDate();
+  return new Date(year, month, date + 1);
+}
+
+function formatDateStringForUrl(inputDate) {
+  return inputDate.toISOString().slice(0, 10).replace(/-/g, '');
+}
+
 function prepareGoogleCalendarDate(eventDate) {
-  const year = eventDate.getYear() + 1900;
-  const month = eventDate.getMonth();
-  const theDate = eventDate.getDate();
+  const eventDatePlusOneDay = getNextDay(eventDate);
   const resultsArr = [];
-  const eventDatePlusOneDay = new Date(year, month, theDate + 1);
-  resultsArr.push(eventDate.toISOString().slice(0, 10).replace(/-/g, ''));
-  resultsArr.push(eventDatePlusOneDay.toISOString().slice(0, 10).replace(/-/g, ''));
+  resultsArr.push(formatDateStringForUrl(eventDate));
+  resultsArr.push(formatDateStringForUrl(eventDatePlusOneDay));
   return resultsArr;
 }
 
+function generateCalendarBodyTextForGifts(giftsArr, createHtmlFn) {
+  const listHtmlArr = giftsArr.map(x => createHtmlFn(x));
+  return listHtmlArr.join(', ');
+}
+
+// Prepares the event description for google calendar entry.
 function prepareGoogleCalendarBodyText(event, giftListArrItem) {
-  let encodedBodyText;
-  let giftIdeasHtml;
-  let giftIdeasHtmlArr;
   let calendarBodyText;
   if (event.giftsPicked.length > 0) {
-    // Will either display link for chosen gift(s)...
-    const listHtmlArr = event.giftsPicked.map(x => createGiftsPickedHtml(x));
-    const listHtml = listHtmlArr.join(', ');
-    encodedBodyText = encodeURIComponent(`You've decided to get these gift(s): ${listHtml}`);
-    calendarBodyText = encodedBodyText;
+    // Will either populate calendar entry with text containing links for gift(s) chosen by user...
+    calendarBodyText = encodeURIComponent('You\'ve decided to get these gift(s):\n\n' +
+      `${generateCalendarBodyTextForGifts(event.giftsPicked, createGiftsPickedHtml)}`);
   } else {
-    // ... or will display links to google shopping searches for gift ideas.
-    giftIdeasHtmlArr = giftListArrItem.giftIdeas.map(x => createGiftIdeasHtml(x));
-    giftIdeasHtml = giftIdeasHtmlArr.join(', ');
-    encodedBodyText = encodeURIComponent(`You still need to decide on a gift!\n\nGift ideas so far: ${giftIdeasHtml}`);
-    calendarBodyText = encodedBodyText;
+    // ... or with links to google shopping searches for user's gift ideas.
+    calendarBodyText = encodeURIComponent('You still need to decide on a gift!\n\nGift ideas so far:\n\n' +
+      `${generateCalendarBodyTextForGifts(giftListArrItem.giftIdeas, createGiftIdeasHtml)}`);
   }
   return calendarBodyText;
 }
 
-// prepares google calendar link - see 'addToCalendarLink' for the template of the link.
+// prepares google calendar link - see var 'addToCalendarLink' for the template of the link.
 function prepareAddToCalendarHtml(event, giftListArrItem) {
   const eventDate = new Date(event.eventDate);
   // To get the right format for Google Calendar URLs
@@ -384,59 +391,71 @@ function prepareAddToCalendarHtml(event, giftListArrItem) {
   return `<a target="_blank" href="${addToCalendarLink}">Add to your Google Calendar (opens new tab)</a>`;
 }
 
-// As above, but html is for gifts picked for specific events
-function generateGiftsPickedHtml(event) {
-  let giftLink;
-  let giftPrice;
-  const giftsPickedHtmlArr = event.giftsPicked.map((giftPicked) => {
-    const giftPickedNameInTitleCase = convertStringToTitleCase(giftPicked.giftName);
-    if (giftPicked.giftLink !== '') {
-      ({ giftLink } = giftPicked);
-    } else {
-      giftLink = createGoogleShoppingUrl(giftPicked.giftName);
-    }
-    giftPrice = giftPicked.price;
-    return `
-    <a target="_blank" href="${giftLink}" class="js-gift-picked">
-      <span class="js-gift-picked-name">${giftPickedNameInTitleCase}</span>
-    </a>
-    (£<span class="js-gift-price">${giftPrice}</span>)`;
-  });
+function assignGiftLink(giftPicked) {
+  // If the user has provided a specific link, use it...
+  if (giftPicked.giftLink !== '') {
+    return giftPicked.giftLink;
+  }
+  // ... else, give them a Google shopping link
+  return createGoogleShoppingUrl(giftPicked.giftName);
+}
+
+function generateGiftsPickedHtml(giftPicked) {
+  const giftPickedNameInTitleCase = convertStringToTitleCase(giftPicked.giftName);
+  const giftLink = assignGiftLink(giftPicked);
+  const giftPrice = giftPicked.price;
+  return `
+  <a target="_blank" href="${giftLink}" class="js-gift-picked">
+    <span class="js-gift-picked-name">${giftPickedNameInTitleCase}</span>
+  </a>
+  (£<span class="js-gift-price">${giftPrice}</span>)`;
+}
+
+function serveGiftsPickedHtml(event) {
+  const giftsPickedHtmlArr = event.giftsPicked.map(gift => generateGiftsPickedHtml(gift));
   return giftsPickedHtmlArr.join();
 }
 
+// inserted into html elements to make selection easy later
+function generateDynamicHtmlIdentifier(event, eventDate) {
+  return (`${event.eventName} ${eventDate}`)
+    .toLowerCase()
+    .replace(',', '')
+    .replace(/ /g, '-');
+}
+
+function generateGiftPickedHtml(dynamicHtmlIdentifier, event) {
+  return `Gift(s) chosen: 
+          <span id="js-${dynamicHtmlIdentifier}">${serveGiftsPickedHtml(event)}</span>
+          <a target="_blank" class="js-edit js-edit-gift-picked edit" href="javascript:;">edit</a>`;
+}
+
+function generateUpcomingEventsLis(event, giftListArrItem) {
+  const eventNameInTitleCase = convertStringToTitleCase(event.eventName);
+  const eventDate = makeHumanReadableDate(event.eventDate);
+  const dynamicHtmlIdentifier = generateDynamicHtmlIdentifier(event, eventDate);
+  // The class 'js-event-name' allows us to to look up giftLists[n].events[this event]
+  // when the user clicks to choose a gift for the event.
+  let upcomingEventsListHtml = `<li class="js-${dynamicHtmlIdentifier}"> <span class="js-event-name">${eventNameInTitleCase}</span> on <span class="js-event-date">${eventDate}</span>.`;
+  if (event.giftsPicked.length > 0) {
+    upcomingEventsListHtml += generateGiftPickedHtml(dynamicHtmlIdentifier, event);
+  } else {
+    upcomingEventsListHtml +=
+      '<br><span>(If you\'ve decided what you\'re giving them for this event, then click <a target="_blank" class="js-edit js-edit-gift-picked" href="javascript:;">here</a> to save your decision.)</span>';
+  }
+  upcomingEventsListHtml += '</li>';
+  let addToCalendarHtml = prepareAddToCalendarHtml(event, giftListArrItem);
+  upcomingEventsListHtml += addToCalendarHtml;
+  return upcomingEventsListHtml;
+
+}
+
 // Prepares events html for each gift list in user's profile; returns it to createGiftListsHtml()
-function createUpcomingEventsListHtml(giftListArrItem) {
-  // *** Opening ul tag ***
-  let upcomingEventsListHtml = '<ul>';
-  let addToCalendarHtml;
-  let eventDate;
-  const upcomingEventsListHtmlArr = giftListArrItem.events.map((event) => {
-    // Renders human readable dates
-    const eventNameInTitleCase = convertStringToTitleCase(event.eventName);
-    eventDate = makeHumanReadableDate(event.eventDate);
-    // Dynamic html class/id to help lookup from edit forms
-    const dynamicHtmlIdentifier = (`${event.eventName} ${eventDate}`).toLowerCase()
-      .replace(',', '').replace(/ /g, '-');
-    // The class 'js-event-name' allows us to to look up giftLists[n].events[this event]
-    // when the user clicks to choose a gift for the event.
-    upcomingEventsListHtml = `<li class="js-${dynamicHtmlIdentifier}"> <span class="js-event-name">${eventNameInTitleCase}</span> on <span class="js-event-date">${eventDate}</span>.`;
-    if (event.giftsPicked.length > 0) {
-      upcomingEventsListHtml += `
-        Gift(s) chosen: 
-        <span id="js-${dynamicHtmlIdentifier}">${generateGiftsPickedHtml(event)}</span>
-        <a target="_blank" class="js-edit js-edit-gift-picked edit" href="javascript:;">edit</a>`;
-    } else {
-      upcomingEventsListHtml +=
-        '<br><span>(If you\'ve decided what you\'re giving them for this event, then click <a target="_blank" class="js-edit js-edit-gift-picked" href="javascript:;">here</a> to save your decision.)</span>';
-    }
-    upcomingEventsListHtml += '</li>';
-    addToCalendarHtml = prepareAddToCalendarHtml(event, giftListArrItem);
-    upcomingEventsListHtml += addToCalendarHtml;
-    return upcomingEventsListHtml;
-  });
-  let result = upcomingEventsListHtmlArr.join('');
-  result += '</ul>';
+function generateUpcomingEventsUl(giftListArrItem) {
+  const upcomingEventsListHtmlArr = giftListArrItem.events
+    .map(event => generateUpcomingEventsLis(event, giftListArrItem));
+  const ulTags = '<ul></ul>';
+  const result = ulTags.slice(0, 4) + upcomingEventsListHtmlArr.join('') + ulTags.slice(4, 9);
   return result;
 }
 
@@ -445,7 +464,7 @@ function createGiftListsHtml() {
   const giftListsArr = globalUserData.giftLists;
   let giftIdeasHtmlArr;
   // Html sub-sections populated by other functions
-  let upcomingEventsListHtml;
+  let upcomingEventsUl;
   let giftIdeasHtml = '';
   let giftListsHtml = `
       <h2>Gift Lists</h2>
@@ -457,7 +476,7 @@ function createGiftListsHtml() {
     giftIdeasHtmlArr = giftListArrItem.giftIdeas.map(x => createGiftIdeasHtml(x));
     giftIdeasHtml = giftIdeasHtmlArr.join(', ');
     // Creates Html for the events list:
-    upcomingEventsListHtml = createUpcomingEventsListHtml(giftListArrItem);
+    upcomingEventsUl = generateUpcomingEventsUl(giftListArrItem);
     // Final Html returned to showGiftLists()
     return `
       <div class="js-gift-list">
@@ -466,7 +485,7 @@ function createGiftListsHtml() {
         ${giftIdeasHtml}
         <h3>Upcoming Events <a target="_blank" href="javascript:;"><span class="js-edit-events js-edit edit">edit</span></a></h3>
         <ul class="js-upcoming-events">
-          ${upcomingEventsListHtml}
+          ${upcomingEventsUl}
         </ul>
       </div>`;
   });
