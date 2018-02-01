@@ -241,19 +241,6 @@ function insertGiftText(target, giftName) {
   $(target).closest('div').find('.js-user-gift-picked').attr('value', giftName);
 }
 
-// For adding gift ideas to 'gifts picked for event'.
-function listenForClickToAddGiftIdeaToEvent() {
-  $('.js-give').on('click', (event) => {
-    const giftName = $(event.target).siblings('.js-gift-idea').text();
-    const closestDiv = $(event.target).closest('div');
-    // Hides previous 'Added - scroll up!' message and adds a new one to target.
-    hideAddedMessages(closestDiv);
-    displayAddedMessage(event.target);
-    // Puts gift name into input box
-    insertGiftText(event.target, giftName);
-  });
-}
-
 // displays page banner with user's first name
 function showPersonalisedHeader(firstName) {
   const nameInTitleCase = convertStringToTitleCase(firstName);
@@ -571,7 +558,7 @@ function hideAndWipeEditPanel() {
   $('.js-edit-panel').hide();
   $('.js-edit-panel-inner').html('');
   wipeListenerFromClass('main');
-  handleOpenEditPanelClicks();
+  listenForOpenEditPanelClicks();
 }
 
 // Wipes all dynamically loaded html from DOM
@@ -865,7 +852,7 @@ function addNewGiftToUl(html) {
   $('.js-edit-panel-gifts-picked-list').append(html);
 }
 
-function wipeFields() {
+function wipeFieldsAndWarnings() {
   $('input').val('');
   $('.js-validation-warning').text('');
 }
@@ -882,7 +869,7 @@ function handleAddToGiftsPicked() {
   const giftPrice = $('.js-user-gift-picked-price').val();
   if (validateAddToGiftsPicked(giftName, giftUrl, giftPrice)) {
     addGiftToList(giftName, giftUrl, giftPrice);
-    wipeFields();
+    wipeFieldsAndWarnings();
   }
 }
 
@@ -906,7 +893,7 @@ function handleAddToGiftIdeas() {
   const usersNewGiftIdea = convertStringToTitleCase($('.js-user-gift-idea').val());
   if (usersNewGiftIdea.length > 0) {
     addNewGiftIdea(usersNewGiftIdea);
-    wipeFields();
+    wipeFieldsAndWarnings();
   } else {
     showGiftIdeaValidationWarning();
   }
@@ -942,10 +929,20 @@ function validateAddEvent() {
 function handleAddToEventsList() {
   if (validateAddEvent()) {
     addNewEvent();
-    wipeFields();
+    wipeFieldsAndWarnings();
   } else {
     showAddEventValidationWarning();
   }
+}
+
+function handleGiveClick(target) {
+  const giftName = $(target).siblings('.js-gift-idea').text();
+  const closestDiv = $(target).closest('div');
+  // Hides previous 'Added - scroll up!' message and adds a new one to target.
+  hideAddedMessages(closestDiv);
+  displayAddedMessage(target);
+  // Puts gift name into input box
+  insertGiftText(target, giftName);
 }
 
 // Routes clicks in edit panel to appropriate handlers
@@ -971,6 +968,9 @@ function routeClicksWithinEditPanel(event) {
     // Clicks to 'remove' <a> tags shown at the end of each Li for existing data
   } else if ($(event.target).hasClass('js-remove')) {
     handleRemoveClick(event.target);
+    // Clicks to 'Give this gift' <a> tags next list of gift ideas.
+  } else if ($(event.target).hasClass('js-give')) {
+    handleGiveClick(event.target);
   }
 }
 
@@ -986,59 +986,76 @@ function listenForClicksWithinEditPanel() {
   });
 }
 
-// Called on pageload
-// The edit panel is hidden & blank until user clicks an edit option.
-function handleOpenEditPanelClicks() {
-  let editHtml = '';
-  let giftListName;
-  let userEventName;
-  let userEventDate;
+function getUserEventName(event) {
+  if ($(event.target).parent().find('.js-event-name').text() === '') {
+    return $(event.target).parent().parent().find('.js-event-name')
+      .html();
+  }
+  return $(event.target).parent().find('.js-event-name').html();
+}
 
-  // Get the appropriate edit panel html...
+function getUserEventDate(event) {
+  if ($(event.target).parent().find('.js-event-name').text() === '') {
+    return $(event.target).parent().parent().find('.js-event-date')
+      .html();
+  }
+  return $(event.target).parent().find('.js-event-date')
+    .html();
+}
+
+// Gets the event name from the dom - used to look up event object in json
+// For events that do not have gifts picked already
+function prepareEditGiftPickedHtml(event, giftListName) {
+  const userEventName = getUserEventName(event);
+  const userEventDate = getUserEventDate(event);
+  return generateEditGiftPickedHtml(giftListName, userEventName, userEventDate);
+}
+
+function handleClickToEditGiftPickedHtml(event, giftListName) {
+  const editPanelHtml = prepareEditGiftPickedHtml(event, giftListName);
+  const listOfGiftsAlreadyPicked = generateGiftsPickedHtmlForEditPanel();
+  $('.js-edit-panel-gifts-picked-list').html(listOfGiftsAlreadyPicked);
+  return editPanelHtml;
+}
+
+function showEditPanel(editHtml) {
+  $('.js-edit-panel').show();
+  $('.js-edit-panel-inner').append(editHtml);
+}
+
+function handleOpenEditPanelClicks(event) {
+  let editHtml = '';
+  // First resets the edit panel - in case panel is already open
+  hideAndWipeEditPanel();
+  // Then get the appropriate edit panel html...
+  const giftListName = $(event.target).closest('.js-gift-list').find('h2').text();
+  // For changing budget:
+  if ($(event.target).hasClass('js-edit-budget')) {
+    editHtml = generateEditBudgetHtml();
+    // For adding a new gift list:
+  } else if ($(event.target).hasClass('js-create-new-gift-list')) {
+    editHtml = generateEditNewGiftListHtml();
+    // For changing gift ideas:
+  } else if ($(event.target).hasClass('js-edit-gift-ideas')) {
+    editHtml = generateEditGiftIdeasHtml(giftListName);
+    // For changing upcoming events:
+  } else if ($(event.target).hasClass('js-edit-events')) {
+    editHtml = generateEditEventsHtml(giftListName);
+    // For changing gifts picked for a particular event
+  } else if ($(event.target).hasClass('js-edit-gift-picked')) {
+    editHtml = handleClickToEditGiftPickedHtml(event, giftListName);
+  }
+  // ... And finally uses the appropriate html to populate the edit panel
+  showEditPanel(editHtml);
+  listenForClicksWithinEditPanel();
+}
+
+
+// Called on pageload. The edit panel is hidden & blank until user clicks an edit option.
+function listenForOpenEditPanelClicks() {
   $('main').on('click', (event) => {
     if ($(event.target).hasClass('js-edit')) {
-      hideAndWipeEditPanel();
-      giftListName = $(event.target).closest('.js-gift-list').find('h2').text();
-      // edit panel for changing budget
-      if ($(event.target).hasClass('js-edit-budget')) {
-        editHtml = generateEditBudgetHtml();
-        // edit panel for adding a new gift list
-      } else if ($(event.target).hasClass('js-create-new-gift-list')) {
-        editHtml = generateEditNewGiftListHtml();
-        // edit panel for changing gift ideas
-      } else if ($(event.target).hasClass('js-edit-gift-ideas')) {
-        editHtml = generateEditGiftIdeasHtml(giftListName);
-        // edit panel for changing upcoming events
-      } else if ($(event.target).hasClass('js-edit-events')) {
-        editHtml = generateEditEventsHtml(giftListName);
-        // edit panel for changing gifts picked for a particular event
-      } else if ($(event.target).hasClass('js-edit-gift-picked')) {
-        // Gets the event name from the dom - used to look up event object in json
-        // For events that do not have gifts picked already
-        if ($(event.target).parent().find('.js-event-name').text() === '') {
-          userEventName = $(event.target).parent().parent().find('.js-event-name')
-            .html();
-          userEventDate = $(event.target).parent().parent().find('.js-event-date')
-            .html();
-          // For events that already have gifts picked
-        } else {
-          userEventName = $(event.target).parent().find('.js-event-name')
-            .html();
-          userEventDate = $(event.target).parent().find('.js-event-date')
-            .html();
-        }
-        editHtml = generateEditGiftPickedHtml(giftListName, userEventName, userEventDate);
-      }
-      // Populate the edit panel with the HTML, and show the panel.
-      $('.js-edit-panel').show();
-      $('.js-edit-panel-inner').append(editHtml);
-      listenForClicksWithinEditPanel();
-      // for 'gifts picker' edit panel
-      if ($(event.target).hasClass('js-edit-gift-picked')) {
-        const newHtml = generateGiftsPickedHtmlForEditPanel();
-        $('.js-edit-panel-gifts-picked-list').html(newHtml);
-        listenForClickToAddGiftIdeaToEvent();
-      }
+      handleOpenEditPanelClicks(event);
     }
   });
 }
@@ -1067,7 +1084,7 @@ function getDataUsingEmail(emailInput) {
   });
 }
 
-function checkFormIsCompleted(firstNameInput, emailInput) {
+function checkRegistrationFormIsCompleted(firstNameInput, emailInput) {
   if (!validateName(firstNameInput)) {
     $('.js-validation-warning').text('Please ensure you have given a valid first name. \nThe name provided should be between 3 and 18 characters and must not contain whitespace (" ").');
     return false;
@@ -1078,6 +1095,23 @@ function checkFormIsCompleted(firstNameInput, emailInput) {
   return true;
 }
 
+function postNewAccount(firstNameInput, emailInput) {
+  $.ajax({
+    url: '/users',
+    contentType: 'application/json',
+    data: JSON.stringify({
+      firstName: firstNameInput,
+      email: emailInput,
+    }),
+    success() {
+    },
+    error() {
+      console.error('Error completing GET request for user data');
+    },
+    type: 'POST',
+  });
+}
+
 // Runs validation using other functions (see below), submits registration
 // and then calls getDataUsingEmail()
 function handleRegistrationSubmission() {
@@ -1085,23 +1119,8 @@ function handleRegistrationSubmission() {
   // So we check these fields are completed:
   const firstNameInput = $('.js-first-name-input').val().toLowerCase();
   const emailInput = $('.js-email-input').val();
-
-  if (checkFormIsCompleted(firstNameInput, emailInput)) {
-    $.ajax({
-      url: '/users',
-      contentType: 'application/json',
-      data: JSON.stringify({
-        firstName: firstNameInput,
-        email: emailInput,
-      }),
-      success() {
-      },
-      error() {
-        console.error('Error completing GET request for user data');
-      },
-      type: 'POST',
-    });
-
+  if (checkRegistrationFormIsCompleted(firstNameInput, emailInput)) {
+    postNewAccount(firstNameInput, emailInput);
     // remove login page
     resetHtml();
     // Load user's gift list!
@@ -1142,11 +1161,16 @@ function loadLoginOrRegisterHtml() {
   $('.js-login-or-register').html(loginOrRegisterHtml);
 }
 
-function attemptLogin(emailInput) {
+function showLoadingMessage() {
   $('.js-login-or-register').html('<p>Loading...</p>');
+}
+
+function attemptLogin(emailInput) {
+  showLoadingMessage();
   if (emailInput) {
     getDataUsingEmail(emailInput);
   }
+  // If the user profile doesn't appear in 1 second, show login page with 'bad login' message
   setTimeout(() => {
     if (!globalUserData) {
       loadLoginOrRegisterHtml();
@@ -1157,8 +1181,7 @@ function attemptLogin(emailInput) {
 
 function listenForRegistrationClicks() {
   $('.js-registration').on('click', (event) => {
-    event.stopPropagation();
-    event.preventDefault();
+    neuterButtons(event);
     if ($(event.target).hasClass('js-register-submit-button')) {
       handleRegistrationSubmission();
     } else if ($(event.target).hasClass('js-registration-back')) {
@@ -1208,19 +1231,35 @@ function deleteProfile() {
   });
 }
 
-function handleDeleteProfile() {
-  let confirmHtml = '<p>This will permanently delete your profile! Are you sure?</p>';
-  confirmHtml += '<button class="js-yes-button">Yes</button>';
-  confirmHtml += '<button class="js-no-button">No</button>';
+function generateConfirmHtml() {
+  return `<p>This will permanently delete your profile! Are you sure?</p>
+          <button class="js-yes-button">Yes</button> 
+          <button class="js-no-button">No</button>`;
+}
+
+function showConfirmPanel() {
+  const confirmHtml = generateConfirmHtml();
   $('.js-confirm').html(confirmHtml);
   $('.js-confirm').show();
+}
+
+function hideConfirmPanel() {
+  $('.js-confirm').html('').hide();
+}
+
+function handleConfirmDeleteProfile() {
+  deleteProfile();
+  $('.js-confirm').html('').hide();
+}
+
+function handleDeleteProfile() {
+  showConfirmPanel();
   $('.js-confirm').on('click', (event) => {
     event.preventDefault();
     if ($(event.target).hasClass('js-yes-button')) {
-      deleteProfile();
-      $('.js-confirm').html('').hide();
+      handleConfirmDeleteProfile();
     } else if ($(event.target).hasClass('js-no-button')) {
-      $('.js-confirm').html('').hide();
+      hideConfirmPanel();
     }
   });
 }
@@ -1232,7 +1271,6 @@ function listenForClicksToHeader() {
     if ($(event.target).hasClass('js-logout')) {
       resetHtml();
       loadLoginOrRegisterHtml();
-
       // for deleting user profile
     } else if ($(event.target).hasClass('js-delete-profile')) {
       handleDeleteProfile();
@@ -1246,7 +1284,7 @@ function startFunctionChain() {
   handleLoginOrRegister();
   listenForEscapeOnEditPanel();
   listenForClicksToHeader();
-  handleOpenEditPanelClicks();
+  listenForOpenEditPanelClicks();
 }
 startFunctionChain();
 
