@@ -40,17 +40,21 @@ function checkEventDateIsInFuture(dateProvided) {
   return dateToTest > now;
 }
 
-function generateEditBudgetHtml() {
-  let budget;
+function getBudget() {
+  // If there is no budget saved, show budget as 0
   if (globalUserData.budget === undefined) {
-    budget = 0;
-  } else {
-    this.budget = globalUserData;
+    return 0;
   }
+  // else show budget
+  return globalUserData.budget;
+}
+
+function generateEditBudgetHtml() {
+  let budget = getBudget();
   return `
     <form>
       <label for="budget">Enter your budget: </label>
-      <input type="number" min="0" value="${budget}" name="budget" id="budget" class="js-budget-input" placeholder="${globalUserData.budget}">
+      <input type="number" min="0" value="${budget}" name="budget" id="budget" class="js-budget-input">
       <input type="submit" class="js-submit-edit js-submit-edit-budget" name="submit" value="Save Changes and Close">
       <button class="js-cancel-edit">Discard Changes</button>
       <p class="js-validation-warning validation-warning"></p>
@@ -271,8 +275,8 @@ function getPercentage(spendSoFar, totalBudget) {
 function getSpanWidthForProgressBar(percentageSpent) {
   let spanWidth = 100 - percentageSpent;
   // in case they are over budget
-  if (spanWidth > 100) {
-    spanWidth = 100;
+  if (spanWidth < 0) {
+    spanWidth = 0;
   }
   return spanWidth;
 }
@@ -624,6 +628,11 @@ function findObjIndex(array, key, value) {
   return globalUserData.giftLists.indexOf(targetObj);
 }
 
+function findObjIndexFromClassText(array, key, className) {
+  const classText = $(className).text();
+  return findObjIndex(array, key, classText);
+}
+
 function removeItemAtIndexFromArr(i, arr) {
   return arr.splice(i, i);
 }
@@ -648,6 +657,8 @@ function createNewGiftList(nameInEditPanel, currentNamesInDbArr) {
   if (!(currentNamesInDbArr.indexOf(nameInEditPanel) > -1)) {
     return new GiftList(nameInEditPanel);
   }
+  // If the object is in the DB, return it
+  return locateObjectInArrayByValue(globalUserData.giftLists, 'name', nameInEditPanel);
 }
 
 // !!!!! Refactor once api.js is working.
@@ -666,9 +677,13 @@ function getNamesInDb() {
   return [];
 }
 
+function createArrOfStrsFromClassName(className) {
+  return $(className).map((y, x) => $(x).text()).get();
+}
+
 // When user clicks 'save' on edit panel for giftlists
 function saveChangesToGiftlists() {
-  const currentNamesInEditPanelArr = $('.js-giftlist-name').map(x => $(x).text());
+  const currentNamesInEditPanelArr = createArrOfStrsFromClassName('.js-giftlist-name');
   const currentNamesInDbArr = getNamesInDb();
   deleteNamesRemovedFromEditPanel(currentNamesInEditPanelArr, currentNamesInDbArr);
   saveNamesAddedToEditPanel(currentNamesInEditPanelArr, currentNamesInDbArr);
@@ -681,8 +696,7 @@ function createArrFromHtmlClass(className) {
 }
 
 function saveChangesToGiftIdeas() {
-  const giftListName = $('.js-giftlist-name').text();
-  const i = findObjIndex(globalUserData.giftLists, 'name', giftListName);
+  const i = findObjIndexFromClassText(globalUserData.giftLists, 'name', '.js-giftlist-name');
   const newGiftIdeaArr = createArrFromHtmlClass('.js-gift-idea-input');
   globalUserData.giftLists[i].giftIdeas = newGiftIdeaArr;
 }
@@ -702,45 +716,61 @@ function createNewEventListObjArr() {
 
 function saveChangesToEventList() {
   const newEventListObjArr = createNewEventListObjArr();
-  const giftListName = $('.js-gift-list-name').text();
-  const i = findObjIndex(globalUserData.giftLists, 'name', giftListName);
+  const i = findObjIndexFromClassText(globalUserData.giftLists, 'name', '.js-gift-list-name');
   globalUserData.giftLists[i].events = newEventListObjArr;
 }
 
-function saveChangesToGiftsPicked() {
-  const newGiftsPickedArr = [];
-  let aElement;
-  let giftPickedName;
-  let giftList;
-  let giftPickedPrice;
-  let giftPickedUrl;
-  let giftsPickedDataArr;
+function getGiftPickedName(html) {
+  return $(html).find('.js-gift-picked-name').text();
+}
 
-  $('.js-gift-picked-edit-list-item').each((index, value) => {
-    giftsPickedDataArr = [];
-    aElement = $(value).html();
-    giftPickedName = $(value).find('.js-gift-picked-name').text();
-    giftPickedUrl = $(aElement).attr('href');
-    giftPickedPrice = $(value).find('.js-gift-picked-price').text();
-    giftsPickedDataArr.push(giftPickedName);
-    giftsPickedDataArr.push(giftPickedUrl);
-    giftsPickedDataArr.push(giftPickedPrice);
-    newGiftsPickedArr.push(new GiftPicked(giftsPickedDataArr));
-  });
-  // Repetition here - refactor it.
-  giftList = $('.js-gift-list-name').text();
-  giftList = globalUserData.giftLists.find(item => item.name === giftList);
-  const i = globalUserData.giftLists.indexOf(giftList);
+function getGiftPickedUrl(html) {
+  const aElement = $(html).html();
+  return $(aElement).attr('href');
+}
 
-  const eventName = $('.js-event-name-edit').text();
-  const eventDate = new Date($('.js-event-date-edit').text()).toString();
-  const targetEvent = globalUserData.giftLists[i].events
-    .find(event => event.eventName === eventName && event.eventDate === eventDate);
+function getGiftPickedPrice(html) {
+  return $(html).find('.js-gift-picked-price').text();
+}
+
+function prepareGiftsPickedDataArr(html) {
+  const giftPickedName = getGiftPickedName(html);
+  const giftPickedUrl = getGiftPickedUrl(html);
+  const giftPickedPrice = getGiftPickedPrice(html);
+  return [giftPickedName, giftPickedUrl, giftPickedPrice];
+}
+
+function createGiftsPickedObject(html) {
+  const giftsPickedDataArr = prepareGiftsPickedDataArr(html);
+  return new GiftPicked(giftsPickedDataArr);
+}
+
+function createNewGiftsPickedArr() {
+  return $('.js-gift-picked-edit-list-item')
+    .map((object, html) => createGiftsPickedObject(html)).get();
+}
+
+function getEventsIndex(i, targetEvent) {
   let j = globalUserData.giftLists[i].events.indexOf(targetEvent);
   // if there are no items already stored
   if (j < 0) {
     j = 0;
   }
+  return j;
+}
+
+function findTargetEvent() {
+  const eventName = $('.js-event-name-edit').text();
+  const eventDate = new Date($('.js-event-date-edit').text()).toString();
+  return globalUserData.giftLists[i].events
+    .find(event => event.eventName === eventName && event.eventDate === eventDate);
+}
+
+function saveChangesToGiftsPicked() {
+  const i = findObjIndexFromClassText(globalUserData.giftLists, 'name', '.js-gift-list-name');
+  const targetEvent = findTargetEvent();
+  const j = getEventsIndex(i, targetEvent);
+  const newGiftsPickedArr = createNewGiftsPickedArr();
   globalUserData.giftLists[i].events[j].giftsPicked = newGiftsPickedArr;
 }
 
