@@ -50,7 +50,7 @@ function getBudget() {
 }
 
 function generateEditBudgetHtml() {
-  let budget = getBudget();
+  const budget = getBudget();
   return `
     <form>
       <label for="budget">Enter your budget: </label>
@@ -759,7 +759,7 @@ function getEventsIndex(i, targetEvent) {
   return j;
 }
 
-function findTargetEvent() {
+function findTargetEvent(i) {
   const eventName = $('.js-event-name-edit').text();
   const eventDate = new Date($('.js-event-date-edit').text()).toString();
   return globalUserData.giftLists[i].events
@@ -768,14 +768,14 @@ function findTargetEvent() {
 
 function saveChangesToGiftsPicked() {
   const i = findObjIndexFromClassText(globalUserData.giftLists, 'name', '.js-gift-list-name');
-  const targetEvent = findTargetEvent();
+  const targetEvent = findTargetEvent(i);
   const j = getEventsIndex(i, targetEvent);
   const newGiftsPickedArr = createNewGiftsPickedArr();
   globalUserData.giftLists[i].events[j].giftsPicked = newGiftsPickedArr;
 }
 
-// Listener for when user clicks 'save and close' - redirects to appropriate save functions
-function handleEditSubmit(target) {
+// Router for clicks to 'save and close' - redirects to appropriate save functions
+function routeEditSubmit(target) {
   if ($(target).hasClass('js-submit-edit-budget')) {
     saveChangesToBudget();
   } else if ($(target).hasClass('js-submit-edit-giftlist')) {
@@ -789,6 +789,11 @@ function handleEditSubmit(target) {
   } else {
     console.error('Submission type error!');
   }
+}
+
+function handleEditSubmit(target) {
+  // Pick the right save function depending on state of DOM
+  routeEditSubmit(target);
   // Submit changes to DB and render new data in html
   submitAndRefresh();
   hideAndWipeEditPanel();
@@ -798,114 +803,173 @@ function validateName(name) {
   return name.length >= 2 && name.length <= 18;
 }
 
-// Handles clicks in edit panel (add, save, cancel etc)
-function handleClicksWithinEditPanel() {
-  let usersNewGiftIdea;
-  let usersNewGiftIdeaHtml;
-  let usersNewGiftName;
-  let usersNewGiftPrice;
-  let usersNewGiftPickedHtml;
-  let usersNewGiftUrl;
-  let usersNewGiftlistName;
+function neuterButtons(event) {
+  if ($(event.target).is('button') || $(event.target).is('input')) {
+    event.stopPropagation();
+    event.preventDefault();
+  }
+}
 
-  // Events
+function addNameToGiftListUl(usersNewGiftlistName) {
+  $('.js-giftlist-name-list').append(generateGiftlistsLi(usersNewGiftlistName));
+}
+
+function handleAddToGiftLists() {
+  const usersNewGiftlistName = $('.js-giftlist-input').val();
+  // If the name is valid, add it to the list and wipe the input...
+  if (validateName(usersNewGiftlistName)) {
+    addNameToGiftListUl(usersNewGiftlistName);
+    $('.js-giftlist-input').val('');
+    // ... else, warn the user
+  } else {
+    $('.js-validation-warning').text('Please enter a valid name.');
+  }
+}
+
+function getUsersNewGiftUrl(usersNewGiftName) {
+  const usersNewGiftUrlInputText = $('.js-user-gift-picked-url').val();
+  // If user doesn't provide a URL, create a Google shopping one instead
+  if (usersNewGiftUrlInputText === '') {
+    return createGoogleShoppingUrl(usersNewGiftName);
+  }
+  return usersNewGiftUrlInputText;
+}
+
+function validateNewGiftUrl(url) {
+  if (validateUrl(url)) {
+    return true;
+  }
+  $('.js-validation-warning').text('Incomplete Url!  Please either copy-paste a valid url or leave url field blank.');
+  return false;
+}
+
+function validateAddToGiftsPicked(usersNewGiftNameInTitleCase, usersNewGiftUrl, usersNewGiftPrice) {
+  if (validateNewGiftUrl(usersNewGiftUrl) && usersNewGiftNameInTitleCase && usersNewGiftPrice) {
+    return true;
+  }
+  $('.js-validation-warning').text('Please enter a gift and its price!');
+  return false;
+}
+
+function generateGiftPickedEditPanelHtml(giftName, giftUrl, giftPrice) {
+  return `<li class="js-gift-picked-edit-list-item">
+            <a target="_blank" href="${giftUrl}">
+              <span class="js-gift-picked-input js-gift-picked-name">${giftName}</span>
+            </a> 
+            (£<span class="js-gift-picked-price">${giftPrice}</span>) 
+            <a target="_blank" href="javascript:;" class="js-remove remove">Remove</a>,
+          </li>`;
+}
+
+function addNewGiftToUl(html) {
+  $('.js-edit-panel-gifts-picked-list').append(html);
+}
+
+function wipeFields() {
+  $('.js-user-gift-picked').val('');
+  $('.js-user-gift-picked-url').val('');
+  $('.js-user-gift-picked-price').val('');
+  $('.js-validation-warning').text('');
+}
+
+function addGiftToList(giftName, giftUrl, giftPrice) {
+  // Then check the other fields and add relevant html, and wipe the input fields
+  const newGiftPickedHtml = generateGiftPickedEditPanelHtml(giftName, giftUrl, giftPrice);
+  addNewGiftToUl(newGiftPickedHtml);
+}
+
+function handleAddToGiftsPicked() {
+  const giftName = convertStringToTitleCase($('.js-user-gift-picked').val());
+  const giftUrl = getUsersNewGiftUrl();
+  const giftPrice = $('.js-user-gift-picked-price').val();
+  if (validateAddToGiftsPicked(giftName, giftUrl, giftPrice)) {
+    addGiftToList(giftName, giftUrl, giftPrice);
+    wipeFields();
+  }
+}
+
+function generateNewGiftIdeaHtml(usersNewGiftIdea) {
+  return `<li>
+            <span class="js-gift-idea-input">${usersNewGiftIdea}</span>
+            <a target="_blank" href="javascript:;" class="js-remove remove">Remove</a>
+          </li>`;
+}
+
+function addNewGiftIdea(usersNewGiftIdea) {
+  const usersNewGiftIdeaHtml = generateNewGiftIdeaHtml(usersNewGiftIdea);
+  $('.gift-idea-list').append(usersNewGiftIdeaHtml)
+}
+
+function showGiftIdeaValidationWarning() {
+  $('.js-validation-warning').text('Please enter a gift idea!');
+}
+
+function handleAddToGiftIdeas() {
+  const usersNewGiftIdea = convertStringToTitleCase($('.js-user-gift-idea').val());
+  if (usersNewGiftIdea.length > 0) {
+    addNewGiftIdea(usersNewGiftIdea);
+    wipeFields();
+  } else {
+    showGiftIdeaValidationWarning();
+  }
+}
+
+function handleAddToEventsList() {
   let userEventName;
   let userEventDate;
   let userEventHtml;
-
-  $('main').on('click', (event) => {
-    if ($(event.target).is('button') || $(event.target).is('input')) {
-      event.stopPropagation();
-      event.preventDefault();
-    }
-    // Gift decision: when user submits shopping url of gift for a specific event
-    if ($(event.target).hasClass('js-add-to-giftlist-name-list') && $('.js-giftlist-input').val().length > 0) {
-      usersNewGiftlistName = $('.js-giftlist-input').val();
-      if (validateName(usersNewGiftlistName)) {
-        $('.js-giftlist-name-list').append(generateGiftlistsLi(usersNewGiftlistName));
-        $('.js-giftlist-input').val('');
-      } else {
-        $('.js-validation-warning').text('Please enter a valid name.');
-      }
-    } else if ($(event.target).hasClass('js-add-to-gift-picked-list')) {
-      // Validation
-      usersNewGiftName = $('.js-user-gift-picked').val();
-      const usersNewGiftNameInTitleCase = convertStringToTitleCase(usersNewGiftName);
-      usersNewGiftUrl = $('.js-user-gift-picked-url').val();
-      usersNewGiftPrice = $('.js-user-gift-picked-price').val();
-
-      // Google shopping search url: for gifts with no url from user
-      if (usersNewGiftUrl === '') {
-        usersNewGiftUrl = createGoogleShoppingUrl(usersNewGiftName);
-      }
-
-      // If user provides an (optional) url, check it
-      if (usersNewGiftUrl.length > 0) {
-        if (!validateUrl(usersNewGiftUrl)) {
-          $('.js-validation-warning').text('Incomplete Url!  Please either copy-paste a valid url or leave url field blank.');
-        }
-      }
-      // Then check the other fields and add relevant html, and wipe the input fields
-      if (usersNewGiftName && usersNewGiftPrice) {
-        usersNewGiftPickedHtml = `
-          <li class="js-gift-picked-edit-list-item">
-            <a target="_blank" href="${usersNewGiftUrl}">
-              <span class="js-gift-picked-input js-gift-picked-name">${usersNewGiftNameInTitleCase}</span>
-            </a> 
-            (£<span class="js-gift-picked-price">${usersNewGiftPrice}</span>) 
-            <a target="_blank" href="javascript:;" class="js-remove remove">Remove</a>,
-          </li>`;
-        $('.js-edit-panel-gifts-picked-list').append(usersNewGiftPickedHtml);
-        $('.js-user-gift-picked').val('');
-        $('.js-user-gift-picked-url').val('');
-        $('.js-user-gift-picked-price').val('');
-        $('.js-validation-warning').text('');
-      } else {
-        $('.js-validation-warning').text('Please enter a gift and its price!');
-      }
-    } else if ($(event.target).hasClass('js-submit-edit')) {
-      handleEditSubmit(event.target);
-    } else if ($(event.target).hasClass('js-cancel-edit')) {
-      hideAndWipeEditPanel();
-      // Gift Ideas: For when user clicks 'Add' button to add a gift idea
-    } else if ($(event.target).hasClass('js-add-to-gift-idea-list')) {
-      // Validation
-      if ($('.js-user-gift-idea').val()) {
-        usersNewGiftIdea = $('.js-user-gift-idea').val();
-        const usersNewGiftIdeaInTitleCase = convertStringToTitleCase(usersNewGiftIdea);
-        usersNewGiftIdeaHtml = `
-          <li>
-            <span class="js-gift-idea-input">${usersNewGiftIdeaInTitleCase}</span>
-            <a target="_blank" href="javascript:;" class="js-remove remove">Remove</a>
-          </li>`;
-        $('.gift-idea-list').append(usersNewGiftIdeaHtml);
-        $('.js-user-gift-idea').val('');
-        $('.js-validation-warning').text('');
-      } else {
-        $('.js-validation-warning').text('Please enter a gift idea!');
-      }
-      // Events: For when user clicks to 'Add' button to add changes to event list
-    } else if ($(event.target).hasClass('js-add-to-event-list')) {
-      // Validation
-      if ($('.js-user-event-name').val() && checkEventDateIsInFuture($('.js-user-event-date').val())) {
-        userEventName = $('.js-user-event-name').val();
-        const userEventNameInTitleCase = convertStringToTitleCase(userEventName);
-        userEventDate = makeHumanReadableDate($('.js-user-event-date').val());
-        userEventHtml = `
+  if ($('.js-user-event-name').val() && checkEventDateIsInFuture($('.js-user-event-date').val())) {
+    userEventName = $('.js-user-event-name').val();
+    const userEventNameInTitleCase = convertStringToTitleCase(userEventName);
+    userEventDate = makeHumanReadableDate($('.js-user-event-date').val());
+    userEventHtml = `
           <li>
             <span class="js-event-list-input">${userEventNameInTitleCase} on ${userEventDate}</span> 
             <a target="_blank" href="javascript:;" class="js-remove remove">Remove</a>
           </li>`;
-        $('.event-list').append(userEventHtml);
-        $('.js-user-event-name').val('');
-        $('.js-user-event-date').val('');
-      } else {
-        $('.js-validation-warning').text('Please enter an event name and future date!');
-      }
-      // Remove from edit panel (existing gift idea or upcoming event)
-    } else if ($(event.target).hasClass('js-remove')) {
-      handleRemoveClick(event.target);
-    }
+    $('.event-list').append(userEventHtml);
+    $('.js-user-event-name').val('');
+    $('.js-user-event-date').val('');
+  } else {
+    $('.js-validation-warning').text('Please enter an event name and future date!');
+  }
+}
+
+// Routes clicks in edit panel to appropriate handlers
+function routeClicksWithinEditPanel(event) {
+  // Clicks to 'add' in 'edit giftlists' panel (must be non-empty)
+  if ($(event.target).hasClass('js-add-to-giftlist-name-list') && $('.js-giftlist-input').val().length > 0) {
+    handleAddToGiftLists();
+  // Clicks to 'add' in 'gift picked' panel
+  } else if ($(event.target).hasClass('js-add-to-gift-picked-list')) {
+    handleAddToGiftsPicked();
+  // Clicks to 'save and close'
+  } else if ($(event.target).hasClass('js-submit-edit')) {
+    handleEditSubmit(event.target);
+  // Clicks to 'discard and close'
+  } else if ($(event.target).hasClass('js-cancel-edit')) {
+    hideAndWipeEditPanel();
+  // Clicks to 'Add' button to add a gift idea
+  } else if ($(event.target).hasClass('js-add-to-gift-idea-list')) {
+    handleAddToGiftIdeas();
+  // Clicks to 'Add' button to add changes to event list
+  } else if ($(event.target).hasClass('js-add-to-event-list')) {
+    handleAddToEventsList();
+    // Clicks to 'remove' <a> tags shown at the end of each Li for existing data
+  } else if ($(event.target).hasClass('js-remove')) {
+    handleRemoveClick(event.target);
+  }
+}
+
+// Handles clicks in edit panel (add, save, cancel etc)
+function handleClicksWithinEditPanel(event) {
+  neuterButtons(event);
+  routeClicksWithinEditPanel(event);
+}
+
+function listenForClicksWithinEditPanel() {
+  $('.edit-panel').on('click', (event) => {
+    handleClicksWithinEditPanel(event);
   });
 }
 
@@ -955,7 +1019,7 @@ function handleOpenEditPanelClicks() {
       // Populate the edit panel with the HTML, and show the panel.
       $('.js-edit-panel').show();
       $('.js-edit-panel-inner').append(editHtml);
-      handleClicksWithinEditPanel();
+      listenForClicksWithinEditPanel();
       // for 'gifts picker' edit panel
       if ($(event.target).hasClass('js-edit-gift-picked')) {
         const newHtml = generateGiftsPickedHtmlForEditPanel();
