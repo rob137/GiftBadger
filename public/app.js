@@ -866,9 +866,7 @@ function addNewGiftToUl(html) {
 }
 
 function wipeFields() {
-  $('.js-user-gift-picked').val('');
-  $('.js-user-gift-picked-url').val('');
-  $('.js-user-gift-picked-price').val('');
+  $('input').val('');
   $('.js-validation-warning').text('');
 }
 
@@ -897,7 +895,7 @@ function generateNewGiftIdeaHtml(usersNewGiftIdea) {
 
 function addNewGiftIdea(usersNewGiftIdea) {
   const usersNewGiftIdeaHtml = generateNewGiftIdeaHtml(usersNewGiftIdea);
-  $('.gift-idea-list').append(usersNewGiftIdeaHtml)
+  $('.gift-idea-list').append(usersNewGiftIdeaHtml);
 }
 
 function showGiftIdeaValidationWarning() {
@@ -914,24 +912,39 @@ function handleAddToGiftIdeas() {
   }
 }
 
-function handleAddToEventsList() {
-  let userEventName;
-  let userEventDate;
-  let userEventHtml;
-  if ($('.js-user-event-name').val() && checkEventDateIsInFuture($('.js-user-event-date').val())) {
-    userEventName = $('.js-user-event-name').val();
-    const userEventNameInTitleCase = convertStringToTitleCase(userEventName);
-    userEventDate = makeHumanReadableDate($('.js-user-event-date').val());
-    userEventHtml = `
-          <li>
-            <span class="js-event-list-input">${userEventNameInTitleCase} on ${userEventDate}</span> 
+
+function generateNewEventHtmlForEditPanel() {
+  const userEventName = convertStringToTitleCase($('.js-user-event-name').val());
+  const userEventDate = makeHumanReadableDate($('.js-user-event-date').val());
+  return `<li>
+            <span class="js-event-list-input">${userEventName} on ${userEventDate}</span> 
             <a target="_blank" href="javascript:;" class="js-remove remove">Remove</a>
           </li>`;
-    $('.event-list').append(userEventHtml);
-    $('.js-user-event-name').val('');
-    $('.js-user-event-date').val('');
+}
+
+function addNewEvent() {
+  const eventHtml = generateNewEventHtmlForEditPanel();
+  $('.event-list').append(eventHtml);
+}
+
+
+function showAddEventValidationWarning() {
+  $('.js-validation-warning').text('Please enter an event name and future date!');
+}
+
+function validateAddEvent() {
+  if ($('.js-user-event-name').val() && checkEventDateIsInFuture($('.js-user-event-date').val())) {
+    return true;
+  } 
+  return false;
+}
+
+function handleAddToEventsList() {
+  if (validateAddEvent()) {
+    addNewEvent();
+    wipeFields();
   } else {
-    $('.js-validation-warning').text('Please enter an event name and future date!');
+    showAddEventValidationWarning();
   }
 }
 
