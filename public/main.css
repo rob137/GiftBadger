@@ -113,7 +113,7 @@ li {
 .validation-warning, .login-not-found {
 	margin: 0 auto;
 	color: red;
-	width: 80%;
+	width: 90%;
 	max-width: 400px;
 	min-width: 30%;
 	height: 1em;

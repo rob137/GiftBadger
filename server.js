@@ -1,16 +1,19 @@
 
-
 const bodyParser = require('body-parser');
 const express = require('express');
 const mongoose = require('mongoose');
+const morgan = require('morgan');
 
 mongoose.Promise = global.Promise;
 
 const { PORT, DATABASE_URL } = require('./config');
 const { UserData } = require('./models');
 
+
 const app = express();
 app.use(bodyParser.json());
+
+app.use(morgan('combined'));
 
 app.use(express.static('public'));
 
@@ -34,7 +37,7 @@ app.get('/users/:email', (req, res) => {
   console.log('GET request received.');
   UserData
     .findOne({ email: req.params.email })
-    .then((user) => { console.log(user); res.json(user.serialize()); })
+    .then((user) => { /* console.log(user); */ res.json(user.serialize()); })
     .catch((err) => {
       console.log(err);
       res.status(500).json({ message: 'Internal server error ' });
