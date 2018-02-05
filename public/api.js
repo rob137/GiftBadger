@@ -16,7 +16,7 @@ function getDataUsingEmail(emailInput) {
   });
 }
 
-
+// !!!!! Needs fixing!
 function deleteProfile() {
   return new Promise((resolve, reject) => {
     $.ajax({

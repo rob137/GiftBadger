@@ -13,19 +13,22 @@
 		<div class="banner">
 			<img class="logo" src="https://image.ibb.co/kEziyx/badger_trans6.png" alt="Badger logo">
 			<h1>GiftBadger</h1>
+			<p>Plan Presents with Google Calendar</p>    
 		</div>
 		<section class="js-login-or-register login-or-register"></section>
-		<main>
+		<main hidden>
+			<nav class="js-main-nav main-nav"></nav>
 			<header class="js-personalised-header"></header>
-			<section class="js-budget budget"></section>
 			<section class="js-gift-lists gift-lists"></section>
+			<section hidden class="js-budget budget"></section>
+			<section hidden class="js-calendar calendar"></section>
 			<section class="js-edit-panel edit-panel" hidden>
 				<div class="js-edit-panel-inner">
 				</div>
 			</section>
-			<section class="js-calendar calendar"></section>
 			<section class="js-confirm confirm" hidden></section>
 		</main>
+		<div hidden class="page-shader"></div>
 		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
 		<script type="text/javascript" src="api.js"></script>
 		<script type="text/javascript" src="app.js"></script>

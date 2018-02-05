@@ -55,7 +55,7 @@ function generateEditBudgetHtml(userData) {
       <label for="budget">Enter your budget: </label>
       <input type="number" min="0" value="${budget}" name="budget" id="budget" class="js-budget-input">
       <input type="submit" class="js-submit-edit js-submit-edit-budget" name="submit" value="Save Changes and Close">
-      <button class="js-cancel-edit">Discard Changes</button>
+      <button class="js-cancel-edit">Discard Changes & Close</button>
       <p class="js-validation-warning validation-warning"></p>
     </form>`;
 }
@@ -80,11 +80,11 @@ function generateSavedEventsHtml(userData) {
 function generateEditNewGiftListHtml(userData) {
   let editNewGiftListHtml = `
     <form>
-      <label for="name">Enter the name of someone you will need to buy a gift for: </label>
+      <label for="name">Enter the name of someone you need to buy a gift for: </label>
       <input type="text" name="name" id="name" class="js-giftlist-input">
       <button class="js-add-to-giftlist-name-list">Add</button>
       <input type="submit" class="js-submit-edit js-submit-edit-giftlist" name="submit" value="Save Changes and Close">
-      <button class="js-cancel-edit">Discard Changes</button>
+      <button class="js-cancel-edit">Discard Changes & Close</button>
       <p class="js-validation-warning validation-warning"></p>
     </form>
     <p>People added so far: </p>`;
@@ -130,13 +130,13 @@ function generateEditGiftIdeasHtml(giftListName, userData) {
   const giftList = findGiftList(giftListName, userData);
   const ul = generateGiftIdeasUl(giftList);
   const giftListNameInTitleCase = convertStringToTitleCase(giftList.name);
-  return `<p>If you have ideas for gifts, record them here.  You can use this list to help make a decision later.</p> 
+  return `<p>Record any initial ideas for gifts here.  You can use this list to help make a decision later.</p> 
           <form>
-            <label for="gift-idea">Write a gift idea here: </label>
+            <label for="gift-idea">Write a gift idea for ${giftListNameInTitleCase} here: </label>
             <input type="text" name="gift-idea" id="gift-idea" class="js-user-gift-idea" required>
             <button class="js-add-to-gift-idea-list">Add</button>
             <input type="submit" class="js-submit-edit js-submit-edit-gift-idea-list" value="Save Changes and Close" name="submit">
-            <button class="js-cancel-edit">Discard Changes</button>
+            <button class="js-cancel-edit">Discard Changes & Close</button>
             <p class="js-validation-warning validation-warning"></p>
             <br><br>
             <p>Gift ideas for <span class="js-giftlist-name">${giftListNameInTitleCase}</span> so far: </p> 
@@ -172,7 +172,7 @@ function generateEditEventsHtml(giftListName, userData) {
             <input type="date" name="event-date" id="event-date" class="js-user-event-date" required>
             <button class="js-add-to-event-list">Add</button>
             <input type="submit" class="js-submit-edit js-submit-edit-event-list" value="Save Changes and Close" name="submit">
-            <button class="js-cancel-edit">Discard Changes</button>
+            <button class="js-cancel-edit">Discard Changes & Close</button>
             <br><br> 
             <span>Upcoming events for <span class="js-gift-list-name">${giftListNameInTitleCase}</span>: </span>
             ${ul}
@@ -211,7 +211,7 @@ function generateEditGiftPickedHtml(giftListName, userData, eventName, eventDate
             <input type="number" name="gift-picked-price" id="gift-picked-price" class="js-user-gift-picked-price" required>
             <button class="js-add-to-gift-picked-list js-check-url">Add</button>
             <input type="submit" class="js-submit-edit js-submit-edit-gift-picked" value="Save Changes and Close" name="submit">
-            <button class="js-cancel-edit">Discard Changes</button>
+            <button class="js-cancel-edit">Discard Changes & Close</button>
             <br>
             <p>... Or choose a gift from your ideas for ${giftListNameInTitleCase} so far: </p> 
             ${giftIdeasUl}
@@ -244,13 +244,12 @@ function insertGiftText(target, giftName) {
 function showPersonalisedHeader(name) {
   const nameInTitleCase = convertStringToTitleCase(name);
   $('.js-personalised-header')
-    .html(`<nav>
-            <a class="nav-tab js-giftlist-nav-tab" id="nav-tab-selected" target="_blank" href="javascript:;"><h3 class="js-giftlist-nav-tab">Gift Lists</h3>
-            </a><a class="nav-tab js-calendar-nav-tab" target="_blank" href="javascript:;"><h3 class="js-calendar-nav-tab">Calendar</h3></a>
-          </nav>
-          <h2>Gift Organiser For ${nameInTitleCase}'s Google Calendar</h2> 
-          <p><a  class="js-logout" target="_blank" href="javascript:;">Logout</a></p>
-          <p><a  class="js-delete-profile" target="_blank" href="javascript:;">Delete your profile</a></p>`);
+    .html(`<p>Welcome, ${nameInTitleCase}. 
+           <br>
+           <a class="js-logout" target="_blank" href="javascript:;">Logout</a>
+           </br>
+           <a class="js-delete-profile" target="_blank" href="javascript:;">Delete your profile</a>
+           </p>`);
 }
 
 function generateDefaultBudgetHtml() {
@@ -466,9 +465,7 @@ function generateUpcomingEventsUl(giftListArrItem) {
 
 function generateGiftListHeaderHtml() {
   return `<h2>Gift Lists</h2>
-          <p>Click 
-            <a  class="js-create-new-gift-list js-edit edit-alt" target="_blank" href="javascript:;">here</a>
-          to add/remove people!</p>`;
+          <p><a  class="js-create-new-gift-list js-edit edit-alt" target="_blank" href="javascript:;">Add or remove people</a></p>`;
 }
 
 // A 'gift list' includes: 1. reciient's name, 2.ideas for gifts, 3. upcoming events
@@ -481,10 +478,10 @@ function generateGiftListHtml(giftListArrItem) {
   const upcomingEventsUl = generateUpcomingEventsUl(giftListArrItem);
   return `
       <div class="js-gift-list">
-        <h2>${giftListNameInTitleCase}</h2>
-        <h3>Gift Ideas So Far <a target="_blank" href="javascript:;"><span class="js-edit-gift-ideas js-edit edit">edit</span></a></h3> 
+        <h3>${giftListNameInTitleCase}</h3>
+        <h4>Gift Ideas So Far <a target="_blank" href="javascript:;"><span class="js-edit-gift-ideas js-edit edit">edit</span></a></h4> 
         ${giftIdeasHtml}
-        <h3>Upcoming Events <a target="_blank" href="javascript:;"><span class="js-edit-events js-edit edit">edit</span></a></h3>
+        <h4>Upcoming Events <a target="_blank" href="javascript:;"><span class="js-edit-events js-edit edit">edit</span></a></h4>
         <ul class="js-upcoming-events">
           ${upcomingEventsUl}
         </ul>
@@ -510,7 +507,7 @@ function showGiftLists(userData) {
 function showCalendar(userEmail) {
   $('.calendar')
     .html(`
-      <h2>Your Calendar</h2>
+      <h2>Your Google Calendar</h2>
       <iframe 
         class="calendar" 
         src="https://calendar.google.com/calendar/embed?src=${userEmail}" 
@@ -565,6 +562,7 @@ function hideAndWipeEditPanel(userData) {
   $('.js-edit-panel').hide();
   $('.js-edit-panel-inner').html('');
   wipeListenerFromClass('main');
+  unshadePage();
   listenForOpenEditPanelClicks(userData);
 }
 
@@ -1027,6 +1025,7 @@ function handleClickToEditGiftPickedHtml(event, giftListName, userData) {
 function showEditPanel(editHtml) {
   $('.js-edit-panel').show();
   $('.js-edit-panel-inner').append(editHtml);
+  shadePage();
 }
 
 function handleOpenEditPanelClicks(event, userData) {
@@ -1034,7 +1033,7 @@ function handleOpenEditPanelClicks(event, userData) {
   // First resets the edit panel - in case panel is already open
   hideAndWipeEditPanel(userData);
   // Then get the appropriate edit panel html...
-  const giftListName = $(event.target).closest('.js-gift-list').find('h2').text();
+  const giftListName = $(event.target).closest('.js-gift-list').find('h3').text();
   // For changing budget:
   if ($(event.target).hasClass('js-edit-budget')) {
     editHtml = generateEditBudgetHtml(userData);
@@ -1087,24 +1086,37 @@ function resetHtml(userData) {
 
 function generateConfirmDeleteHtml() {
   return `<p>This will permanently delete your profile! Are you sure?</p>
-          <button class="js-yes-button">Yes</button> 
-          <button class="js-no-button">No</button>`;
+          <button class="js-yes-button yes-no-button">Yes</button> 
+          <button class="js-no-button yes-no-button">No</button>`;
 }
 
 function showConfirmDeletePanel() {
   const confirmHtml = generateConfirmDeleteHtml();
   $('.js-confirm').html(confirmHtml);
   $('.js-confirm').show();
+  shadePage()
 }
 
 function hideConfirmDeletePanel() {
   $('.js-confirm').html('').hide();
+  unshadePage()
 }
 
+// !!!!! Involve promises
 function handleConfirmDeleteProfile() {
   deleteProfile();
   $('.js-confirm').html('').hide();
+  unshadePage();
 }
+
+function shadePage() {
+  $('.page-shader').show();
+}
+
+function unshadePage() {
+  $('.page-shader').hide();
+}
+
 
 /*
 function deleteProfile() {
@@ -1142,7 +1154,7 @@ function loadLoginOrRegisterHtml() {
   const loginOrRegisterHtml = `
   <div class="login-or-register-container">
   <nav>
-      <a class="nav-tab js-login-nav-tab" id="nav-tab-selected" target="_blank" href="javascript:;"><h3 class="js-login-nav-tab">Login</h3>
+      <a class="nav-tab js-login-nav-tab nav-tab-selected" target="_blank" href="javascript:;"><h3 class="js-login-nav-tab">Login</h3>
       </a><a class="nav-tab js-register-nav-tab" target="_blank" href="javascript:;"><h3 class="js-register-nav-tab">Register</h3></a>
   </nav>
   <form class="login-or-register-form">
@@ -1163,6 +1175,7 @@ function listenForClicksToHeader(userData) {
     if ($(event.target).hasClass('js-logout')) {
       resetHtml(userData);
       loadLoginOrRegisterHtml();
+      revealLoginOrRegister();
       // for deleting user profile
     } else if ($(event.target).hasClass('js-delete-profile')) {
       handleDeleteProfile();
@@ -1170,9 +1183,70 @@ function listenForClicksToHeader(userData) {
   });
 }
 
+function revealLoginOrRegister() {
+  $('.js-login-or-register').show();
+  $('main').hide();
+}
+
+function revealMain() {
+  $('main').show();
+  $('.js-login-or-register').hide();
+}
+
+function generateMainNavHtml() {
+  return `<a class="nav-tab js-giftlist-nav-tab nav-tab-selected" target="_blank" href="javascript:;"><h3 class="js-giftlist-nav-tab">Gift Lists</h3>
+          </a><a class="nav-tab js-budget-nav-tab" target="_blank" href="javascript:;"><h3 class="js-budget-nav-tab">Budget</h3>
+          <a class="nav-tab js-calendar-nav-tab" target="_blank" href="javascript:;"><h3 class="js-calendar-nav-tab">Calendar</h3></a></a>`
+}
+
+function showMainNav() {
+  const mainNavHtml = generateMainNavHtml();
+  $('.js-main-nav').html(mainNavHtml);
+}
+
+function presentGiftListPage() {
+  $('.js-gift-lists').show();
+  $('.js-budget').hide();
+  $('.js-calendar').hide();
+}
+
+function presentBudgetPage() {
+  $('.js-gift-lists').hide();
+  $('.js-budget').show()
+  $('.js-calendar').hide();
+}
+
+function presentCalendarPage() {
+  $('.js-gift-lists').hide();
+  $('.js-budget').hide();
+  $('.js-calendar').show();
+}
+
+function highlightCurrentNavTab(event) {
+  $('.nav-tab-selected').removeClass('nav-tab-selected');
+  const navTabClicked = $(event.target).closest('a');
+  $(navTabClicked).addClass('nav-tab-selected');
+}
+
+function listenForMainNavClicks() {
+  $('.js-main-nav').on('click', (event) => {
+    if ($(event.target).hasClass('js-giftlist-nav-tab')) {
+      presentGiftListPage();
+    } else if ($(event.target).hasClass('js-budget-nav-tab')) {
+      presentBudgetPage();
+    } else if ($(event.target).hasClass('js-calendar-nav-tab')) {
+      presentCalendarPage();
+    }
+    highlightCurrentNavTab(event);
+  });
+}
+
 // Called by GET request on success
 function loadPersonalisedPage(userData) {
   resetHtml(userData);
+  revealMain();
+  showMainNav();
+  listenForMainNavClicks();
   showPersonalisedHeader(userData.firstName);
   showGiftLists(userData);
   showCalendar(userData.email);
@@ -1246,7 +1320,7 @@ function loadRegisterHtml() {
         <div class="login-or-register-container">
         <nav>
           <a class="nav-tab js-login-nav-tab" target="_blank" href="javascript:;"><h3 class="js-login-nav-tab">Login</h3>
-          </a><a class="nav-tab js-register-nav-tab" id="nav-tab-selected" target="_blank" href="javascript:;"><h3 js-register-nav-tab>Register</h3></a>
+          </a><a class="nav-tab js-register-nav-tab nav-tab-selected" target="_blank" href="javascript:;"><h3 js-register-nav-tab>Register</h3></a>
         </nav>
         <form class="js-registration registration login-or-register-form">
           <label class="login-register-label" for="firstName">First Name: </label>
@@ -1254,8 +1328,8 @@ function loadRegisterHtml() {
           <label class="login-register-label" for="email">Email: </label
           ><input type="text" name="email" id="email" class="js-email-input" required
           ><button class="js-register-submit-button register-button login-register-buttons">Register</button>
-        </form
-        ><p class="js-validation-warning validation-warning login-register-error"></p>
+          <p class="js-validation-warning validation-warning login-register-error"></p>
+        </form>
         </div>
         `;
   $('.js-login-or-register').html(registerHtml);
@@ -1273,18 +1347,30 @@ function showLoadingMessage() {
   $('.js-login-or-register').html('<p>Loading...</p>');
 }
 
+function showLoginEmailValidationWarning() {
+  $('.js-login-not-found').text('Please ensure you have provided a valid email address.');
+}
+
 function attemptLogin(emailInput) {
   showLoadingMessage();
-  if (emailInput) {
+  if (validateEmail(emailInput)) {
     getDataUsingEmail(emailInput);
   }
   // If the user profile doesn't appear in 1 second, show login page with 'bad login' message
   setTimeout(() => {
     if (!checkPersonalisedPageHasLoaded()) {
       loadLoginOrRegisterHtml();
-      $('.js-login-not-found').text('Please check you have typed your email correctly and try again.');
+      showLoginEmailValidationWarning();
     }
   }, 1000);
+}
+
+function checkEmail(emailInput) {
+  if (validateEmail(emailInput)) {
+    attemptLogin(emailInput);
+  } else {
+    showLoginEmailValidationWarning();
+  }
 }
 
 function listenForRegistrationClicks() {
@@ -1303,7 +1389,7 @@ function handleLoginOrRegister() {
     // For clicks to 'login': attempt login
     if ($(event.target).hasClass('js-login-button')) {
       const emailInput = $('.js-email-input').val().toLowerCase();
-      attemptLogin(emailInput);
+      checkEmail(emailInput);
       // For clicks to 'register': load registration page
     } else if ($(event.target).hasClass('js-register-nav-tab')) {
       loadRegisterHtml();
@@ -1327,4 +1413,4 @@ function startFunctionChain() {
 }
 startFunctionChain();
 
-// getDataUsingEmail('robertaxelkirby@gmail.com');
+getDataUsingEmail('robertaxelkirby@gmail.com');
