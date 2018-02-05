@@ -244,7 +244,11 @@ function insertGiftText(target, giftName) {
 function showPersonalisedHeader(name) {
   const nameInTitleCase = convertStringToTitleCase(name);
   $('.js-personalised-header')
-    .html(`<h1>Gift Organiser For ${nameInTitleCase}'s Google Calendar</h1>
+    .html(`<nav>
+            <a class="nav-tab js-giftlist-nav-tab" id="nav-tab-selected" target="_blank" href="javascript:;"><h3 class="js-giftlist-nav-tab">Gift Lists</h3>
+            </a><a class="nav-tab js-calendar-nav-tab" target="_blank" href="javascript:;"><h3 class="js-calendar-nav-tab">Calendar</h3></a>
+          </nav>
+          <h2>Gift Organiser For ${nameInTitleCase}'s Google Calendar</h2> 
           <p><a  class="js-logout" target="_blank" href="javascript:;">Logout</a></p>
           <p><a  class="js-delete-profile" target="_blank" href="javascript:;">Delete your profile</a></p>`);
 }
@@ -1136,6 +1140,7 @@ function handleDeleteProfile() {
 
 function loadLoginOrRegisterHtml() {
   const loginOrRegisterHtml = `
+  <div class="login-or-register-container">
   <nav>
       <a class="nav-tab js-login-nav-tab" id="nav-tab-selected" target="_blank" href="javascript:;"><h3 class="js-login-nav-tab">Login</h3>
       </a><a class="nav-tab js-register-nav-tab" target="_blank" href="javascript:;"><h3 class="js-register-nav-tab">Register</h3></a>
@@ -1146,6 +1151,7 @@ function loadLoginOrRegisterHtml() {
     ><button class="js-login-button login-button login-register-buttons">Login</button
     ><p class="js-login-not-found login-not-found login-register-error"></p>
   </form>
+  </div>
   `;
   $('.js-login-or-register').html(loginOrRegisterHtml);
 }
@@ -1237,6 +1243,7 @@ function handleRegistrationSubmission() {
 
 function loadRegisterHtml() {
   const registerHtml = `
+        <div class="login-or-register-container">
         <nav>
           <a class="nav-tab js-login-nav-tab" target="_blank" href="javascript:;"><h3 class="js-login-nav-tab">Login</h3>
           </a><a class="nav-tab js-register-nav-tab" id="nav-tab-selected" target="_blank" href="javascript:;"><h3 js-register-nav-tab>Register</h3></a>
@@ -1249,6 +1256,7 @@ function loadRegisterHtml() {
           ><button class="js-register-submit-button register-button login-register-buttons">Register</button>
         </form
         ><p class="js-validation-warning validation-warning login-register-error"></p>
+        </div>
         `;
   $('.js-login-or-register').html(registerHtml);
 }
@@ -1319,4 +1327,4 @@ function startFunctionChain() {
 }
 startFunctionChain();
 
-getDataUsingEmail('robertaxelkirby@gmail.com');
+// getDataUsingEmail('robertaxelkirby@gmail.com');
