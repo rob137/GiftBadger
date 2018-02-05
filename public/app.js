@@ -1136,15 +1136,15 @@ function handleDeleteProfile() {
 
 function loadLoginOrRegisterHtml() {
   const loginOrRegisterHtml = `
-  <form>
-    <nav>
+  <nav>
       <a class="nav-tab js-login-nav-tab" id="nav-tab-selected" target="_blank" href="javascript:;"><h3 class="js-login-nav-tab">Login</h3>
       </a><a class="nav-tab js-register-nav-tab" target="_blank" href="javascript:;"><h3 class="js-register-nav-tab">Register</h3></a>
-    </nav>
-    <p class="js-login-not-found login-not-found"></p>
+  </nav>
+  <form class="login-or-register-form">
     <label class="login-register-label" for="email-input">Email: </label>
     <input type="text" id="email-input" name="email" class="js-email-input" required
-    ><button class="js-login-button login-register-buttons">Login</button>
+    ><button class="js-login-button login-button login-register-buttons">Login</button
+    ><p class="js-login-not-found login-not-found login-register-error"></p>
   </form>
   `;
   $('.js-login-or-register').html(loginOrRegisterHtml);
@@ -1193,10 +1193,10 @@ function validateEmail(emailInput) {
 
 function checkRegistrationFormIsCompleted(firstNameInput, emailInput) {
   if (!validateName(firstNameInput)) {
-    $('.js-validation-warning').text('Please ensure you have given a valid first name. \nThe name provided should be between 3 and 18 characters and must not contain whitespace (" ").');
+    $('.js-validation-warning').text('Please ensure you have given a valid first name.');
     return false;
   } else if (!validateEmail(emailInput)) {
-    $('.js-validation-warning').text('Please check that you have provided a valid email address.');
+    $('.js-validation-warning').text('Please ensure you have given a valid email address.');
     return false;
   }
   return true;
@@ -1237,19 +1237,19 @@ function handleRegistrationSubmission() {
 
 function loadRegisterHtml() {
   const registerHtml = `
-        <form class="js-registration registration">
-          <nav>
-            <a class="nav-tab js-login-nav-tab" target="_blank" href="javascript:;"><h3 class="js-login-nav-tab">Login</h3>
-            </a><a class="nav-tab js-register-nav-tab" id="nav-tab-selected" target="_blank" href="javascript:;"><h3 js-register-nav-tab>Register</h3></a>
-          </nav>
+        <nav>
+          <a class="nav-tab js-login-nav-tab" target="_blank" href="javascript:;"><h3 class="js-login-nav-tab">Login</h3>
+          </a><a class="nav-tab js-register-nav-tab" id="nav-tab-selected" target="_blank" href="javascript:;"><h3 js-register-nav-tab>Register</h3></a>
+        </nav>
+        <form class="js-registration registration login-or-register-form">
           <label class="login-register-label" for="firstName">First Name: </label>
           <input type="text" id="first-name" name="first name" class="js-first-name-input" required><br>
           <label class="login-register-label" for="email">Email: </label
           ><input type="text" name="email" id="email" class="js-email-input" required
           ><button class="js-register-submit-button register-button login-register-buttons">Register</button>
-        </form>
-        </br>
-        <p class="js-validation-warning validation-warning"></p>`;
+        </form
+        ><p class="js-validation-warning validation-warning login-register-error"></p>
+        `;
   $('.js-login-or-register').html(registerHtml);
 }
 
@@ -1319,5 +1319,4 @@ function startFunctionChain() {
 }
 startFunctionChain();
 
-// For testing:
-// getDataUsingEmail('robertaxelkirby@gmail.com');
+getDataUsingEmail('robertaxelkirby@gmail.com');

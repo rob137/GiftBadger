@@ -22,7 +22,7 @@ Button #E57373
 	box-sizing: border-box;
 }
 
-h1, h2, h3, h4, input, button {
+h1, h2, h3, h4, p, input, button {
 	color: #3C3241;
 	font-family: 'Source Sans Pro', Sans-Serif;
 }
@@ -133,6 +133,12 @@ button {
 	color: #FFFFFF;
 }
 
+/*Login or Register <section>*/
+
+.login-or-register-form {
+	margin-top: 45px;
+}
+
 .login-register-buttons {
 	height: 35px;
 	font-size: 0.9em;
@@ -140,6 +146,10 @@ button {
 	margin: 15px 0 30px 0;
 	position: relative;
 	width: 80.5%;
+}
+
+.login-button, .register-button {
+	margin-bottom: 40px;	
 }
 
 .login-register-buttons:hover, .login-register-buttons:focus {
@@ -156,6 +166,15 @@ button {
 	left: 45px;
 	padding-bottom: 6px;
 	cursor: pointer;
+}
+
+.login-register-error {
+	position: relative;
+	color: green;
+	margin-top: -20px;
+	margin-bottom: 35px;
+	left: 50%;
+	transform: translate(-50%, -50%);
 }
 
 h3 {
@@ -260,8 +279,7 @@ li {
 	font-weight: bold;
 } 
 
-.validation-warning, .login-not-found {
-	margin: 0 auto;
+.validation-warning, .login-register-error {
 	color: #EC4231;
 	width: 90%;
 	max-width: 400px;
