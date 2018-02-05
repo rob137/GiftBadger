@@ -509,7 +509,7 @@ function showCalendar(userEmail) {
   $('.calendar')
     .html(`
       <h2>Your Google Calendar</h2>
-      <p>Click <a target="_blank" href="https://calendar.google.com/calendar/embed?src=${userEmail}">here</a> to open in separate tab</p>
+      <p>Click <a target="_blank" href="https://calendar.google.com/calendar">here</a> to open in separate tab</p>
       <iframe 
         class="calendar" 
         src="https://calendar.google.com/calendar/embed?src=${userEmail}" 
