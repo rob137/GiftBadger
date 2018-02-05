@@ -109,7 +109,9 @@ function createUlFromArr(arr, htmlClassName) {
 function generateLiWithRemoveElement(spanClass, spanText) {
   return `<li>
              <span class="${spanClass}">${spanText}</span>
+             </br>
              <a target="_blank" href="javascript:;" class="js-remove remove">Remove</a>
+             <hr>
            </li>`;
 }
 
@@ -130,16 +132,15 @@ function generateEditGiftIdeasHtml(giftListName, userData) {
   const giftList = findGiftList(giftListName, userData);
   const ul = generateGiftIdeasUl(giftList);
   const giftListNameInTitleCase = convertStringToTitleCase(giftList.name);
-  return `<p>Record any initial ideas for gifts here.  You can use this list to help make a decision later.</p> 
+  return `<p>Record initial ideas here to help you decide on gifts later.</p> 
           <form>
-            <label for="gift-idea">Write a gift idea for ${giftListNameInTitleCase} here: </label>
+            <label for="gift-idea">Initial gift idea for ${giftListNameInTitleCase}: </label>
             <input type="text" name="gift-idea" id="gift-idea" class="js-user-gift-idea" required>
             <button class="js-add-to-gift-idea-list">Add</button>
             <input type="submit" class="js-submit-edit js-submit-edit-gift-idea-list" value="Save Changes and Close" name="submit">
-            <button class="js-cancel-edit">Discard Changes & Close</button>
-            <p class="js-validation-warning validation-warning"></p>
-            <br><br>
-            <p>Gift ideas for <span class="js-giftlist-name">${giftListNameInTitleCase}</span> so far: </p> 
+            <button class="js-cancel-edit">Discard Changes & Close</button><p class="js-validation-warning validation-warning"></p
+            ><br><br>
+            <p class="ul-title">Gift ideas for <span class="js-giftlist-name">${giftListNameInTitleCase}</span> so far: </p> 
             ${ul}
           </form>`;
 }
@@ -508,6 +509,7 @@ function showCalendar(userEmail) {
   $('.calendar')
     .html(`
       <h2>Your Google Calendar</h2>
+      <p>Click <a target="_blank" href="https://calendar.google.com/calendar/embed?src=${userEmail}">here</a> to open in separate tab</p>
       <iframe 
         class="calendar" 
         src="https://calendar.google.com/calendar/embed?src=${userEmail}" 

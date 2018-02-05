@@ -235,10 +235,9 @@ h3 {
 	line-height: .1em;
 }
 
-li, ul {
-	list-style: none;
-	padding: 0;
-	margin: 0 auto;
+ul {
+    padding: 0;
+    list-style-type: none;
 }
 
 li {
@@ -286,11 +285,6 @@ li {
 
 /* Calendar <section> */
 iframe {
-	position:fixed;
-	left:0;
-	top: 70px;
-  width: 100vw;
-  margin-bottom: 20px;
 }
 
 a, .edit-alt, .js-edit {
@@ -298,7 +292,7 @@ a, .edit-alt, .js-edit {
 	text-decoration: none;
 }
 
-a:hover, a:focus, .edit-alt:hover, .edit-alt:focus, .js-edit:hover, .js-edit:focus {
+a:hover, a:focus, .edit-alt:hover, .edit-alt:focus, .js-edit:hover, .js-edit:focus, .remove {
 	text-decoration: underline;
 }
 
@@ -329,13 +323,43 @@ a:hover, a:focus, .edit-alt:hover, .edit-alt:focus, .js-edit:hover, .js-edit:foc
   width: 95%;
   max-width: 600px;
   height: 90%;
-  padding: 10px;
   max-height: 400px;
   overflow: auto;
 }
 
 .js-edit-panel * {
 	color: #F0ECE6;
+}
+
+.js-edit-panel ul {
+	width: 300px;
+	/*
+  medium - large screens
+	padding-left: 30%;*/
+	text-align: center;
+
+}
+
+.ul-title {
+	margin-top: -30px;
+}
+
+hr {
+    border: 0;
+    height: 1px;
+    background: #F0ECE6;
+    width: 80%;
+    background-image: linear-gradient(to right, #3C3241, #F0ECE6, #3C3241);
+}
+
+form .remove {
+	color: #3997BA;
+	text-decoration: none;
+	font-size: 0.8em;
+}
+
+.remove:hover {
+	text-decoration: underline;
 }
 
 .js-edit-panel button, .js-submit-edit {
@@ -367,6 +391,7 @@ a:hover, a:focus, .edit-alt:hover, .edit-alt:focus, .js-edit:hover, .js-edit:foc
 	color: #EC4231;
 	width: 90%;
 	height: 1em;
+	text-align: center;
 }
 
 .confirm {
