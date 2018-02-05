@@ -193,15 +193,15 @@ function generateGiftIdeaUl(giftIdeas) {
   return ul;
 }
 
-function generateEditGiftPickedHtml(giftListName, userData, userEventName, userEventDate) {
+function generateEditGiftPickedHtml(giftListName, userData, eventName, eventDate, giftsPicked) {
   const giftListNameInTitleCase = convertStringToTitleCase(giftListName);
-  const userEventNameInTitleCase = convertStringToTitleCase(userEventName);
+  const userEventNameInTitleCase = convertStringToTitleCase(eventName);
   const giftList = findGiftList(giftListName, userData);
   const giftIdeasUl = generateGiftIdeaUl(giftList.giftIdeas);
   return `<form>
             <p class="js-validation-warning validation-warning"></p>
-            <h3><span class="js-gift-list-name">${giftListNameInTitleCase}</span>: <span class="js-event-header"><span class="js-event-name-edit">${userEventNameInTitleCase}</span> on <span class="js-event-date-edit">${userEventDate}</span></span></h3>
-            <p>Gifts chosen so far: </p><ul class="js-edit-panel-gifts-picked-list"></ul>
+            <h3><span class="js-gift-list-name">${giftListNameInTitleCase}</span>: <span class="js-event-header"><span class="js-event-name-edit">${userEventNameInTitleCase}</span> on <span class="js-event-date-edit">${eventDate}</span></span></h3>
+            <p>Gifts chosen so far: </p><ul class="js-edit-panel-gifts-picked-list">${giftsPicked}</ul>
             <label for="gift-picked">The name of a new gift you will get for this event: </label>
             <input type="text" name="gift-picked" id="gift-picked" class="js-user-gift-picked" value="" required>
             <br>
@@ -511,26 +511,23 @@ function showCalendar(userEmail) {
         class="calendar" 
         src="https://calendar.google.com/calendar/embed?src=${userEmail}" 
         style="border: 0" 
-        width="800" 
-        height="600" 
+        width="500" 
+        height="425" 
         frameborder="0" 
         scrolling="no"
       ></iframe>`);
 }
 
 // Recreates the unique html Id used for the event (eg 'js-birthday-1-january-2019)'
-function createGiftsPickedId(eventNameAndDate) {
-  const giftPickedIdName = $(eventNameAndDate).text().toLowerCase()
-    .replace(',', '')
-    .replace('on ', '')
-    .replace(/ /g, '-')
-    .replace('js-gifts-picked-list', 'js-edit-panel-gifts-picked-list');
-  return `#js-${giftPickedIdName}`;
+function createGiftsPickedId(target) {
+  let id = '#';
+  id += $(target).prev().attr('id');
+  return id;
 }
 
-function getGiftPickedForEditPanel(eventNameAndDate) {
-  console.log(eventNameAndDate);
-  const giftPickedId = createGiftsPickedId(eventNameAndDate);
+// uses unique id to retrieve gift picked from main page
+function getGiftPickedForEditPanel(target) {
+  const giftPickedId = createGiftsPickedId(target);
   return $(giftPickedId).html();
 }
 
@@ -543,15 +540,19 @@ function convertGiftsHtml(giftsPickedHtml) {
   return convertedGiftsHtml;
 }
 
+function addRemoveToGiftsPickedHtml(giftsPickedHtml) {
+  return giftsPickedHtml.replace(/,/g, ' <a target="_blank" href="javascript:;" class="js-remove remove">Remove</a>');
+}
+
 // For edit panel: takes the heading of the edit panel for 'gifts picked' and
 // returns links/text of other gifts already picked
-function generateGiftsPickedHtmlForEditPanel() {
-  console.log($('.js-event-header').text())
-  let giftsPickedHtml = getGiftPickedForEditPanel('.js-event-header');
+function generateGiftsPickedHtmlForEditPanel(target) {
+  let giftsPickedHtml = getGiftPickedForEditPanel(target);
   // Provided the user has provided gifts, convert the Html
   if (giftsPickedHtml !== undefined && giftsPickedHtml.length > 0) {
     giftsPickedHtml = convertGiftsHtml(giftsPickedHtml);
   }
+  giftsPickedHtml = addRemoveToGiftsPickedHtml(giftsPickedHtml);
   return giftsPickedHtml;
 }
 
@@ -774,12 +775,10 @@ function createNewGiftList(nameInEditPanel, currentNamesInDbArr, editedUserData)
   return locateObjectInArrayByValue(editedUserData.giftLists, 'name', nameInEditPanel);
 }
 
-// !!!!! Refactor once api.js is working.
 // If a name is in edit panel but not in db, save to db
 function saveNamesAddedToEditPanel(namesInPanel, namesInUserData, editedUserData) {
-  editedUserData.giftLists = namesInPanel
+  return namesInPanel
     .map(nameInEditPanel => createNewGiftList(nameInEditPanel, namesInUserData, editedUserData));
-  return editedUserData;
 }
 
 function createArrOfNamesInUserData(userData) {
@@ -1011,13 +1010,13 @@ function getUserEventDate(event) {
 function prepareEditGiftPickedHtml(event, giftListName, userData) {
   const userEventName = getUserEventName(event);
   const userEventDate = getUserEventDate(event);
-  return generateEditGiftPickedHtml(giftListName, userData, userEventName, userEventDate);
+  const listOfGiftsAlreadyPicked = generateGiftsPickedHtmlForEditPanel(event.target);
+  console.log(listOfGiftsAlreadyPicked);
+  return generateEditGiftPickedHtml(giftListName, userData, userEventName, userEventDate, listOfGiftsAlreadyPicked);
 }
 
 function handleClickToEditGiftPickedHtml(event, giftListName, userData) {
   const editPanelHtml = prepareEditGiftPickedHtml(event, giftListName, userData);
-  const listOfGiftsAlreadyPicked = generateGiftsPickedHtmlForEditPanel();
-  $('.js-edit-panel-gifts-picked-list').html(listOfGiftsAlreadyPicked);
   return editPanelHtml;
 }
 
@@ -1137,16 +1136,16 @@ function handleDeleteProfile() {
 
 function loadLoginOrRegisterHtml() {
   const loginOrRegisterHtml = `
-  <h1>Gift Organiser For Your Google Calendar</h1>
   <form>
-    <h2>Login</h2>
+    <nav>
+      <a class="nav-tab js-login-nav-tab" id="nav-tab-selected" target="_blank" href="javascript:;"><h3 class="js-login-nav-tab">Login</h3>
+      </a><a class="nav-tab js-register-nav-tab" target="_blank" href="javascript:;"><h3 class="js-register-nav-tab">Register</h3></a>
+    </nav>
     <p class="js-login-not-found login-not-found"></p>
-    <label for="email">Email: </label>
-    <input type="text" id="email" name="email" class="js-email-input" required>
-    <br>
-    <button class="js-login-button login-register-buttons">Login</button>
+    <label class="login-register-label" for="email-input">Email: </label>
+    <input type="text" id="email-input" name="email" class="js-email-input" required
+    ><button class="js-login-button login-register-buttons">Login</button>
   </form>
-  <button class="js-register-button login-register-buttons">Register</button>
   `;
   $('.js-login-or-register').html(loginOrRegisterHtml);
 }
@@ -1238,15 +1237,16 @@ function handleRegistrationSubmission() {
 
 function loadRegisterHtml() {
   const registerHtml = `
-        <h1>Gift Organiser For Your Google Calendar</h1>
-        <h2>Register</h2>
         <form class="js-registration registration">
-          <label for="firstName">First Name: </label>
+          <nav>
+            <a class="nav-tab js-login-nav-tab" target="_blank" href="javascript:;"><h3 class="js-login-nav-tab">Login</h3>
+            </a><a class="nav-tab js-register-nav-tab" id="nav-tab-selected" target="_blank" href="javascript:;"><h3 js-register-nav-tab>Register</h3></a>
+          </nav>
+          <label class="login-register-label" for="firstName">First Name: </label>
           <input type="text" id="first-name" name="first name" class="js-first-name-input" required><br>
-          <label for="email">Email: </label>
-          <input type="text" name="email" id="email" class="js-email-input" required><br>
-          <input type="submit" class="js-register-submit-button register-button">
-          <button class="js-registration-back register-button">Back</button>
+          <label class="login-register-label" for="email">Email: </label
+          ><input type="text" name="email" id="email" class="js-email-input" required
+          ><button class="js-register-submit-button register-button login-register-buttons">Register</button>
         </form>
         </br>
         <p class="js-validation-warning validation-warning"></p>`;
@@ -1284,9 +1284,6 @@ function listenForRegistrationClicks() {
     neuterButtons(event);
     if ($(event.target).hasClass('js-register-submit-button')) {
       handleRegistrationSubmission();
-    } else if ($(event.target).hasClass('js-registration-back')) {
-      resetHtml(userData);
-      loadLoginOrRegisterHtml();
     }
   });
 }
@@ -1300,9 +1297,11 @@ function handleLoginOrRegister() {
       const emailInput = $('.js-email-input').val().toLowerCase();
       attemptLogin(emailInput);
       // For clicks to 'register': load registration page
-    } else if ($(event.target).hasClass('js-register-button')) {
+    } else if ($(event.target).hasClass('js-register-nav-tab')) {
       loadRegisterHtml();
       listenForRegistrationClicks();
+    } else if ($(event.target).hasClass('js-login-nav-tab')) {
+      loadLoginOrRegisterHtml();
     }
   });
 }
@@ -1321,4 +1320,4 @@ function startFunctionChain() {
 startFunctionChain();
 
 // For testing:
- getDataUsingEmail('robertaxelkirby@gmail.com');
+// getDataUsingEmail('robertaxelkirby@gmail.com');

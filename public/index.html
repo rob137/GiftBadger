@@ -6,13 +6,22 @@
 		<meta name="viewport" content="width=device-width">
 		<title>Capstone</title>
 		<link rel="stylesheet" type="text/css" href="main.css">
+		<link href="https://fonts.googleapis.com/css?family=Sintony|Source+Sans+Pro:900" rel="stylesheet">
 	</head>
 	<body>
 		<main>
-		
 			<!-- Content is loaded into these elements by app.js -->
-			<header class="js-personalised-header"></header>
+			<div class="banner">
+				<img class="logo" src="https://image.ibb.co/kEziyx/badger_trans6.png" alt="Badger logo">
+				<h1>GiftBadger</h1>
+				<!--
+				<a class="nav-tab" target="_blank" href="javascript:;"><h3>Lists</h3></a>
+				<a class="nav-tab" target="_blank" href="javascript:;"><h3>Calendar</h3></a>
+				<a class="nav-tab" target="_blank" href="javascript:;"><h3>Logout</h3></a>
+			  -->
+			</div>
 			<section class="js-login-or-register"></section>
+			<header class="js-personalised-header"></header>
 			<section class="js-budget budget"></section>
 			<section class="js-gift-lists gift-lists"></section>
 			<section class="js-edit-panel edit-panel" hidden>
@@ -21,7 +30,6 @@
 			</section>
 			<section class="js-calendar calendar"></section>
 			<section class="js-confirm confirm" hidden></section>
-		
 		</main>
 		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
 		<script type="text/javascript" src="api.js"></script>
