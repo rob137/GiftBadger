@@ -292,7 +292,7 @@ a, .edit-alt, .js-edit {
 	text-decoration: none;
 }
 
-a:hover, a:focus, .edit-alt:hover, .edit-alt:focus, .js-edit:hover, .js-edit:focus, .remove {
+a:hover, a:focus, .edit-alt:hover, .edit-alt:focus, .js-edit:hover, .js-edit:focus {
 	text-decoration: underline;
 }
 
@@ -332,12 +332,7 @@ a:hover, a:focus, .edit-alt:hover, .edit-alt:focus, .js-edit:hover, .js-edit:foc
 }
 
 .js-edit-panel ul {
-	width: 300px;
-	/*
-  medium - large screens
-	padding-left: 30%;*/
 	text-align: center;
-
 }
 
 .ul-title {
@@ -352,14 +347,16 @@ hr {
     background-image: linear-gradient(to right, #3C3241, #F0ECE6, #3C3241);
 }
 
-form .remove {
-	color: #3997BA;
+.remove i {
+	color: #FFFFFF;
 	text-decoration: none;
-	font-size: 0.8em;
+	font-size: 1.4em;
+  position: relative;
+  top: 4px;
 }
 
-.remove:hover {
-	text-decoration: underline;
+.remove i:hover, .remove i:focus {
+  color: #3997BA;
 }
 
 .js-edit-panel button, .js-submit-edit {

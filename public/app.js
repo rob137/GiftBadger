@@ -62,7 +62,7 @@ function generateEditBudgetHtml(userData) {
 
 function generateGiftlistsLi(name) {
   const nameWithTitleCase = convertStringToTitleCase(name);
-  return `<li><span class="js-giftlist-name">${nameWithTitleCase}</span> <a target="_blank" href="javascript:;" class="js-remove remove">Remove</a></li>`;
+  return `<li><span class="js-giftlist-name">${nameWithTitleCase}</span> <a target="_blank" href="javascript:;" class="js-remove remove"><i class="material-icons">delete</i></a></li>`;
 }
 
 function generateSavedEventsHtml(userData) {
@@ -108,9 +108,8 @@ function createUlFromArr(arr, htmlClassName) {
 
 function generateLiWithRemoveElement(spanClass, spanText) {
   return `<li>
-             <span class="${spanClass}">${spanText}</span>
-             </br>
-             <a target="_blank" href="javascript:;" class="js-remove remove">Remove</a>
+             <span class="${spanClass}">${spanText} </span>
+             <a target="_blank" href="javascript:;" class="js-remove remove"><i class="material-icons">delete</i></a>
              <hr>
            </li>`;
 }
@@ -506,13 +505,15 @@ function showGiftLists(userData) {
 
 // Loads iFrame for google calendar using user's email account
 function showCalendar(userEmail) {
+  // For mobile and smaller devices, we provide a link that will open the Google Calendar app/website
   if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|BB|PlayBook|IEMobile|Windows Phone|Kindle|Silk|Opera Mini/i.test(navigator.userAgent)) {
-    $('.calendar').html(`<p>Click <a target="_blank" href="https://calendar.google.com/calendar">here</a> to view calendar in separate window</p>`);
+    $('.calendar').html(`<p>Click <a target="_blank" href="https://calendar.google.com/calendar">here</a> to view calendar in a separate window.</p>`);
+  // For larget screens we present the iframe.
   } else {
     $('.calendar')
       .html(`
         <h2>Your Google Calendar</h2>
-        <p>Click <a target="_blank" href="https://calendar.google.com/calendar">here</a> to open in separate tab</p>
+        <p>Click <a target="_blank" href="https://calendar.google.com/calendar">here</a> to open separately</p>
         <iframe 
           class="calendar" 
           src="https://calendar.google.com/calendar/embed?src=${userEmail}" 
@@ -543,12 +544,12 @@ function convertGiftsHtml(giftsPickedHtml) {
   let convertedGiftsHtml = giftsPickedHtml
     .replace(/<a target="_blank" h/g, '<li class="js-gift-picked-edit-list-item"><a target="_blank" h')
     .replace(/span>,/g, 'span>,</li>');
-  convertedGiftsHtml += ' <a target="_blank" href="javascript:;" class="js-remove remove">Remove</a></span>';
+  convertedGiftsHtml += ' <a target="_blank" href="javascript:;" class="js-remove remove"><i class="material-icons">delete</i></a></span>';
   return convertedGiftsHtml;
 }
 
 function addRemoveToGiftsPickedHtml(giftsPickedHtml) {
-  return giftsPickedHtml.replace(/,/g, ' <a target="_blank" href="javascript:;" class="js-remove remove">Remove</a>');
+  return giftsPickedHtml.replace(/,/g, ' <a target="_blank" href="javascript:;" class="js-remove remove"><i class="material-icons">delete</i></a>');
 }
 
 // For edit panel: takes the heading of the edit panel for 'gifts picked' and
@@ -632,7 +633,7 @@ function generateGiftPickedEditPanelHtml(giftName, giftUrl, giftPrice) {
               <span class="js-gift-picked-input js-gift-picked-name">${giftName}</span>
             </a> 
             (£<span class="js-gift-picked-price">${giftPrice}</span>) 
-            <a target="_blank" href="javascript:;" class="js-remove remove">Remove</a>,
+            <a target="_blank" href="javascript:;" class="js-remove remove"><i class="material-icons">delete</i></a>,
           </li>`;
 }
 
@@ -664,7 +665,7 @@ function handleAddToGiftsPicked() {
 function generateNewGiftIdeaHtml(usersNewGiftIdea) {
   return `<li>
             <span class="js-gift-idea-input">${usersNewGiftIdea}</span>
-            <a target="_blank" href="javascript:;" class="js-remove remove">Remove</a>
+            <a target="_blank" href="javascript:;" class="js-remove remove"><i class="material-icons">delete</i></a>
           </li>`;
 }
 
@@ -693,7 +694,7 @@ function generateNewEventHtmlForEditPanel() {
   const userEventDate = makeHumanReadableDate($('.js-user-event-date').val());
   return `<li>
             <span class="js-event-list-input">${userEventName} on ${userEventDate}</span> 
-            <a target="_blank" href="javascript:;" class="js-remove remove">Remove</a>
+            <a target="_blank" href="javascript:;" class="js-remove remove"><i class="material-icons">delete</i></a>
           </li>`;
 }
 
