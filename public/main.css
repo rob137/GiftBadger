@@ -1,12 +1,160 @@
-body {
-	text-align: center;
-  
-  /* For grid in background */
-  background-size: 15px 15px;
-  background-image: linear-gradient(to right, #c4c4c4 1px, transparent 1px), linear-gradient(to bottom, #c4c4c4 1px, transparent 1px);
+/* 
+Logo #72EF36 
+Logo Text #F0ECE6
+Banner/Footer #3C3241 
+Footer Button #635B67 (content #FFFFFF)
+Footer Font #85848D
+
+Form/Input outline #D8D6D9
+
+hr #DBDADB
+
+white button outline #B1ADB3
+
+Nav foreground #FFFFFF 
+Nav background #F1F1F1 
+Text ##3C3264
+Button #E57373 
+
+*/
+
+* {
+	box-sizing: border-box;
 }
 
-label {
+h1, h2, h3, h4, input, button {
+	color: #3C3241;
+	font-family: 'Source Sans Pro', Sans-Serif;
+}
+
+.banner {
+	text-align: left;
+	position: fixed;
+	top: 0;
+	left: 0;
+  width: 100%;
+  height: 70px;
+	background-color: #3C3241;
+}
+
+.banner h1 {
+	color: #F0ECE6;
+	font-size: 1.9em;
+	margin: 0 auto;
+	padding: 15px;
+	margin-top: -1px;
+	margin-left: 72px;
+}
+
+.logo {
+	position: fixed;
+	width: 57px;
+	margin-top: 0;
+	left: 15px;
+	top: 7px;
+}
+
+a {
+	text-decoration: none;
+}
+
+nav {
+	width: 100%;
+}
+
+.nav-tab {
+	cursor: pointer;
+	display: inline-block;
+	background-color: #F1F1F1;
+	border-right: 1px #D8D6D9 solid;
+	border-bottom: 1px #D8D6D9 solid;
+	font-color: #A68799;
+	height: 50px;
+	width: 50%;
+	box-sizing: border-box;
+}
+.nav-tab h3 {
+	font-size: 1em;
+	padding-top: 4px;
+}
+
+#nav-tab-selected {
+	background-color: #FFFFFF;
+	color: #3C3241;
+	border-bottom: 0;
+}
+
+body {
+	font-family: 'Sintony', Sans-Serif;
+	height: 100%;
+	background-color: #F6F5F6;
+}
+
+main {
+	box-sizing: content-box;
+  border: 1px solid #D8D6D9;
+	position: relative;
+	top: 100px;
+	width: 400px;
+  margin: 0 auto;
+	text-align: center;
+  height: 100%;
+  background-color: #FFFFFF;
+  border-radius: 2px;
+  /* For grid in background 
+  background-size: 15px 15px;
+  background-image: linear-gradient(to right, #F1F1F1 1px, transparent 1px), linear-gradient(to bottom, #F1F1F1 1px, transparent 1px);
+  */
+}
+
+button { 
+	cursor: pointer;
+	border: none; 
+} 
+
+input {
+	border: #D8D6D9 1px solid;
+	border-radius: 3px;
+	height: 30px;
+	width: 80%;
+	padding-left: 10px;
+	padding-right: 10px;
+}
+
+input:focus {
+    outline: 1px #766F7A solid;
+}
+
+button {
+	height: 40px;
+	width: 80px;
+	border-radius: 5px;
+	background-color: #E57373;
+	color: #FFFFFF;
+}
+
+.login-register-buttons {
+	height: 35px;
+	font-size: 0.9em;
+	font-weight: bolder;
+	margin: 15px 0 30px 0;
+	position: relative;
+	width: 80.5%;
+}
+
+.login-register-buttons:hover, .login-register-buttons:focus {
+	background-color: #D06868;
+}
+
+.login-register-label {
+	margin-top: 20px;
+	text-align: left;
+	font-weight: bold;
+	width: max-content;
+	display: block;
+	position: relative;
+	left: 45px;
+	padding-bottom: 6px;
 	cursor: pointer;
 }
 
@@ -63,14 +211,14 @@ li {
 }
 
 
-/* Celndar <section> */
+/* Calendar <section> */
 .calendar {
 	margin: 0 auto;
 	width: 95%;
 	max-width: 800px;
 }
 
-/* for 'edit' links */
+/* 'Edit' <a>'s' */
 .edit {
 	position: absolute;
 	font-size: 12px;
@@ -86,6 +234,7 @@ li {
 	cursor: pointer;
 }
 
+/* Edit Panel */
 .js-edit-panel {
   position: fixed; /* or absolute */
   top: 50%;
@@ -106,13 +255,14 @@ li {
 	top: 20px;
 }
 
+/* Other */
 .user-event-name {
 	font-weight: bold;
 } 
 
 .validation-warning, .login-not-found {
 	margin: 0 auto;
-	color: red;
+	color: #EC4231;
 	width: 90%;
 	max-width: 400px;
 	min-width: 30%;
@@ -125,7 +275,7 @@ li {
 	top: 0;
 	top: 30%;
 	transform: translateX(50%);
-	background: red;
+	background: #EC4231;
 	height: 20%;
 	width: 50%;
 }
