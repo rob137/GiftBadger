@@ -506,19 +506,23 @@ function showGiftLists(userData) {
 
 // Loads iFrame for google calendar using user's email account
 function showCalendar(userEmail) {
-  $('.calendar')
-    .html(`
-      <h2>Your Google Calendar</h2>
-      <p>Click <a target="_blank" href="https://calendar.google.com/calendar">here</a> to open in separate tab</p>
-      <iframe 
-        class="calendar" 
-        src="https://calendar.google.com/calendar/embed?src=${userEmail}" 
-        style="border: 0" 
-        width="500" 
-        height="425" 
-        frameborder="0" 
-        scrolling="no"
-      ></iframe>`);
+  if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|BB|PlayBook|IEMobile|Windows Phone|Kindle|Silk|Opera Mini/i.test(navigator.userAgent)) {
+    $('.calendar').html(`<p>Click <a target="_blank" href="https://calendar.google.com/calendar">here</a> to view calendar in separate window</p>`);
+  } else {
+    $('.calendar')
+      .html(`
+        <h2>Your Google Calendar</h2>
+        <p>Click <a target="_blank" href="https://calendar.google.com/calendar">here</a> to open in separate tab</p>
+        <iframe 
+          class="calendar" 
+          src="https://calendar.google.com/calendar/embed?src=${userEmail}" 
+          style="border: 0" 
+          width="500" 
+          height="425" 
+          frameborder="0" 
+          scrolling="no"
+        ></iframe>`);
+  }
 }
 
 // Recreates the unique html Id used for the event (eg 'js-birthday-1-january-2019)'
