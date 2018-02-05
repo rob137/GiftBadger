@@ -109,8 +109,8 @@ function createUlFromArr(arr, htmlClassName) {
 function generateLiWithRemoveElement(spanClass, spanText) {
   return `<li>
              <span class="${spanClass}">${spanText} </span>
-             <a target="_blank" href="javascript:;" class="js-remove remove"><i class="material-icons">delete</i></a>
-             <hr>
+             <a target="_blank" href="javascript:;" class="js-remove remove"><i class="material-icons js-remove">delete</i></a>
+             <hr class="hr-edit">
            </li>`;
 }
 
@@ -241,15 +241,9 @@ function insertGiftText(target, giftName) {
 }
 
 // displays page banner with user's first name
-function showPersonalisedHeader(name) {
+function showPersonalisedMenuHeader(name) {
   const nameInTitleCase = convertStringToTitleCase(name);
-  $('.js-personalised-header')
-    .html(`<p>Welcome, ${nameInTitleCase}. 
-           <br>
-           <a class="js-logout" target="_blank" href="javascript:;">Logout</a>
-           </br>
-           <a class="js-delete-profile" target="_blank" href="javascript:;">Delete your profile</a>
-           </p>`);
+  $('.js-name').html(nameInTitleCase);
 }
 
 function generateDefaultBudgetHtml() {
@@ -295,7 +289,7 @@ function generatePersonalisedBudgetHtml(userData) {
   const budgetHtml = `
       <h2>Your Remaining Budget</h2>
       <p>So far, you've spent £${spentSoFar} (${percentageSpent}%) of your £${totalBudget} budget.
-        <a target="_blank" href="javascript:;"><span class="js-edit-budget js-edit edit">edit</span></a>
+        <a target="_blank" href="javascript:;"><span class="js-edit-budget js-edit edit" alt="edit"alt="edit"><i class="material-icons">edit</i></span></a>
       </p>
       <div class="budget-meter">
         <span class="budget-span" style="width: ${spanWidth}%"></span>
@@ -382,7 +376,7 @@ function prepAddToCalendarHtml(event, giftListArrItem) {
   let addToCalendarLink = `
     https://www.google.com/calendar/render?action=TEMPLATE&sf=true&output=xml&text=${eventNameInTitleCase}:+${giftListNameInTitleCase}&dates=${eventDateArr[0]}/${eventDateArr[1]}&details=`;
   addToCalendarLink += prepareGoogleCalendarBodyText(event, giftListArrItem);
-  return `<a target="_blank" href="${addToCalendarLink}">Add to your Google Calendar (opens new tab)</a>`;
+  return `<a target="_blank" href="${addToCalendarLink}">Add event to your Google Calendar (opens new tab)</a>`;
 }
 
 function assignGiftLink(giftPicked) {
@@ -419,14 +413,14 @@ function generateDynamicHtmlIdentifier(event, eventDate) {
 }
 
 function generateGiftPickedHtml(dynamicHtmlIdentifier, event) {
-  return `Gift(s) chosen: 
+  return `<br>Gift(s) chosen: <br>
           <span id="js-${dynamicHtmlIdentifier}">${serveGiftsPickedHtml(event)}</span>
-          <a target="_blank" class="js-edit js-edit-gift-picked edit" href="javascript:;">edit</a>`;
+          <a target="_blank" class="js-edit js-edit-gift-picked edit" href="javascript:;"alt="edit"><i class="material-icons">edit</i></a>`;
 }
 
 function prepEventsHtmlOne(dynamicHtmlIdentifier, eventNameInTitleCase, eventDate) {
   return `<li class="js-${dynamicHtmlIdentifier}"> 
-           <span class="js-event-name">${eventNameInTitleCase}</span> on <span class="js-event-date">${eventDate}</span>.`;
+           <b><span class="js-event-name">${eventNameInTitleCase}</span> on <span class="js-event-date">${eventDate}</span></b>.`;
 }
 
 function prepEventsHtmlTwo(dynamicHtmlIdentifier, event) {
@@ -435,9 +429,8 @@ function prepEventsHtmlTwo(dynamicHtmlIdentifier, event) {
     return generateGiftPickedHtml(dynamicHtmlIdentifier, event);
   }
   return `<br>
-          <span>(If you've decided what you're giving them for this event, then click 
-          <a target="_blank" class="js-edit js-edit-gift-picked" href="javascript:;">here</a> 
-          to save your decision.)
+          <span>Click <a target="_blank" class="js-edit js-edit-gift-picked" href="javascript:;">here</a> 
+          to save a gift for this event.
           </span>`;
 }
 
@@ -451,7 +444,7 @@ function generateUpcomingEventsLis(event, giftListArrItem) {
   let eventsHtmlTwo = prepEventsHtmlTwo(dynamicHtmlIdentifier, event);
   eventsHtmlTwo += '</li>';
   const eventsHtmlThree = prepAddToCalendarHtml(event, giftListArrItem);
-  return eventsHtmlOne + eventsHtmlTwo + eventsHtmlThree;
+  return eventsHtmlOne + eventsHtmlTwo + eventsHtmlThree + `<br><hr class="hr-main">`;
 }
 
 // Prepares events ul for each gift list in user's profile; returns it to createGiftListsHtml()
@@ -479,9 +472,9 @@ function generateGiftListHtml(giftListArrItem) {
   return `
       <div class="js-gift-list">
         <h3>${giftListNameInTitleCase}</h3>
-        <h4>Gift Ideas So Far <a target="_blank" href="javascript:;"><span class="js-edit-gift-ideas js-edit edit">edit</span></a></h4> 
+        <h4>Gift Ideas So Far <a target="_blank" href="javascript:;"><span class="js-edit-gift-ideas js-edit edit"alt="edit"><i class="material-icons">edit</i></span></a></h4> 
         ${giftIdeasHtml}
-        <h4>Upcoming Events <a target="_blank" href="javascript:;"><span class="js-edit-events js-edit edit">edit</span></a></h4>
+        <h4>Upcoming Events <a target="_blank" href="javascript:;"><span class="js-edit-events js-edit edit"alt="edit"><i class="material-icons">edit</i></span></a></h4>
         <ul class="js-upcoming-events">
           ${upcomingEventsUl}
         </ul>
@@ -1020,7 +1013,6 @@ function prepareEditGiftPickedHtml(event, giftListName, userData) {
   const userEventName = getUserEventName(event);
   const userEventDate = getUserEventDate(event);
   const listOfGiftsAlreadyPicked = generateGiftsPickedHtmlForEditPanel(event.target);
-  console.log(listOfGiftsAlreadyPicked);
   return generateEditGiftPickedHtml(giftListName, userData, userEventName, userEventDate, listOfGiftsAlreadyPicked);
 }
 
@@ -1175,20 +1167,6 @@ function loadLoginOrRegisterHtml() {
   $('.js-login-or-register').html(loginOrRegisterHtml);
 }
 
-// Returns user to login page
-function listenForClicksToHeader(userData) {
-  $('.js-personalised-header').on('click', (event) => {
-    // For logging out
-    if ($(event.target).hasClass('js-logout')) {
-      resetHtml(userData);
-      loadLoginOrRegisterHtml();
-      revealLoginOrRegister();
-      // for deleting user profile
-    } else if ($(event.target).hasClass('js-delete-profile')) {
-      handleDeleteProfile();
-    }
-  });
-}
 
 function revealLoginOrRegister() {
   $('.js-login-or-register').show();
@@ -1199,6 +1177,47 @@ function revealMain() {
   $('main').show();
   $('.js-login-or-register').hide();
 }
+
+function toggleBurgerIcon() {
+  $('.burger-icon').toggle();
+}
+
+function toggleDropDownMenu() {
+  $('.nav-drop-down-menu-contents').toggle();
+}
+
+function checkTargetIsBurgerIcon(event) {
+  if ($(event.target).hasClass('js-burger-icon')) {
+    return true
+  }
+  return false
+}
+
+// Returns user to login page
+function listenForClicksToBurgerIcon() {
+  $('.banner').on('click', (event) => {
+    if (checkTargetIsBurgerIcon(event))
+    toggleDropDownMenu();
+  });
+}
+
+function listenForClicksToDropDownMenu (userData) {
+  $('.js-drop-down-menu-li').on('click', (event) => {
+    if ($(event.target).hasClass('js-logout')) {
+      resetHtml(userData);
+      loadLoginOrRegisterHtml();
+      revealLoginOrRegister();
+      toggleBurgerIcon();
+      toggleDropDownMenu();
+      // for deleting user profile
+    } else if ($(event.target).hasClass('js-delete-profile')) {
+      toggleDropDownMenu();
+      handleDeleteProfile();
+    }
+  });
+}  
+
+
 
 function generateMainNavHtml() {
   return `<a class="nav-tab js-giftlist-nav-tab nav-tab-selected" target="_blank" href="javascript:;"><h3 class="js-giftlist-nav-tab">Gift Lists</h3>
@@ -1253,13 +1272,15 @@ function loadPersonalisedPage(userData) {
   resetHtml(userData);
   revealMain();
   showMainNav();
+  $('.burger-icon').show();
   listenForMainNavClicks();
-  showPersonalisedHeader(userData.firstName);
+  showPersonalisedMenuHeader(userData.firstName);
   showGiftLists(userData);
+  presentGiftListPage();
+  listenForOpenEditPanelClicks(userData);
   showCalendar(userData.email);
   listenForEscapeOnEditPanel(userData);
-  listenForClicksToHeader(userData);
-  listenForOpenEditPanelClicks(userData);
+  listenForClicksToDropDownMenu(userData);
 }
 
 function validateEmail(emailInput) {
@@ -1325,7 +1346,7 @@ function handleRegistrationSubmission() {
 function loadRegisterHtml() {
   const registerHtml = `
         <div class="login-or-register-container">
-        <nav>
+        <nav class="nav-tabs">
           <a class="nav-tab js-login-nav-tab" target="_blank" href="javascript:;"><h3 class="js-login-nav-tab">Login</h3>
           </a><a class="nav-tab js-register-nav-tab nav-tab-selected" target="_blank" href="javascript:;"><h3 js-register-nav-tab>Register</h3></a>
         </nav>
@@ -1416,6 +1437,7 @@ function checkUserLoggedIn() {
 // on pageload
 function startFunctionChain() {
   checkUserLoggedIn();
+  listenForClicksToBurgerIcon();
   handleLoginOrRegister();
 }
 startFunctionChain();

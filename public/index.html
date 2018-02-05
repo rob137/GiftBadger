@@ -15,12 +15,23 @@
 		<div class="banner">
 			<img class="logo" src="https://image.ibb.co/kEziyx/badger_trans6.png" alt="Badger logo">
 			<h1>GiftBadger</h1>
-			<p>Plan Presents with Google Calendar</p>    
+			<p>Organise Presents with Google Calendar</p> 
+			<i hidden class="material-icons js-burger-icon burger-icon" id="burger-icon">menu</i> 
 		</div>
+		<nav class="nav-drop-down-menu">
+			<!-- Required for 'hidden' to work on contents of this nav element-->
+			<div class="nav-drop-down-menu-contents" hidden>
+				<p>Welcome, <span class="js-name"></span>.</p>
+      	<ul class="js-drop-down-menu drop-down-menu">
+      	  <li class="js-drop-down-menu-li js-delete-profile">Delete Profile</li>
+      	  <li class="js-drop-down-menu-li js-logout">Logout</li>
+      	</ul>
+      </div>
+		</nav>
 		<section class="js-login-or-register login-or-register"></section>
 		<main hidden>
 			<nav class="js-main-nav main-nav"></nav>
-			<header class="js-personalised-header"></header>
+			<header class="js-personalised-header personalised-header"></header>
 			<section class="js-gift-lists gift-lists"></section>
 			<section hidden class="js-budget budget"></section>
 			<section hidden class="js-calendar calendar"></section>
