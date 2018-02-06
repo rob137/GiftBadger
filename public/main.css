@@ -35,7 +35,7 @@ body {
 }
 
 .banner {
-	z-index: 1;
+	z-index: 2;
 	text-align: left;
 	position: fixed;
 	top: 0;
@@ -43,6 +43,10 @@ body {
   width: 100%;
   height: 70px;
 	background-color: #3C3241;
+}
+
+.banner .badger {
+	color: #3FB4E5;
 }
 
 .banner h1 {
@@ -96,7 +100,7 @@ body {
 
 .nav-drop-down-menu p {
 	color: #F0ECE6;
-	z-index: 50;
+	z-index: 3;
 	cursor: default;
 }
 
@@ -135,7 +139,7 @@ body {
 
 .nav-tab h3 {
 	font-size: 1em;
-	padding-top: 4px;
+	margin-top: 10px; 
 	text-decoration: none;
 }
 
@@ -169,19 +173,14 @@ main {
 	max-width: 650px;
 	min-width: 310px;
   margin: 0 auto;
+  margin-bottom: 5px;
 	text-align: center;
 	height: 100%;
-  max-height: 90vh;
+  max-height: 88vh;
   background-color: #FFFFFF;
   border-radius: 2px;
   overflow-y: auto;
   overflow-x: hidden;
-}
-
-/* <sections> padding */
-.gift-lists, .budget {
-	padding: 30px;
-	padding-top: 0;
 }
 
 .gift-lists {
@@ -189,8 +188,23 @@ main {
 	max-width: 75%;
 }
 
+.gift-lists, .budget {
+	padding: 20px;
+	padding-top: 0;
+}
+
+.gift-lists .edit-alt i {
+  
+  
+}
+
 .gift-lists h3 {
-	margin-top: 65px;
+	margin-top: 20px;
+	font-size: 1.25em;
+}
+
+.gift-lists h4 {
+	margin-bottom: 10px;
 }
 
 main .nav-tab {
@@ -211,8 +225,14 @@ header p, header a{
 	text-align: left;
 }
 
+label {
+	cursor: pointer;
+}
+
 h2 {
 	font-size: 1.4em;
+	margin-top: 40px;
+	line-height: 0.1em;
 }
 
 h3 {
@@ -266,7 +286,7 @@ button {
 	margin-top: 45px;
 }
 
-.login-register-buttons {
+.login-register-buttons, .edit-panel button {
 	height: 35px;
 	font-size: 0.9em;
 	font-weight: bolder;
@@ -279,7 +299,7 @@ button {
 	margin-bottom: 40px;	
 }
 
-.login-register-buttons:hover, .login-register-buttons:focus {
+.login-register-buttons:hover, .login-register-buttons:focus, .edit-panel button:hover, .edit-panel button:focus {
 	background-color: #D06868;
 }
 
@@ -305,10 +325,6 @@ button {
 	transform: translate(-50%, -50%);
 }
 
-h3 {
-	line-height: .1em;
-}
-
 ul {
     padding: 0;
     list-style-type: none;
@@ -324,6 +340,7 @@ li {
 .budget-meter { 
 	margin: 0 auto;
 	margin-top: 10px;
+	margin-bottom: 20px;
 	height: 20px;  
 	width: 80%;
 	max-width: 800px;
@@ -359,6 +376,7 @@ li {
 
 /* Calendar <section> */
 iframe {
+	margin-bottom: 25px;
 }
 
 a, .edit-alt, .js-edit {
@@ -368,6 +386,7 @@ a, .edit-alt, .js-edit {
 
 a:hover, a:focus, .edit-alt:hover, .edit-alt:focus, .js-edit:hover, .js-edit:focus {
 	text-decoration: underline;
+	color: #3FB4E5;
 }
 
 /* 'Edit' <a>'s' */
@@ -380,6 +399,7 @@ a:hover, a:focus, .edit-alt:hover, .edit-alt:focus, .js-edit:hover, .js-edit:foc
 
 .edit i {
 	font-size: 1.2em;
+	top: 0px;
 }
 
 .edit-alt {
@@ -389,79 +409,107 @@ a:hover, a:focus, .edit-alt:hover, .edit-alt:focus, .js-edit:hover, .js-edit:foc
 }
 
 /* Edit Panel */
-.js-edit-panel {
-	z-index:100;
+.edit-panel {
+	text-align: center;
+	z-index: 4;
   position: fixed; /* or absolute */
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  background-color: #3C3241;
+  background-color: #FFFFFF;
   border-radius: 2px;
   width: 95%;
   max-width: 600px;
   height: 90%;
   max-height: 400px;
   overflow: auto;
+  padding: 10px 20px 20px 20px;
+  border: 1px #D8D6D9 solid;
 }
 
-.js-edit-panel * {
-	color: #F0ECE6;
+.edit-panel * {
+	color: #3C3241;
 }
 
-.js-edit-panel ul {
+.edit-panel ul {
 	text-align: center;
+}
+
+.edit-panel .validation-warning {
+	margin: 0 auto;
+	margin-top: 10px;
+	font-size: 1em;
+	line-height: 0;
+	padding-top: 15px;
+	margin: 0 auto;
+
 }
 
 .ul-title {
 	margin-top: -30px;
 }
 
+hr {
+  border: 0;
+  height: 1px;
+  background: #F0ECE6;
+  background-image: linear-gradient(to right, #F0ECE6, #3C3241, #F0ECE6);
+}
+
 .hr-edit {
-    border: 0;
-    height: 1px;
-    background: #F0ECE6;
-    width: 80%;
-    background-image: linear-gradient(to right, #3C3241, #F0ECE6, #3C3241);
+  width: 40%;
 }
 
-.hr-main {
-    border: 0;
-    height: 1px;
-    background: #F0ECE6;
-    width: 40%;
-    background-image: linear-gradient(to right, #F0ECE6, #3C3241, #F0ECE6);
+.hr-giftlist {
+  width: 100%;
+  margin:  0 auto;
+  margin-top: 30px;
+  margin-bottom: 30px;
 }
 
-.remove i {
-	color: #FFFFFF;
+.material-icons, .edit-alt {
+	color: #D06868;
+}
+
+.material-icons {
 	text-decoration: none;
 	font-size: 1.4em;
   position: relative;
   top: 4px;
 }
 
-.remove i:hover, .remove i:focus {
-  color: #3997BA;
+.material-icons:hover, .material-icons:focus {
+  color: #3FB4E5;
+  text-decoration: none !important;
 }
 
-.js-edit-panel button, .js-submit-edit {
+.calendar-icon{
+	margin-bottom: 25px;
+}
+
+.edit-panel button {
 	margin: 0 auto;
-	text-align: center;
-	display: block;
-	color: #E57373;
-	height: 35px;
-	width: 80%;
-	background-color: #3C3241;
-	border: 1px solid #E57373;
+	margin-top: 2px;
 }
 
-.js-edit-panel input {
+
+.submit-edit {
+	margin-top: 30px !important;
+}
+
+.edit-panel input {
 	color: #3C3241;
 }
 
-.js-edit-panel-inner {
-	z-index: -1;
+.gift-picked-label {
+	line-height: 2em;
 	position: relative;
+	display: inline;
+	bottom: -5px;
+}
+
+.edit-panel p {
+	margin-top: 10px;
 }
 
 /* Other */
@@ -476,8 +524,10 @@ a:hover, a:focus, .edit-alt:hover, .edit-alt:focus, .js-edit:hover, .js-edit:foc
 	text-align: center;
 }
 
+
 .confirm {
-	z-index: 1;
+	text-align: center;
+	z-index: 3;
 	position: fixed;
 	left: 50%;
 	top: 50%;
@@ -487,7 +537,7 @@ a:hover, a:focus, .edit-alt:hover, .edit-alt:focus, .js-edit:hover, .js-edit:foc
 	width: 50%;
 	max-width: 600px;
 	border-radius: 2px;
-	padding: 15px;
+	padding: 25px;
 }
 
 
@@ -496,21 +546,28 @@ a:hover, a:focus, .edit-alt:hover, .edit-alt:focus, .js-edit:hover, .js-edit:foc
 }
 
 .page-shader {
-	left: 50%;
-	top: 50%;
-	transform: translate(-50%, -50%);
+	display: block;
 	position: fixed;
-	height: 100vh;
-	width: 100vw;
+	z-index: 2;
+	left: 0;
+	top: 0;
+	margin: 0 auto;
+	padding: 0;
+	height: 100%;
+	width: 100%;
 	background-color: black;
 	opacity: 0.6;
 }
 
 
 
-@media only screen and (max-width: 420px) {
-	/* Hide hamburger and display login/delete profile menu 
-     within gift lists */
+@media only screen and (max-width: 440px) {
+	
+	/* In edit panel: display 'add' below input  ' */
+
+	.gift-lists, .budget {
+		padding: 0px;
+	}
 
   .banner h1 {
   	margin-top: 0px;
@@ -519,4 +576,15 @@ a:hover, a:focus, .edit-alt:hover, .edit-alt:focus, .js-edit:hover, .js-edit:foc
   .banner p {
   	display: none;
   }
+}
+
+/* Hide calendar on smaller screens, as external apps view better */
+@media only screen and (max-width: 730px) {
+
+  iframe {
+  	visibility: hidden;
+  	width: 0px;
+  	height: 0px;
+  }
+
 }

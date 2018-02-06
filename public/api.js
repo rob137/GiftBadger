@@ -16,16 +16,19 @@ function getDataUsingEmail(emailInput) {
   });
 }
 
-// !!!!! Needs fixing!
-function deleteProfile() {
+function deleteProfile(editedUserData) {
   return new Promise((resolve, reject) => {
     $.ajax({
-      url: `/users/${globalUserData.id}`,
+      url: `/users/${editedUserData.id}`,
       contentType: 'application/json',
       data: JSON.stringify({
-        id: globalUserData.id,
+        id: editedUserData.id,
       }),
-      success: resolve,
+      success: (()=> {
+        $('.js-confirm').html('').hide(); 
+        logout();
+        resolve();
+      }),
       error() {
         console.error('Error completing DELETE request');
         reject();
