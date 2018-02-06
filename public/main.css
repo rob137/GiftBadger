@@ -442,8 +442,12 @@ a:hover, a:focus, .edit-alt:hover, .edit-alt:focus, .js-edit:hover, .js-edit:foc
 	line-height: 0;
 	padding-top: 15px;
 	margin: 0 auto;
-
 }
+
+.edit-panel-gifts-picked-list {
+	margin-bottom:-5px;
+}
+
 
 .ul-title {
 	margin-top: -30px;

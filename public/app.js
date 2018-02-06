@@ -212,7 +212,6 @@ function generateEditGiftPickedHtml(giftListName, userData, eventName, eventDate
   const giftIdeasUl = generateGiftIdeaUl(giftList.giftIdeas);
   return `<form>
             <h3><span class="js-gift-list-name">${giftListNameInTitleCase}</span>: <span class="js-event-header"><span class="js-event-name-edit">${userEventNameInTitleCase}</span> on <span class="js-event-date-edit">${eventDate}</span></span></h3>
-            <p>Gifts chosen so far for this event: </p><ul class="js-edit-panel-gifts-picked-list">${giftsPicked}</ul>
             <label class="gift-picked-label" for="gift-picked">Gift to add to this event: </label>
             <br>
             <input type="text" name="gift-picked" id="gift-picked" class="js-user-gift-picked" value="" required>
@@ -228,6 +227,7 @@ function generateEditGiftPickedHtml(giftListName, userData, eventName, eventDate
             <p class="js-validation-warning validation-warning"></p>
             <p>... Or choose a gift from your ideas for ${giftListNameInTitleCase} so far: </p> 
             ${giftIdeasUl}
+            <p>Gifts chosen so far for this event:</p><ul class="js-edit-panel-gifts-picked-list edit-panel-gifts-picked-list">${giftsPicked}</ul>
             <button class="js-submit-edit submit-edit js-submit-edit-gift-picked">Save Changes & Close</button>
             <br>
             <button class="js-cancel-edit">Discard Changes & Close</button>
@@ -254,7 +254,8 @@ function displayAddedMessage(target) {
 }
 
 function insertGiftText(target, giftName) {
-  $(target).closest('div').find('.js-user-gift-picked').attr('value', giftName);
+  console.log(target); console.log(giftName);console.log($(target).closest('div').find('.js-user-gift-picked'));
+  $(target).closest('div').find('.js-user-gift-picked').val(giftName);
 }
 
 // displays page banner with user's first name
@@ -299,7 +300,7 @@ function calculateSpendSoFar(giftLists) {
 }
 
 function createCurrentPurchaseLi(event, giftList, giftPicked) {
-   return `<li><a href="${assignGiftLink(giftPicked)}">${giftPicked.giftName} for £${giftPicked.price}</a> (${giftList.name}'s ${event.eventName})</li>`;
+   return `<li><a href="${assignGiftLink(giftPicked)}">${giftPicked.giftName} for £${giftPicked.price}</a> (${giftList.name}'s ${event.eventName} present)</li>`;
 }
 
 function getCurrentPurchasesLisForEvent(event, giftList) {
@@ -595,9 +596,11 @@ function getGiftPickedForEditPanel(target) {
 
 // Alters main page 'gift picked' html to be suitable for edit panel
 function convertGiftsHtml(giftsPickedHtml) {
+  console.log(giftsPickedHtml);
   let convertedGiftsHtml = giftsPickedHtml
     .replace(/<a target="_blank" h/g, '<li class="js-gift-picked-edit-list-item"><a target="_blank" h')
-    .replace(/span>,/g, 'span>,</li>');
+    .replace(/span>,/g, 'span>,</li>')
+    .replace(/<br>/, '');
   convertedGiftsHtml += ' <a target="_blank" href="javascript:;" class="js-remove remove"><i class="material-icons js-remove">delete</i></a></span>';
   return convertedGiftsHtml;
 }
@@ -681,7 +684,7 @@ function generateGiftPickedEditPanelHtml(giftName, giftUrl, giftPrice) {
               <span class="js-gift-picked-input js-gift-picked-name">${giftName}</span>
             </a> 
             (£<span class="js-gift-price">${giftPrice}</span>) 
-            <a target="_blank" href="javascript:;" class="js-remove remove"><i class="material-icons js-remove">delete</i></a>,
+            <a target="_blank" href="javascript:;" class="js-remove remove"><i class="material-icons js-remove">delete</i></a>
           </li>`;
 }
 
@@ -1429,7 +1432,7 @@ function handleRegistrationSubmission() {
   if (checkRegistrationFormIsCompleted(firstNameInput, emailInput)) {
     postNewAccount(firstNameInput, emailInput);
     // remove login page
-    resetHtml(userData);
+    resetHtml();
     // Load user's gift list!
     setTimeout(getDataUsingEmail(emailInput), 50);
   }
@@ -1528,6 +1531,7 @@ function checkUserLoggedIn() {
 
 // on pageload
 function startFunctionChain() {
+  unshadePage();
   checkUserLoggedIn();
   listenForClicksToBurgerIcon();
   handleLoginOrRegister();
