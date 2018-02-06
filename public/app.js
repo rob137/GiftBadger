@@ -22,6 +22,19 @@ function GiftList(giftsListName) {
   this.giftIdeas = [];
 }
 
+function shadePage() {
+  $('.page-shader').show();
+}
+
+function unshadePage() {
+  $('.page-shader').hide();
+}
+
+function hideConfirmDeletePanel() {
+  $('.js-confirm').html('').hide();
+  unshadePage();
+}
+
 function wipeListenerFromClass(target) {
   $(target).off('click');
 }
@@ -254,7 +267,7 @@ function displayAddedMessage(target) {
 }
 
 function insertGiftText(target, giftName) {
-  console.log(target); console.log(giftName);console.log($(target).closest('div').find('.js-user-gift-picked'));
+  console.log(target); console.log(giftName); console.log($(target).closest('div').find('.js-user-gift-picked'));
   $(target).closest('div').find('.js-user-gift-picked').val(giftName);
 }
 
@@ -299,29 +312,43 @@ function calculateSpendSoFar(giftLists) {
   return totalCost;
 }
 
+
+function createGoogleShoppingUrl(gift) {
+  return `https://www.google.co.uk/search?tbm=shop&q=${gift}`;
+}
+
+function assignGiftLink(giftPicked) {
+  // If the user has provided a specific link, use it...
+  if (giftPicked.giftLink !== '') {
+    return giftPicked.giftLink;
+  }
+  // ... else, give them a Google shopping link
+  return createGoogleShoppingUrl(giftPicked.giftName);
+}
+
 function createCurrentPurchaseLi(event, giftList, giftPicked) {
-   return `<li><a href="${assignGiftLink(giftPicked)}">${giftPicked.giftName} for £${giftPicked.price}</a> (${giftList.name}'s ${event.eventName} present)</li>`;
+  return `<li><a href="${assignGiftLink(giftPicked)}">${giftPicked.giftName} for £${giftPicked.price}</a> (${giftList.name}'s ${event.eventName} present)</li>`;
 }
 
 function getCurrentPurchasesLisForEvent(event, giftList) {
   let li;
   if (event.giftsPicked.length > 0) {
-    li = event.giftsPicked.map((giftPicked) => createCurrentPurchaseLi(event, giftList, giftPicked))
+    li = event.giftsPicked.map(giftPicked => createCurrentPurchaseLi(event, giftList, giftPicked));
     return li;
   }
 }
 
 // Displays under budget to give user idea of where their money is going...
 function getCurrentPurchasesLis(events, giftList) {
-  let lisArr = []; 
-  events.map((event) => lisArr.push(getCurrentPurchasesLisForEvent(event, giftList)));
-  lisArr = lisArr.filter(a=> a!==undefined).join('');
+  let lisArr = [];
+  events.map(event => lisArr.push(getCurrentPurchasesLisForEvent(event, giftList)));
+  lisArr = lisArr.filter(a => a !== undefined).join('');
   return lisArr;
 }
 
-// Creates shopping list. Eg 'Cocoa Powder for £7.55 (Sarah's Birthday)' 
+// Creates shopping list. Eg 'Cocoa Powder for £7.55 (Sarah's Birthday)'
 function generateCurrentPurchasesHtml(giftLists) {
-  let currentPurchasesHtml = giftLists
+  const currentPurchasesHtml = giftLists
     .map(giftList => getCurrentPurchasesLis(giftList.events, giftList))
     .filter(lisArr => lisArr.length > 0)
     .join('')
@@ -329,7 +356,7 @@ function generateCurrentPurchasesHtml(giftLists) {
     // to space out the list
     .replace(/<\/a>/g, '</a><br>')
     .replace(/<\/li>/g, '</li><br>');
-  return currentPurchasesHtml; 
+  return currentPurchasesHtml;
 }
 
 // Takes overall budget and prices of gifts picked to present percentage spent
@@ -368,10 +395,6 @@ function showBudget(userData) {
     budgetHtml = generatePersonalisedBudgetHtml(userData);
   }
   $('.js-budget').append(budgetHtml);
-}
-
-function createGoogleShoppingUrl(gift) {
-  return `https://www.google.co.uk/search?tbm=shop&q=${gift}`;
 }
 
 // Creates text and link for user's gift picked
@@ -440,15 +463,6 @@ function prepAddToCalendarHtml(event, giftListArrItem) {
   addToCalendarLink += prepareGoogleCalendarBodyText(event, giftListArrItem);
   return `<a class="edit-alt" target="_blank" href="${addToCalendarLink}">Add reminder to your Google Calendar<br><i
   class="material-icons calendar-icon edit-alt">event</i></a><br>`;
-}
-
-function assignGiftLink(giftPicked) {
-  // If the user has provided a specific link, use it...
-  if (giftPicked.giftLink !== '') {
-    return giftPicked.giftLink;
-  }
-  // ... else, give them a Google shopping link
-  return createGoogleShoppingUrl(giftPicked.giftName);
 }
 
 function generateGiftsPickedHtml(giftPicked) {
@@ -578,7 +592,7 @@ function showCalendar(userEmail) {
         height="425" 
         frameborder="0" 
         scrolling="no"
-      ></iframe>`); 
+      ></iframe>`);
 }
 
 // Recreates the unique html Id used for the event (eg 'js-birthday-1-january-2019)'
@@ -623,16 +637,6 @@ function generateGiftsPickedHtmlForEditPanel(target) {
   return giftsPickedHtml;
 }
 
-function hideAndWipeEditOrConfirmPanel(userData) {
-  $('.js-edit-panel').off();
-  $('.js-edit-panel').hide();
-  $('.js-edit-panel-inner').html('');
-  hideConfirmDeletePanel();
-  wipeListenerFromClass('main');
-  unshadePage();
-  listenForOpenEditPanelClicks(userData);
-}
-
 function neuterButtons(event) {
   if ($(event.target).is('button') || $(event.target).is('input')) {
     event.stopPropagation();
@@ -651,7 +655,7 @@ function addNameToGiftListUl(usersNewGiftlistName) {
 // When user enters a new name for a giftlist  and clicks 'add'
 function handleAddToGiftLists() {
   const usersNewGiftlistName = $('.js-giftlist-input').val();
-  if (usersNewGiftlistName !== "" && validateName(usersNewGiftlistName)) {
+  if (usersNewGiftlistName !== '' && validateName(usersNewGiftlistName)) {
   // If the name is valid, add it to the list and wipe the input...
     addNameToGiftListUl(usersNewGiftlistName);
     $('.js-giftlist-input').val('');
@@ -663,7 +667,7 @@ function handleAddToGiftLists() {
 
 // URL is optional, so we accept a valid url or a blank field
 function validateNewGiftUrl(url) {
-  if (url === "" || validateUrl(url)) {
+  if (url === '' || validateUrl(url)) {
     return true;
   }
   $('.js-validation-warning').text('Incomplete Url!  Please either copy-paste a valid url or leave url field blank.');
@@ -704,11 +708,11 @@ function addGiftToList(giftName, giftUrl, giftPrice) {
 }
 
 // If user doesn't give a url, make google shopping search url with giftname
-function populateEmptyUrl (giftUrl, giftName) {
+function populateEmptyUrl(giftUrl, giftName) {
   if (giftUrl === '') {
     return createGoogleShoppingUrl(giftName);
   }
-  return giftUrl
+  return giftUrl;
 }
 
 // When user clicks 'add' in edit panel for gifts picked
@@ -797,7 +801,7 @@ function handleGiveClick(target) {
   // Puts gift name into input box
   insertGiftText(target, giftName);
   // Scroll to top
-  $(".edit-panel").animate({ scrollTop: 0 }, "fast");
+  $('.edit-panel').animate({ scrollTop: 0 }, 'fast');
 }
 
 // When user clicks 'save & close' on edit panel for budget
@@ -823,7 +827,7 @@ function findObjIndexFromClassText(array, key, className, userData) {
 }
 
 function removeItemAtIndexFromArr(i, arr) {
-  if (i<1) {
+  if (i < 1) {
     arr.shift();
   } else {
     arr.splice(i, i);
@@ -972,7 +976,7 @@ function findTargetEvent(i, userData) {
     .find(event => event.eventName === eventName && event.eventDate === eventDate);
 }
 
-// gifts picked are stored in event objs - so this tracks down event obj 
+// gifts picked are stored in event objs - so this tracks down event obj
 function saveChangesToGiftsPicked(userData) {
   const i = findObjIndexFromClassText(userData.giftLists, 'name', '.js-gift-list-name', userData);
   const targetEvent = findTargetEvent(i, userData);
@@ -1025,6 +1029,16 @@ function submitAndRefresh(editedUserData) {
   });
 }
  */
+
+function hideAndWipeEditOrConfirmPanel(userData) {
+  $('.js-edit-panel').off();
+  $('.js-edit-panel').hide();
+  $('.js-edit-panel-inner').html('');
+  hideConfirmDeletePanel();
+  wipeListenerFromClass('main');
+  unshadePage();
+  listenForOpenEditPanelClicks(userData);
+}
 
 function handleEditSubmit(target, userData) {
   // user data will be edited and resubmitted as alteredUserData
@@ -1096,11 +1110,11 @@ function getUserEventDate(event) {
 
 // Gets the event name from the dom - used to look up event object in json
 // For events that do not have gifts picked already
-function prepareEditGiftPickedHtml(event, giftListName, userData) {
-  const userEventName = getUserEventName(event);
-  const userEventDate = getUserEventDate(event);
-  const listOfGiftsAlreadyPicked = generateGiftsPickedHtmlForEditPanel(event.target);
-  return generateEditGiftPickedHtml(giftListName, userData, userEventName, userEventDate, listOfGiftsAlreadyPicked);
+function prepareEditGiftPickedHtml(event, listName, userData) {
+  const eventName = getUserEventName(event);
+  const eventDate = getUserEventDate(event);
+  const giftsAlreadyPicked = generateGiftsPickedHtmlForEditPanel(event.target);
+  return generateEditGiftPickedHtml(listName, userData, eventName, eventDate, giftsAlreadyPicked);
 }
 
 function handleClickToEditGiftPickedHtml(event, giftListName, userData) {
@@ -1182,27 +1196,13 @@ function showConfirmDeletePanel() {
   const confirmHtml = generateConfirmDeleteHtml();
   $('.js-confirm').html(confirmHtml);
   $('.js-confirm').show();
-  shadePage()
-}
-
-function hideConfirmDeletePanel() {
-  $('.js-confirm').html('').hide();
-  unshadePage()
+  shadePage();
 }
 
 // !!!!! Involve promises
 function handleConfirmDeleteProfile(userData) {
   deleteProfile(userData);
 }
-
-function shadePage() {
-  $('.page-shader').show();
-}
-
-function unshadePage() {
-  $('.page-shader').hide();
-}
-
 
 /*
 function deleteProfile() {
@@ -1280,16 +1280,17 @@ function showDropDownMenu() {
 
 function checkTargetIsBurgerIcon(event) {
   if ($(event.target).hasClass('js-burger-icon')) {
-    return true
+    return true;
   }
-  return false
+  return false;
 }
 
 // Returns user to login pagex
 function listenForClicksToBurgerIcon() {
   $('.banner').on('click', (event) => {
-    if (checkTargetIsBurgerIcon(event))
-    showDropDownMenu();
+    if (checkTargetIsBurgerIcon(event)) {
+      showDropDownMenu();
+    }
   });
 }
 
@@ -1302,7 +1303,7 @@ function logout(userData) {
   hideDropDownMenu();
 }
 
-function listenForClicksToDropDownMenu (userData) {
+function listenForClicksToDropDownMenu(userData) {
   $('.js-drop-down-menu-li').on('click', (event) => {
     if ($(event.target).hasClass('js-logout')) {
       logout(userData);
@@ -1312,12 +1313,12 @@ function listenForClicksToDropDownMenu (userData) {
       handleDeleteProfile(userData);
     }
   });
-}  
+}
 
 function generateMainNavHtml() {
   return `<a class="nav-tab js-giftlist-nav-tab nav-tab-selected" target="_blank" href="javascript:;"><h3 class="js-giftlist-nav-tab">Gift Lists</h3>
           </a><a class="nav-tab js-budget-nav-tab" target="_blank" href="javascript:;"><h3 class="js-budget-nav-tab">Budget</h3>
-          <a class="nav-tab js-calendar-nav-tab" target="_blank" href="javascript:;"><h3 class="js-calendar-nav-tab">Calendar</h3></a></a>`
+          <a class="nav-tab js-calendar-nav-tab" target="_blank" href="javascript:;"><h3 class="js-calendar-nav-tab">Calendar</h3></a></a>`;
 }
 
 function showMainNav() {
@@ -1333,7 +1334,7 @@ function presentGiftListPage() {
 
 function presentBudgetPage() {
   $('.js-gift-lists').hide();
-  $('.js-budget').show()
+  $('.js-budget').show();
   $('.js-calendar').hide();
 }
 
@@ -1379,7 +1380,7 @@ function loadPersonalisedPage(userData) {
 }
 
 function validateEmail(emailInput) {
-  const re = /[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+(?:[A-Z]{2}|com|org|net|gov|mil|biz|info|mobi|name|aero|jobs|museum)\b/;
+  const re = /[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+(?:[A-Z]{2}|com|co\.uk|org\.uk|org|net|gov|mil|biz|info|mobi|name|aero|jobs|museum)\b/;
   return re.test(emailInput.toLowerCase());
 }
 
@@ -1434,7 +1435,7 @@ function handleRegistrationSubmission() {
     // remove login page
     resetHtml();
     // Load user's gift list!
-    setTimeout(getDataUsingEmail(emailInput), 50);
+    getDataUsingEmail(emailInput);
   }
 }
 
@@ -1475,7 +1476,6 @@ function showLoginEmailValidationWarning() {
 }
 
 function attemptLogin(emailInput) {
-  showLoadingMessage();
   if (validateEmail(emailInput)) {
     getDataUsingEmail(emailInput);
   }
@@ -1538,4 +1538,4 @@ function startFunctionChain() {
 }
 startFunctionChain();
 
-//getDataUsingEmail('robertaxelkirby@gmail.com');
+// getDataUsingEmail('robertaxelkirby@gmail.com');

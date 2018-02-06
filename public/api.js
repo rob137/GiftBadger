@@ -3,12 +3,14 @@ function getDataUsingEmail(emailInput) {
     $.ajax({
       url: `/users/${emailInput}`,
       success: ((response) => {
+        showLoadingMessage();
         loadPersonalisedPage(response);
         resolve();  
       }),
       dataType: 'json',
       error() {
         console.error('Error completing GET request');
+        showLoginEmailValidationWarning();
         reject();
       },
       type: 'GET',
