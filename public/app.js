@@ -1007,29 +1007,6 @@ function routeEditSubmit(target, userData) {
   return editedData;
 }
 
-/*
-function submitAndRefresh(editedUserData) {
-  $.ajax({
-    url: `/users/${editedUserData.id}`,
-    contentType: 'application/json',
-    data: JSON.stringify({
-      id: editedUserData.id,
-      budget: editedUserData.budget,
-      giftLists: editedUserData.giftLists,
-    }),
-    success(response) {;
-      loadPersonalisedPage(response);
-      resolve();
-    },
-    error() {
-      console.error('Error submitting PUT request');
-      return reject();
-    },
-    type: 'PUT',
-  });
-}
- */
-
 function hideAndWipeEditOrConfirmPanel(userData) {
   $('.js-edit-panel').off();
   $('.js-edit-panel').hide();
@@ -1204,26 +1181,6 @@ function handleConfirmDeleteProfile(userData) {
   deleteProfile(userData);
 }
 
-/*
-function deleteProfile() {
-  $.ajax({
-    url: `/users/${globalUserData.id}`,
-    contentType: 'application/json',
-    data: JSON.stringify({
-      id: globalUserData.id,
-    }),
-    success() {
-      resetHtml();
-      checkUserLoggedIn();
-    },
-    error() {
-      console.error('Error completing DELETE request');
-    },
-    type: 'DELETE',
-  });
-}
-*/
-
 function handleDeleteProfile(userData) {
   showConfirmDeletePanel();
   $('.js-confirm').on('click', (event) => {
@@ -1384,17 +1341,6 @@ function validateEmail(emailInput) {
   return re.test(emailInput.toLowerCase());
 }
 
-// Kickstarts functions that rely on user json
-/* function getDataUsingEmail(emailInput) {
-  $.getJSON(`/users/${emailInput}`, (userJson) => {
-    globalUserData = userJson;
-    setTimeout(() => {
-      loadPersonalisedPage();
-    }, 50);
-  });
-}
-*/
-
 function checkRegistrationFormIsCompleted(firstNameInput, emailInput) {
   if (!validateName(firstNameInput)) {
     $('.js-validation-warning').text('Please ensure you have given a valid first name.');
@@ -1405,24 +1351,7 @@ function checkRegistrationFormIsCompleted(firstNameInput, emailInput) {
   }
   return true;
 }
-/*
-function postNewAccount(firstNameInput, emailInput) {
-  $.ajax({
-    url: '/users',
-    contentType: 'application/json',
-    data: JSON.stringify({
-      firstName: firstNameInput,
-      email: emailInput,
-    }),
-    success() {
-    },
-    error() {
-      console.error('Error completing GET request for user data');
-    },
-    type: 'POST',
-  });
-}
- */
+
 // Runs validation using other functions (see below), submits registration
 // and then calls getDataUsingEmail()
 function handleRegistrationSubmission() {
