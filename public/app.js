@@ -77,7 +77,7 @@ function generateGiftlistsLi(name) {
   const nameWithTitleCase = convertStringToTitleCase(name);
   return `<li>
             <span class="js-giftlist-name">${nameWithTitleCase}</span>
-            <a target="_blank" href="javascript:;" alt="delete" class="js-remove remove">
+            <a href="javascript:;" alt="delete" class="js-remove remove">
               <i class="material-icons js-remove" alt="Delete">delete</i>
             </a>
             <hr class="hr-edit">
@@ -130,7 +130,7 @@ function createUlFromArr(arr, htmlClassName) {
 
 function generateLiWithRemoveElement(spanClass, spanText) {
   return `<li>
-             <span class="${spanClass}">${spanText}</span><a target="_blank" href="javascript:;" class="js-remove remove"><i class="material-icons js-remove">delete</i></a>
+             <span class="${spanClass}">${spanText}</span><a href="javascript:;" class="js-remove remove"><i class="material-icons js-remove">delete</i></a>
              <hr class="hr-edit">
            </li>`;
 }
@@ -189,7 +189,7 @@ function generateEditEventsHtml(giftListName, userData) {
   return `<form>
             <label for="event">Add an event: </label><br>
             <input type="text" name="event-name" id="event-name" class="js-user-event-name" required placeholder="Event name (e.g. Birthday)">
-            <input type="date" name="event-date" id="event-date" class="js-user-event-date" required>
+            <input type="date" name="event-date" value="YYYY-MM-DD" id="event-date" class="js-user-event-date" required>
             <button class="js-add-to-event-list">Add</button>
             <p class="js-validation-warning validation-warning"></p>
             <br>
@@ -204,7 +204,7 @@ function generateGiftIdeaLi(giftIdea) {
   const giftIdeaInTitleCase = convertStringToTitleCase(giftIdea);
   return `<li>
               <span class="js-gift-idea">${giftIdeaInTitleCase}</span>
-              <a target="_blank" href="javascript:;" class="js-give give">
+              <a href="javascript:;" class="js-give give">
                 <i class="material-icons js-give give">card_giftcard</i>
               </a>
               <hr class="hr-edit">
@@ -279,7 +279,7 @@ function showPersonalisedMenuHeader(name) {
 
 function generateDefaultBudgetHtml() {
   return `<h2>Your Remaining Budget</h2>
-          <p>Click <a class="js-edit-budget js-edit edit-alt" target="_blank" href="javascript:;">here</a> to enter your budget!</p>`;
+          <p>Click <a class="js-edit-budget js-edit edit-alt" href="javascript:;">here</a> to enter your budget!</p>`;
 }
 
 function getPercentage(spendSoFar, totalBudget) {
@@ -371,7 +371,7 @@ function generatePersonalisedBudgetHtml(userData) {
   const budgetHtml = `
       <h2>Your Remaining Budget</h2>
       <p>So far, you've spent £${spentSoFar} (${percentageSpent}%) of your £${totalBudget} budget.
-        <a target="_blank" href="javascript:;">
+        <a href="javascript:;">
           <span class="js-edit-budget js-edit edit">
             <i class="material-icons js-edit js-edit-budget">edit</i>
           </span>
@@ -401,7 +401,7 @@ function showBudget(userData) {
 function createGiftsPickedHtml(giftPicked) {
   const { giftName, giftLink, price } = giftPicked;
   const giftNameInTitleCase = convertStringToTitleCase(giftName);
-  return `<br><a target="_blank" href="${giftLink}">${giftNameInTitleCase}</a> (£${price})`;
+  return `<br><a href="${giftLink}">${giftNameInTitleCase}</a> (£${price})`;
 }
 
 // Creates text and link for user's gift ideas
@@ -492,7 +492,7 @@ function generateDynamicHtmlIdentifier(event, eventDate) {
 function generateGiftPickedHtml(dynamicHtmlIdentifier, event) {
   return `<br>
           Gift(s) chosen:
-            <a target="_blank" class="js-edit js-edit-gift-picked edit" href="javascript:;"alt="edit">
+            <a class="js-edit js-edit-gift-picked edit" href="javascript:;"alt="edit">
             <i class="material-icons js-edit js-edit-gift-picked">edit</i>
             </a> 
           <span id="js-${dynamicHtmlIdentifier}" class="js-id-span">${serveGiftsPickedHtml(event)}</span>
@@ -510,7 +510,7 @@ function prepEventsHtmlTwo(dynamicHtmlIdentifier, event) {
     return generateGiftPickedHtml(dynamicHtmlIdentifier, event);
   }
   return `<br>
-          <span>Click <a target="_blank" class="js-edit js-edit-gift-picked" href="javascript:;">here</a> 
+          <span>Click <a class="js-edit js-edit-gift-picked" href="javascript:;">here</a> 
           to save a gift for this event.
           </span>`;
 }
@@ -539,7 +539,7 @@ function generateUpcomingEventsUl(giftListArrItem) {
 
 function generateGiftListHeaderHtml() {
   return `<h2>Your Gift Lists:</h2>
-          <p><a class="js-create-new-gift-list js-edit edit-alt" target="_blank" href="javascript:;">Add or remove people</a></p>`;
+          <p><a class="js-create-new-gift-list js-edit edit-alt" href="javascript:;">Add or remove people</a></p>`;
 }
 
 // A 'gift list' includes: 1. reciient's name, 2.ideas for gifts, 3. upcoming events
@@ -554,9 +554,9 @@ function generateGiftListHtml(giftListArrItem) {
       <div class="js-gift-list">
         <hr class="hr-giftlist">
         <h3>${giftListNameInTitleCase}</h3>
-        <h4>Gift Ideas So Far <a target="_blank" href="javascript:;"><span class="js-edit-gift-ideas js-edit edit"alt="edit"><i class="material-icons js-edit-gift-ideas js-edit">edit</i></span></a></h4> 
+        <h4>Gift Ideas So Far <a href="javascript:;"><span class="js-edit-gift-ideas js-edit edit"alt="edit"><i class="material-icons js-edit-gift-ideas js-edit">edit</i></span></a></h4> 
         ${giftIdeasHtml}
-        <h4>Upcoming Events <a target="_blank" href="javascript:;"><span class="js-edit-events js-edit edit"alt="edit"><i class="material-icons js-edit-events js-edit">edit</i></span></a></h4>
+        <h4>Upcoming Events <a href="javascript:;"><span class="js-edit-events js-edit edit"alt="edit"><i class="material-icons js-edit-events js-edit">edit</i></span></a></h4>
         <ul class="js-upcoming-events">
           ${upcomingEventsUl}
         </ul>
@@ -608,6 +608,7 @@ function getGiftPickedForEditPanel(target) {
   return $(giftPickedId).html();
 }
 
+// !!!!!
 // Alters main page 'gift picked' html to be suitable for edit panel
 function convertGiftsHtml(giftsPickedHtml) {
   console.log(giftsPickedHtml);
@@ -615,12 +616,12 @@ function convertGiftsHtml(giftsPickedHtml) {
     .replace(/<a target="_blank" h/g, '<li class="js-gift-picked-edit-list-item"><a target="_blank" h')
     .replace(/span>,/g, 'span>,</li>')
     .replace(/<br>/, '');
-  convertedGiftsHtml += ' <a target="_blank" href="javascript:;" class="js-remove remove"><i class="material-icons js-remove">delete</i></a></span>';
+  convertedGiftsHtml += ' <a href="javascript:;" class="js-remove remove"><i class="material-icons js-remove">delete</i></a></span>';
   return convertedGiftsHtml;
 }
 
 function addRemoveToGiftsPickedHtml(giftsPickedHtml) {
-  return giftsPickedHtml.replace(/,/g, ' <a target="_blank" href="javascript:;" class="js-remove remove"><i class="material-icons js-remove">delete</i></a>');
+  return giftsPickedHtml.replace(/,/g, ' <a href="javascript:;" class="js-remove remove"><i class="material-icons js-remove">delete</i></a>');
 }
 
 // For edit panel: takes the heading of the edit panel for 'gifts picked' and
@@ -688,12 +689,18 @@ function generateGiftPickedEditPanelHtml(giftName, giftUrl, giftPrice) {
               <span class="js-gift-picked-input js-gift-picked-name">${giftName}</span>
             </a> 
             (£<span class="js-gift-price">${giftPrice}</span>) 
-            <a target="_blank" href="javascript:;" class="js-remove remove"><i class="material-icons js-remove">delete</i></a>
+            <a href="javascript:;" class="js-remove remove"><i class="material-icons js-remove">delete</i></a>
           </li>`;
 }
 
 function addNewGiftToUl(html) {
-  $('.js-edit-panel-gifts-picked-list').append(html);
+  // To replace the empty list message on the first 'add':
+  if ($('.js-edit-panel-gifts-picked-list').text() == "Nothing picked yet!") {
+    $('.js-edit-panel-gifts-picked-list').html(html);
+    // else, grow the existing list
+  } else {
+  $('.js-edit-panel-gifts-picked-list').append(html); 
+  }
 }
 
 function wipeFieldsAndWarnings() {
@@ -730,7 +737,7 @@ function handleAddToGiftsPicked() {
 function generateNewGiftIdeaHtml(usersNewGiftIdea) {
   return `<li>
             <span class="js-gift-idea-input">${usersNewGiftIdea}</span>
-            <a target="_blank" href="javascript:;" class="js-remove remove"><i class="material-icons js-remove">delete</i></a>
+            <a href="javascript:;" class="js-remove remove"><i class="material-icons js-remove">delete</i></a>
             <hr class="hr-edit">
           </li>`;
 }
@@ -757,10 +764,11 @@ function handleAddToGiftIdeas() {
 
 function generateNewEventHtmlForEditPanel() {
   const userEventName = convertStringToTitleCase($('.js-user-event-name').val());
+  console.log($('.js-user-event-date').val());
   const userEventDate = makeHumanReadableDate($('.js-user-event-date').val());
   return `<li>
             <span class="js-event-list-input">${userEventName} on ${userEventDate}</span> 
-            <a target="_blank" href="javascript:;" class="js-remove remove"><i class="material-icons js-remove">delete</i></a>
+            <a href="javascript:;" class="js-remove remove"><i class="material-icons js-remove">delete</i></a>
           </li>`;
 }
 
@@ -1197,8 +1205,8 @@ function loadLoginOrRegisterHtml() {
   const loginOrRegisterHtml = `
   <div class="login-or-register-container">
   <nav>
-      <a class="nav-tab js-login-nav-tab nav-tab-selected" target="_blank" href="javascript:;"><h3 class="js-login-nav-tab">Login</h3>
-      </a><a class="nav-tab js-register-nav-tab" target="_blank" href="javascript:;"><h3 class="js-register-nav-tab">Register</h3></a>
+      <a class="nav-tab js-login-nav-tab nav-tab-selected" href="javascript:;"><h3 class="js-login-nav-tab">Login</h3>
+      </a><a class="nav-tab js-register-nav-tab" href="javascript:;"><h3 class="js-register-nav-tab">Register</h3></a>
   </nav>
   <form class="login-or-register-form">
     <label class="login-register-label" for="email-input">Email: </label>
@@ -1273,9 +1281,9 @@ function listenForClicksToDropDownMenu(userData) {
 }
 
 function generateMainNavHtml() {
-  return `<a class="nav-tab js-giftlist-nav-tab nav-tab-selected" target="_blank" href="javascript:;"><h3 class="js-giftlist-nav-tab">Gift Lists</h3>
-          </a><a class="nav-tab js-budget-nav-tab" target="_blank" href="javascript:;"><h3 class="js-budget-nav-tab">Budget</h3>
-          <a class="nav-tab js-calendar-nav-tab" target="_blank" href="javascript:;"><h3 class="js-calendar-nav-tab">Calendar</h3></a></a>`;
+  return `<a class="nav-tab js-giftlist-nav-tab nav-tab-selected" href="javascript:;"><h3 class="js-giftlist-nav-tab">Gift Lists</h3>
+          </a><a class="nav-tab js-budget-nav-tab" href="javascript:;"><h3 class="js-budget-nav-tab">Budget</h3>
+          <a class="nav-tab js-calendar-nav-tab" href="javascript:;"><h3 class="js-calendar-nav-tab">Calendar</h3></a></a>`;
 }
 
 function showMainNav() {
@@ -1372,8 +1380,8 @@ function loadRegisterHtml() {
   const registerHtml = `
         <div class="login-or-register-container">
         <nav class="nav-tabs">
-          <a class="nav-tab js-login-nav-tab" target="_blank" href="javascript:;"><h3 class="js-login-nav-tab">Login</h3>
-          </a><a class="nav-tab js-register-nav-tab nav-tab-selected" target="_blank" href="javascript:;"><h3 js-register-nav-tab>Register</h3></a>
+          <a class="nav-tab js-login-nav-tab" href="javascript:;"><h3 class="js-login-nav-tab">Login</h3>
+          </a><a class="nav-tab js-register-nav-tab nav-tab-selected" href="javascript:;"><h3 js-register-nav-tab>Register</h3></a>
         </nav>
         <form class="js-registration registration login-or-register-form">
           <label class="login-register-label" for="firstName">First Name: </label>
