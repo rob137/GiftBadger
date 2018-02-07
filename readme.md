@@ -4,5 +4,5 @@ Allows users to register with email and create gift lists.  Gifts are automatica
 
 Created using Node, MongoDb/Mlab, Chai/Mocha, jQuery.
 
-Initial round of user testing:
+Initial round of user testing (wireframe stage):
 https://gist.github.com/rob137/894fb21121893bbe1bb302a0f66d2fb2
