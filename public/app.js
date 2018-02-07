@@ -1395,10 +1395,6 @@ function handleRegistrationSubmission() {
   if (checkRegistrationFormIsCompleted(firstNameInput, emailInput)) {
     showLoadingMessage();
     postNewAccount(firstNameInput, emailInput);
-    // remove login page
-    resetHtml();
-    // Load user's gift list!
-    getDataUsingEmail(emailInput);
   }
 }
 

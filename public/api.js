@@ -3,18 +3,18 @@ function getDataUsingEmail(emailInput) {
     
     $.ajax({
       url: `/users/${emailInput}`,
-      success: ((response) => {
+      dataType: 'json',
+      method: 'GET',
+    })
+    .done((response) => {
         loadPersonalisedPage(response);
         resolve();  
-      }),
-      dataType: 'json',
-      error() {
+      })
+    .fail(() => {
         console.error('Error completing GET request');
         showLoginEmailValidationWarning();
         reject();
-      },
-      type: 'GET',
-    });
+      })
   });
 }
 
@@ -26,17 +26,17 @@ function deleteProfile(editedUserData) {
       data: JSON.stringify({
         id: editedUserData.id,
       }),
-      success: (()=> {
-        $('.js-confirm').html('').hide(); 
-        logout();
-        resolve();
-      }),
-      error() {
-        console.error('Error completing DELETE request');
-        reject();
-      },
-      type: 'DELETE',
-    });
+      method: 'DELETE',
+    })
+    .done(()=> {
+      $('.js-confirm').html('').hide(); 
+      logout();
+      resolve();
+    })
+    .fail(() => {
+      console.error('Error completing DELETE request');
+      reject() 
+    })
   });
 }
 
@@ -50,16 +50,16 @@ function submitAndRefresh(editedUserData) {
         budget: editedUserData.budget,
         giftLists: editedUserData.giftLists,
       }),
-      success(response) {;
-        loadPersonalisedPage(response);
-        resolve();
-      },
-      error() {
-        console.error('Error submitting PUT request');
-        return reject();
-      },
-      type: 'PUT',
-    });
+      method: 'PUT',
+    })
+    .done((response) => {
+      loadPersonalisedPage(response);
+      resolve();
+    })
+    .fail(() => {
+      console.error('Error submitting PUT request');
+      reject();
+    })
   });
 }
 
@@ -72,14 +72,18 @@ function postNewAccount(firstNameInput, emailInput) {
         firstName: firstNameInput,
         email: emailInput,
       }),
-      success() {
-      },
-      error() {
+      method: 'POST',
+    })
+    .done(() => {
+      resetHtml();
+      // Load user's gift list!
+      getDataUsingEmail(emailInput);
+      resolve()})
+    .fail(() => {
         console.error('Error completing POST request for new user account - user data not received');
-        return reject();
-      },
-      type: 'POST',
-    });
-    resolve();
+        showLoginEmailValidationWarning();
+        loadLoginOrRegisterHtml()
+        reject();
+      });
   });
 }
