@@ -6,3 +6,9 @@ Created using Node, MongoDb/Mlab, jQuery, Chai/Mocha.
 
 Initial round of user testing (wireframe stage):
 https://gist.github.com/rob137/894fb21121893bbe1bb302a0f66d2fb2
+
+Original user flow / wire diagrams:
+https://gist.github.com/rob137/7b83392922c57b3ff2958a9ba5ee9704
+
+Original user stories and high-level description:
+https://gist.github.com/rob137/b165456ecc23251124b489b2034d77fa
