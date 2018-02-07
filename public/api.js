@@ -75,7 +75,7 @@ function postNewAccount(firstNameInput, emailInput) {
       success() {
       },
       error() {
-        console.error('Error completing GET request for user data');
+        console.error('Error completing POST request for new user account - user data not received');
         return reject();
       },
       type: 'POST',
