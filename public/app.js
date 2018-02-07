@@ -1393,6 +1393,7 @@ function handleRegistrationSubmission() {
   const firstNameInput = $('.js-first-name-input').val().toLowerCase();
   const emailInput = $('.js-email-input').val();
   if (checkRegistrationFormIsCompleted(firstNameInput, emailInput)) {
+    showLoadingMessage();
     postNewAccount(firstNameInput, emailInput);
     // remove login page
     resetHtml();
@@ -1472,7 +1473,6 @@ function listenForRegistrationClicks() {
   $('.js-registration').on('click', (event) => {
     neuterButtons(event);
     if ($(event.target).hasClass('js-register-submit-button')) {
-      showLoadingMessage();
       handleRegistrationSubmission();
     }
   });
