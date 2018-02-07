@@ -1153,7 +1153,18 @@ function closeMenusOnEsc(userData) {
   $('body').keyup((event) => {
     if (event.which === 27) {
       hideAndWipeEditOrConfirmPanel(userData);
+      hideLoadingMessage();
       unshadePage();
+      hideDropDownMenu();
+    }
+  });
+}
+w
+function closeDropDownMenuOnClickElsewhere() {
+  $(window).click((event) => {
+    const isBurger = checkTargetIsBurgerIcon(event);
+    // If the user clicks on something other than the burger or drop-down-menu...
+    if (!isBurger && !$(event.target).closest('nav').hasClass('js-nav-drop-down-menu')) {
       hideDropDownMenu();
     }
   });
@@ -1199,7 +1210,7 @@ function handleDeleteProfile(userData) {
       handleConfirmDeleteProfile(userData);
     } else if ($(event.target).hasClass('js-no-button')) {
       hideConfirmDeletePanel();
-      unshadePage();
+      hideLoadingMessage();
     }
   });
 }
@@ -1501,8 +1512,10 @@ function startFunctionChain() {
   listenForClicksToBurgerIcon();
   handleLoginOrRegister();
   closeMenusOnEsc();
+  closeDropDownMenuOnClickElsewhere();
 }
-
+unshadePage();
+hideLoadingMessage();
 startFunctionChain();
 
 // getDataUsingEmail('robertaxelkirby@gmail.com');
