@@ -90,7 +90,7 @@ app.put('/users/:id', (req, res) => {
     .findByIdAndUpdate(req.params.id, { $set: updated }, { new: true })
     .then((updatedUser) => {
       console.log(updatedUser);
-      res.json(updatedUser.serialize()).status(204).end();
+      res.json(updatedUser.serialize()).status(200).end();
     })
     .catch(() => {
       res.status(500).json({ message: 'Something went wrong' });
