@@ -1,9 +1,9 @@
 function getDataUsingEmail(emailInput) {
   return new Promise((resolve, reject) => {
+    
     $.ajax({
       url: `/users/${emailInput}`,
       success: ((response) => {
-        showLoadingMessage();
         loadPersonalisedPage(response);
         resolve();  
       }),

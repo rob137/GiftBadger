@@ -32,7 +32,6 @@ function unshadePage() {
 
 function hideConfirmDeletePanel() {
   $('.js-confirm').html('').hide();
-  unshadePage();
 }
 
 function wipeListenerFromClass(target) {
@@ -299,15 +298,15 @@ function getSpanWidthForProgressBar(percentageSpent) {
 // Runs through all gifts picked across giftlists in user's profile
 function getAllGiftPrices(eventsArr) {
   return eventsArr.map(event => event.giftsPicked)
-    .reduce((arrayOfGiftsObjs, giftsObj) => arrayOfGiftsObjs.concat(giftsObj))
+    .reduce((arrayOfGiftsObjs, giftsObj) => arrayOfGiftsObjs.concat(giftsObj), [])
     .map(giftPicked => Number(giftPicked.price))
-    .reduce((priceOfGift, total) => priceOfGift + total);
+    .reduce((priceOfGift, total) => priceOfGift + total, 0);
 }
 
 function calculateSpendSoFar(giftLists) {
   const eventsArr = giftLists
     .map(giftList => giftList.events)
-    .reduce((total, amount) => total.concat(amount));
+    .reduce((total, amount) => total.concat(amount), []);
   const totalCost = getAllGiftPrices(eventsArr);
   return totalCost;
 }
@@ -611,7 +610,6 @@ function getGiftPickedForEditPanel(target) {
 // !!!!!
 // Alters main page 'gift picked' html to be suitable for edit panel
 function convertGiftsHtml(giftsPickedHtml) {
-  console.log(giftsPickedHtml);
   let convertedGiftsHtml = giftsPickedHtml
     .replace(/<a target="_blank" h/g, '<li class="js-gift-picked-edit-list-item"><a target="_blank" h')
     .replace(/span>,/g, 'span>,</li>')
@@ -764,7 +762,6 @@ function handleAddToGiftIdeas() {
 
 function generateNewEventHtmlForEditPanel() {
   const userEventName = convertStringToTitleCase($('.js-user-event-name').val());
-  console.log($('.js-user-event-date').val());
   const userEventDate = makeHumanReadableDate($('.js-user-event-date').val());
   return `<li>
             <span class="js-event-list-input">${userEventName} on ${userEventDate}</span> 
@@ -998,6 +995,7 @@ function saveChangesToGiftsPicked(userData) {
 // Router for clicks to 'save and close' - redirects to appropriate save functions
 function routeEditSubmit(target, userData) {
   let editedData;
+  showLoadingMessage();
   if ($(target).hasClass('js-submit-edit-budget')) {
     editedData = saveChangesToBudget(userData);
   } else if ($(target).hasClass('js-submit-edit-giftlist')) {
@@ -1021,7 +1019,6 @@ function hideAndWipeEditOrConfirmPanel(userData) {
   $('.js-edit-panel-inner').html('');
   hideConfirmDeletePanel();
   wipeListenerFromClass('main');
-  unshadePage();
   listenForOpenEditPanelClicks(userData);
 }
 
@@ -1048,6 +1045,7 @@ function routeClicksWithinEditPanel(event, userData) {
     // Clicks to 'discard and close'
   } else if ($(event.target).hasClass('js-cancel-edit')) {
     hideAndWipeEditOrConfirmPanel(userData);
+    unshadePage();
     // Clicks to 'Add' button to add a gift idea
   } else if ($(event.target).hasClass('js-add-to-gift-idea-list')) {
     handleAddToGiftIdeas();
@@ -1150,11 +1148,13 @@ function listenForOpenEditPanelClicks(userData) {
   });
 }
 
-// allows user to close edit panel (and discard changes) by hitting esc key
-function listenForEscapeOnEditOrConfirmPanel(userData) {
+// allows user to close panels/menus (and discard changes) by hitting esc key
+function closeMenusOnEsc(userData) {
   $('body').keyup((event) => {
     if (event.which === 27) {
       hideAndWipeEditOrConfirmPanel(userData);
+      unshadePage();
+      hideDropDownMenu();
     }
   });
 }
@@ -1194,9 +1194,12 @@ function handleDeleteProfile(userData) {
   $('.js-confirm').on('click', (event) => {
     event.preventDefault();
     if ($(event.target).hasClass('js-yes-button')) {
+      hideConfirmDeletePanel();
+      showLoadingMessage();
       handleConfirmDeleteProfile(userData);
     } else if ($(event.target).hasClass('js-no-button')) {
       hideConfirmDeletePanel();
+      unshadePage();
     }
   });
 }
@@ -1217,6 +1220,7 @@ function loadLoginOrRegisterHtml() {
   </div>
   `;
   $('.js-login-or-register').html(loginOrRegisterHtml);
+  hideLoadingMessage();
 }
 
 
@@ -1230,8 +1234,12 @@ function revealMain() {
   $('.js-login-or-register').hide();
 }
 
-function toggleBurgerIcon() {
-  $('.burger-icon').toggle();
+function showBurgerIcon() {
+  $('.burger-icon').show();
+}
+
+function hideBurgerIcon() {
+  $('.burger-icon').hide();
 }
 
 // From hamburger icon in top right of UI
@@ -1240,6 +1248,9 @@ function hideDropDownMenu() {
 }
 function showDropDownMenu() {
   $('.nav-drop-down-menu-contents').show();
+}
+function toggleDropDownMenu() {
+  $('.nav-drop-down-menu-contents').toggle(); 
 }
 
 
@@ -1250,10 +1261,13 @@ function checkTargetIsBurgerIcon(event) {
   return false;
 }
 
-// Returns user to login pagex
+// Displays/hides drop-down menu
 function listenForClicksToBurgerIcon() {
   $('.banner').on('click', (event) => {
-    if (checkTargetIsBurgerIcon(event)) {
+    const isBurger = checkTargetIsBurgerIcon(event)
+    if (isBurger && $('.nav-drop-down-menu-contents').is(':visible')) {
+      hideDropDownMenu();
+    } else if (isBurger) {
       showDropDownMenu();
     }
   });
@@ -1261,8 +1275,8 @@ function listenForClicksToBurgerIcon() {
 
 function logout(userData) {
   hideAndWipeEditOrConfirmPanel();
-  unshadePage();
   resetHtml(userData);
+  hideBurgerIcon();
   loadLoginOrRegisterHtml();
   revealLoginOrRegister();
   hideDropDownMenu();
@@ -1271,9 +1285,11 @@ function logout(userData) {
 function listenForClicksToDropDownMenu(userData) {
   $('.js-drop-down-menu-li').on('click', (event) => {
     if ($(event.target).hasClass('js-logout')) {
+      showLoadingMessage();
       logout(userData);
       // for deleting user profile
     } else if ($(event.target).hasClass('js-delete-profile')) {
+      showLoadingMessage();
       hideDropDownMenu();
       handleDeleteProfile(userData);
     }
@@ -1332,16 +1348,16 @@ function listenForMainNavClicks() {
 function loadPersonalisedPage(userData) {
   resetHtml(userData);
   revealMain();
+  showBurgerIcon();
   showMainNav();
-  $('.burger-icon').show();
   listenForMainNavClicks();
   showPersonalisedMenuHeader(userData.firstName);
   showGiftLists(userData);
   presentGiftListPage();
   listenForOpenEditPanelClicks(userData);
   showCalendar(userData.email);
-  listenForEscapeOnEditOrConfirmPanel(userData);
   listenForClicksToDropDownMenu(userData);
+  hideLoadingMessage();
 }
 
 function validateEmail(emailInput) {
@@ -1363,8 +1379,6 @@ function checkRegistrationFormIsCompleted(firstNameInput, emailInput) {
 // Runs validation using other functions (see below), submits registration
 // and then calls getDataUsingEmail()
 function handleRegistrationSubmission() {
-  // <input> 'required' attribute doesn't work in some browsers when loaded asynchronously
-  // So we check these fields are completed:
   const firstNameInput = $('.js-first-name-input').val().toLowerCase();
   const emailInput = $('.js-email-input').val();
   if (checkRegistrationFormIsCompleted(firstNameInput, emailInput)) {
@@ -1405,11 +1419,21 @@ function checkPersonalisedPageHasLoaded() {
 }
 
 function showLoadingMessage() {
-  $('.js-login-or-register').html('<p>Loading...</p>');
+  shadePage();
+  $('.js-loading-message').html('<p>Loading...</p>');
+  $('.js-loading-message').show();
+}
+
+function hideLoadingMessage() {
+  unshadePage();
+  $('.js-loading-message').hide();
+  $('.js-loading-message').html('');
+  
 }
 
 function showLoginEmailValidationWarning() {
   $('.js-login-not-found').text('Please ensure you have given a valid email address.');
+  hideLoadingMessage();
 }
 
 function attemptLogin(emailInput) {
@@ -1437,6 +1461,7 @@ function listenForRegistrationClicks() {
   $('.js-registration').on('click', (event) => {
     neuterButtons(event);
     if ($(event.target).hasClass('js-register-submit-button')) {
+      showLoadingMessage();
       handleRegistrationSubmission();
     }
   });
@@ -1446,9 +1471,12 @@ function listenForRegistrationClicks() {
 function handleLoginOrRegister() {
   $('.js-login-or-register').on('click', (event) => {
     event.preventDefault();
+
+    
     // For clicks to 'login': attempt login
     if ($(event.target).hasClass('js-login-button')) {
       const emailInput = $('.js-email-input').val().toLowerCase();
+      showLoadingMessage();
       checkEmail(emailInput);
       // For clicks to 'register': load registration page
     } else if ($(event.target).hasClass('js-register-nav-tab')) {
@@ -1468,11 +1496,13 @@ function checkUserLoggedIn() {
 
 // on pageload
 function startFunctionChain() {
-  unshadePage();
+  hideBurgerIcon();
   checkUserLoggedIn();
   listenForClicksToBurgerIcon();
   handleLoginOrRegister();
+  closeMenusOnEsc();
 }
+
 startFunctionChain();
 
 // getDataUsingEmail('robertaxelkirby@gmail.com');

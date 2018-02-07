@@ -529,7 +529,7 @@ hr {
 }
 
 
-.confirm {
+.confirm, .loading-message {
 	text-align: center;
 	z-index: 3;
 	position: fixed;
@@ -543,6 +543,8 @@ hr {
 	border-radius: 2px;
 	padding: 25px;
 }
+
+
 
 
 .yes-no-button:hover {
