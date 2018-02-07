@@ -186,16 +186,13 @@ main {
 .gift-lists {
 	margin: 0 auto;
 	max-width: 75%;
-}
-
-.gift-lists, .budget {
 	padding: 20px;
 	padding-top: 0;
 }
 
-.gift-lists .edit-alt i {
-  
-  
+.budget {
+  padding-left: 15px !important;
+  padding-right: 15px !important;
 }
 
 .gift-lists h3 {
@@ -345,7 +342,7 @@ li {
 	width: 80%;
 	max-width: 800px;
 	position: relative;
-	background: #919191;
+	background: #D8D6D9;
 	-moz-border-radius: 25px;
 	-webkit-border-radius: 25px;
 	border-radius: 25px;
@@ -360,7 +357,7 @@ li {
   border-bottom-right-radius: 8px;
   border-top-left-radius: 20px;
   border-bottom-left-radius: 20px;
-  background-color: #72EF36;
+  background-color: #E57373;
   background-image: linear-gradient(
     center bottom,
     rgb(43,194,83) 37%,
