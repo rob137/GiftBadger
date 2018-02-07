@@ -162,6 +162,11 @@ nav a:hover {
 	border-top: 1px solid #D8D6D9;
 }
 
+.budget {
+	padding-left: 15px !important;
+	padding-left: 15px !important;
+}
+
 main {
 	z-index: 0;
 	box-sizing: content-box;
@@ -190,10 +195,6 @@ main {
 	padding-top: 0;
 }
 
-.budget {
-  padding-left: 15px !important;
-  padding-right: 15px !important;
-}
 
 .gift-lists h3 {
 	margin-top: 20px;
