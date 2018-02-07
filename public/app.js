@@ -1159,7 +1159,7 @@ function closeMenusOnEsc(userData) {
     }
   });
 }
-w
+
 function closeDropDownMenuOnClickElsewhere() {
   $(window).click((event) => {
     const isBurger = checkTargetIsBurgerIcon(event);

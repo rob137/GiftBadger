@@ -11,15 +11,15 @@
       rel="stylesheet">
 	</head>
 	<body>
-		<!-- Content is loaded into these elements by app.js -->
+		
 		<div class="banner">
 			<img class="logo" src="https://image.ibb.co/byitmH/badger_trans6.png" alt="Badger logo">
 			<h1>Gift<span class="badger">Badger</span></h1>
 			<p>Set Present Reminders with Google Calendar</p> 
-			<i hidden class="material-icons js-burger-icon burger-icon" id="burger-icon">menu</i> 
+			<i hidden class="material-icons js-burger-icon burger-icon" id="burger-icon">menu</i>
 		</div>
+		
 		<nav class="js-nav-drop-down-menu nav-drop-down-menu">
-			<!-- Required for 'hidden' to work on contents of this nav element-->
 			<div class="nav-drop-down-menu-contents" hidden>
 				<p>Welcome, <span class="js-name"></span>.</p>
       	<ul class="js-drop-down-menu drop-down-menu">
@@ -28,6 +28,8 @@
       	</ul>
       </div>
 		</nav>
+		
+		<!-- Content is loaded into these elements by app.js -->
 		<section class="js-login-or-register login-or-register"></section>
 		<main hidden>
 			<nav class="js-main-nav main-nav"></nav>
@@ -41,7 +43,10 @@
 		</section>
 		<aside class="js-loading-message loading-message" hidden></aside>
 		<aside class="js-confirm confirm" hidden></aside>
+		
+		<!-- used to create lightbox effect when windows appear -->
 		<div hidden class="page-shader"></div>
+
 		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
 		<script type="text/javascript" src="api.js"></script>
 		<script type="text/javascript" src="app.js"></script>
