@@ -1510,12 +1510,12 @@ function startFunctionChain() {
   hideBurgerIcon();
   checkUserLoggedIn();
   listenForClicksToBurgerIcon();
+  unshadePage();
+  hideLoadingMessage();
   handleLoginOrRegister();
   closeMenusOnEsc();
   closeDropDownMenuOnClickElsewhere();
 }
-unshadePage();
-hideLoadingMessage();
 startFunctionChain();
 
 // getDataUsingEmail('robertaxelkirby@gmail.com');
