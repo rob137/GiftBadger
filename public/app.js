@@ -1027,8 +1027,13 @@ function handleEditSubmit(target, userData) {
   // Pick the right save function depending on state of DOM
   const editedUserData = routeEditSubmit(target, userData);
   // Submit changes to DB and render new data in html
-  submitAndRefresh(editedUserData);
   hideAndWipeEditOrConfirmPanel(userData);
+  // Separate ajax callbacks for submitting edits to budget/giftlists
+  if ($(target).hasClass('js-submit-edit-budget')) {
+    submitAndRefreshBudget(editedUserData);
+  } else {
+    submitAndRefresh(editedUserData);
+  }
 }
 
 // Routes clicks in edit panel to appropriate handlers
@@ -1336,6 +1341,13 @@ function presentCalendarPage() {
   $('.js-calendar').show();
 }
 
+// special case for reloading budget page on edit
+function highlightBudgetNavTab() {
+  $('a.js-giftlist-nav-tab').removeClass('nav-tab-selected');
+  $('a.js-budget-nav-tab').addClass('nav-tab-selected');
+}
+
+// For clicks to nav tabs at top of <main>
 function highlightCurrentNavTab(event) {
   $('.nav-tab-selected').removeClass('nav-tab-selected');
   const navTabClicked = $(event.target).closest('a');
@@ -1513,5 +1525,3 @@ function startFunctionChain() {
   closeDropDownMenuOnClickElsewhere();
 }
 startFunctionChain();
-
-// getDataUsingEmail('robertaxelkirby@gmail.com');

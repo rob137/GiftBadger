@@ -63,6 +63,31 @@ function submitAndRefresh(editedUserData) {
   });
 }
 
+function submitAndRefreshBudget(editedUserData) {
+  return new Promise((resolve, reject) => {  
+    $.ajax({
+      url: `/users/${editedUserData.id}`,
+      contentType: 'application/json',
+      data: JSON.stringify({
+        id: editedUserData.id,
+        budget: editedUserData.budget,
+        giftLists: editedUserData.giftLists,
+      }),
+      method: 'PUT',
+    })
+    .done((response) => {
+      loadPersonalisedPage(response);
+      presentBudgetPage();
+      highlightBudgetNavTab();
+      resolve();
+    })
+    .fail(() => {
+      console.error('Error submitting PUT request');
+      reject();
+    })
+  });
+};
+
 function postNewAccount(firstNameInput, emailInput) {
   return new Promise((resolve, reject) => {
     $.ajax({
