@@ -592,3 +592,19 @@ hr {
   }
 
 }
+
+@media only screen and (min-width: 1500px) {
+	.logo {
+		left: 20%;
+	}
+	.banner {
+		padding-left: 20%;
+		padding-right: 20%;
+	}
+  #burger-icon {
+  	right: 28%;
+  }
+  .nav-drop-down-menu {
+  	right: 28%;
+  } 
+}
