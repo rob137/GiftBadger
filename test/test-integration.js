@@ -4,62 +4,62 @@ const expect = require('chai').expect;
 const faker = require('faker');
 const mongoose = require('mongoose');
 const { app, runServer, closeServer } = require('../server');
-const {UserData} = require('../models');
-const {TEST_DATABASE_URL} = require('../config');
+const { UserData } = require('../models');
+const { TEST_DATABASE_URL } = require('../config');
 
 chai.use(chaiHttp);
 
 // ---------- CREATE DUMMY DATA ----------------
 function generateGiftPickedObj() {
   return {
-  	'giftName': faker.random.word(),
-  	'giftLink': faker.internet.url(),
-  	'price': Math.floor(Math.random() * 10)
-  }
+    giftName: faker.random.word(),
+    giftLink: faker.internet.url(),
+    price: Math.floor(Math.random() * 10),
+  };
 }
 
 function generateGiftsPickedArr() {
-	let giftsPickedArr = [];
-	for (let i=1; i<=3; i++) {
+  const giftsPickedArr = [];
+  for (let i = 1; i <= 3; i += 1) {
     giftsPickedArr.push(generateGiftPickedObj());
   }
 }
 
 function generateEventData() {
   return {
-    'eventName': faker.random.word(),
-    'eventDate': faker.date.future(),
-    'giftsPicked': generateGiftsPickedArr()
-  }
+    eventName: faker.random.word(),
+    eventDate: faker.date.future(),
+    giftsPicked: generateGiftsPickedArr(),
+  };
 }
 
 function generateEventsArr() {
-  let eventsArr =[];
-  for (let i=1; i<=3; i++) {
+  const eventsArr = [];
+  for (let i = 1; i <= 3; i += 1) {
     eventsArr.push(generateEventData());
   }
   return eventsArr;
 }
 
 function generateGiftIdeas() {
-  let giftIdeasArr = [];
-  for (let i=1; i<=5; i++) {
+  const giftIdeasArr = [];
+  for (let i = 1; i <= 5; i += 1) {
     giftIdeasArr.push(faker.random.word());
-  } 
+  }
   return giftIdeasArr;
 }
 
 function generateGiftList() {
   return {
-    'name': faker.name.firstName(),
-    'giftIdeas': generateGiftIdeas(),
-    'events': generateEventsArr()
-  }
+    name: faker.name.firstName(),
+    giftIdeas: generateGiftIdeas(),
+    events: generateEventsArr(),
+  };
 }
 
 function generateGiftListArr() {
-  let giftListArr = [];
-  for (let i=1; i<=3; i++) {
+  const giftListArr = [];
+  for (let i = 1; i <= 3; i += 1) {
     giftListArr.push(generateGiftList());
   }
   return giftListArr;
@@ -67,11 +67,11 @@ function generateGiftListArr() {
 
 function generateUserData() {
   return {
-  	'firstName': faker.name.firstName(),
-    'email': faker.internet.email(),
-    'budget': Math.floor(Math.random() * 300),
-    'giftLists': generateGiftListArr()
-  }
+    firstName: faker.name.firstName(),
+    email: faker.internet.email(),
+    budget: Math.floor(Math.random() * 300),
+    giftLists: generateGiftListArr(),
+  };
 }
 
 
@@ -79,64 +79,51 @@ function generateUserData() {
 function seedUserData() {
   console.info('seeding user data');
   const seedData = [];
-
-  for (let i=1; i<=5; i++) {
+  for (let i = 1; i <= 5; i += 1) {
     seedData.push(generateUserData());
   }
   return UserData.insertMany(seedData);
 }
 
 function tearDownDb() {
-	console.warn('Deleting database');
-	return mongoose.connection.dropDatabase();
+  console.warn('Deleting database');
+  return mongoose.connection.dropDatabase();
 }
 
 
-
 // ---------- TESTS ----------------
+describe('User data API resource', () => {
+  before(() => runServer(TEST_DATABASE_URL));
 
-describe('User data API resource', function() {
+  beforeEach(() => seedUserData());
 
-  before(function() {
-  	return runServer(TEST_DATABASE_URL);
-  });
+  afterEach(() => tearDownDb());
 
-  beforeEach(function() {
-  	return seedUserData();
-  })
+  after(() => closeServer());
 
-  afterEach(function() {
-  	return tearDownDb();
-  });
-
-  after(function() {
-  	return closeServer();
-  });
-
-  
   // Get a profile; then request it by email; check response matches original
   describe('GET endpoint', function() {
     it ('should return appropriate user profile by email', function() {
-    let reqEmail;
+      let reqEmail;
     
-    return UserData
-      .findOne()
-      .then(function(userData) {
-        reqEmail = userData.email;
-        return userData; 
-      })
-      .then(function(userData) {
-        return chai.request(app) 
-          .get(`/users/${reqEmail}`)
-          .then(function (res) {
-            expect(res).to.have.status(200);
-            console.log(res.body.firstName);
-            console.log(userData.firstName);
-            expect(res.body.firstName).to.equal(userData.firstName);
-            expect(res.body.budget).to.equal(userData.budget);
-            expect(res.body.email).to.equal(userData.email);
-          })
-      })
+      return UserData
+        .findOne()
+        .then(function(userData) {
+          reqEmail = userData.email;
+          return userData; 
+        })
+        .then(function(userData) {
+          return chai.request(app) 
+            .get(`/users/${reqEmail}`)
+            .then(function (res) {
+              expect(res).to.have.status(200);
+              console.log(res.body.firstName);
+              console.log(userData.firstName);
+              expect(res.body.firstName).to.equal(userData.firstName);
+              expect(res.body.budget).to.equal(userData.budget);
+              expect(res.body.email).to.equal(userData.email);
+            })
+        })
     })
   });
   
