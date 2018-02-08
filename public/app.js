@@ -30,8 +30,50 @@ function unshadePage() {
   $('.page-shader').hide();
 }
 
+function showLoadingMessage() {
+  shadePage();
+  $('.js-loading-message').html('<p>Loading...</p>');
+  $('.js-loading-message').show();
+}
+
+function hideLoadingMessage() {
+  unshadePage();
+  $('.js-loading-message').hide();
+  $('.js-loading-message').html('');
+}
+
 function hideConfirmDeletePanel() {
   $('.js-confirm').html('').hide();
+}
+
+function revealLoginOrRegister() {
+  $('.js-login-or-register').show();
+  $('main').hide();
+}
+
+function revealMain() {
+  $('main').show();
+  $('.js-login-or-register').hide();
+}
+
+function showBurgerIcon() {
+  $('.burger-icon').show();
+}
+
+function hideBurgerIcon() {
+  $('.burger-icon').hide();
+}
+
+// From hamburger icon in top right of UI
+function hideDropDownMenu() {
+  $('.nav-drop-down-menu-contents').hide();
+}
+function showDropDownMenu() {
+  $('.nav-drop-down-menu-contents').show();
+  $('.js-delete-profile').focus();
+}
+function toggleDropDownMenu() {
+  $('.nav-drop-down-menu-contents').toggle();
 }
 
 function wipeListenerFromClass(target) {
@@ -65,7 +107,7 @@ function generateEditBudgetHtml(userData) {
   return `
     <form>
       <label for="budget">Enter your budget: </label>
-      <input type="number" min="0" value="${budget}" name="budget" id="budget" class="js-budget-input">
+      <input type="number" min="0" value="${budget}" name="budget" id="budget" class="js-budget-input js-focus">
       <button class="js-submit-edit submit-edit js-submit-edit-budget">Save Changes & Close</button>
       <button class="js-cancel-edit">Discard Changes & Close</button>
       <p class="js-validation-warning validation-warning"></p>
@@ -102,7 +144,7 @@ function generateEditNewGiftListHtml(userData) {
       <p>Add the names of people you need to buy gifts for.</p>
       <label for="name">Name: </label>
       <br>
-      <input type="text" name="name" id="name" class="js-giftlist-input">
+      <input type="text" name="name" id="name" class="js-giftlist-input js-focus">
       <button class="js-add-to-giftlist-name-list">Add</button>
       <p class="js-validation-warning validation-warning"></p>
       <button class="js-submit-edit submit-edit js-submit-edit-giftlist submit-edit-giftlist">Save Changes & Close</button>
@@ -154,7 +196,7 @@ function generateEditGiftIdeasHtml(giftListName, userData) {
   return `<p>Record initial ideas here to help you decide on gifts later.</p> 
           <form>
             <label for="gift-idea">Your initial gift idea for ${giftListNameInTitleCase}: </label>
-            <input type="text" name="gift-idea" id="gift-idea" class="js-user-gift-idea" required>
+            <input type="text" name="gift-idea" id="gift-idea" class="js-user-gift-idea js-focus" required>
             <button class="js-add-to-gift-idea-list">Add</button>
             <p class="js-validation-warning validation-warning"></p>
             <p class="ul-title">Gift ideas for <span class="js-giftlist-name">${giftListNameInTitleCase}</span> so far: </p> 
@@ -187,7 +229,7 @@ function generateEditEventsHtml(giftListName, userData) {
   const ul = createUlFromArr(lisArr, 'event-list');
   return `<form>
             <label for="event">Add an event: </label><br>
-            <input type="text" name="event-name" id="event-name" class="js-user-event-name" required placeholder="Event name (e.g. Birthday)">
+            <input type="text" name="event-name" id="event-name" class="js-user-event-name js-focus" required placeholder="Event name (e.g. Birthday)">
             <input type="date" name="event-date" value="YYYY-MM-DD" id="event-date" class="js-user-event-date" required>
             <button class="js-add-to-event-list">Add</button>
             <p class="js-validation-warning validation-warning"></p>
@@ -226,7 +268,7 @@ function generateEditGiftPickedHtml(giftListName, userData, eventName, eventDate
             <h3><span class="js-gift-list-name">${giftListNameInTitleCase}</span>: <span class="js-event-header"><span class="js-event-name-edit">${userEventNameInTitleCase}</span> on <span class="js-event-date-edit">${eventDate}</span></span></h3>
             <label class="gift-picked-label" for="gift-picked">Gift to add to this event: </label>
             <br>
-            <input type="text" name="gift-picked" id="gift-picked" class="js-user-gift-picked" value="" required>
+            <input type="text" name="gift-picked" id="gift-picked" class="js-user-gift-picked js-focus" value="" required>
             <br>
             <label class="gift-picked-label" for="gift-picked-url">Link to shopping site: </label>
             <br>
@@ -266,7 +308,6 @@ function displayAddedMessage(target) {
 }
 
 function insertGiftText(target, giftName) {
-  console.log(target); console.log(giftName); console.log($(target).closest('div').find('.js-user-gift-picked'));
   $(target).closest('div').find('.js-user-gift-picked').val(giftName);
 }
 
@@ -553,9 +594,9 @@ function generateGiftListHtml(giftListArrItem) {
       <div class="js-gift-list">
         <hr class="hr-giftlist">
         <h3>${giftListNameInTitleCase}</h3>
-        <h4>Gift Ideas So Far <a href="javascript:;"><span class="js-edit-gift-ideas js-edit edit"alt="edit"><i class="material-icons js-edit-gift-ideas js-edit">edit</i></span></a></h4> 
+        <h4>Gift Ideas So Far <a href="javascript:;" class="js-edit-gift-ideas js-edit edit"><i class="material-icons js-edit-gift-ideas js-edit">edit</i></a></h4> 
         ${giftIdeasHtml}
-        <h4>Upcoming Events <a href="javascript:;"><span class="js-edit-events js-edit edit"alt="edit"><i class="material-icons js-edit-events js-edit">edit</i></span></a></h4>
+        <h4>Upcoming Events <a href="javascript:;" class="js-edit-events js-edit edit"><i class="material-icons js-edit-events js-edit">edit</i></a></h4>
         <ul class="js-upcoming-events">
           ${upcomingEventsUl}
         </ul>
@@ -693,11 +734,11 @@ function generateGiftPickedEditPanelHtml(giftName, giftUrl, giftPrice) {
 
 function addNewGiftToUl(html) {
   // To replace the empty list message on the first 'add':
-  if ($('.js-edit-panel-gifts-picked-list').text() == "Nothing picked yet!") {
+  if ($('.js-edit-panel-gifts-picked-list').text() === 'Nothing picked yet!') {
     $('.js-edit-panel-gifts-picked-list').html(html);
     // else, grow the existing list
   } else {
-  $('.js-edit-panel-gifts-picked-list').append(html); 
+    $('.js-edit-panel-gifts-picked-list').append(html);
   }
 }
 
@@ -734,7 +775,7 @@ function handleAddToGiftsPicked() {
 
 function generateNewGiftIdeaHtml(usersNewGiftIdea) {
   return `<li>
-            <span class="js-gift-idea-input">${usersNewGiftIdea}</span>
+            <span class="js-gift-idea-input js-focus">${usersNewGiftIdea}</span>
             <a href="javascript:;" class="js-remove remove"><i class="material-icons js-remove">delete</i></a>
             <hr class="hr-edit">
           </li>`;
@@ -842,11 +883,12 @@ function removeItemAtIndexFromArr(i, arr) {
 
 function deleteRemovedNameFromDb(namesInPanel, nameInDb, editedUserData) {
   // If a name is in db but not in edit panel, delete from db
+  const result = editedUserData;
   if (namesInPanel.indexOf(nameInDb) < 0) {
     const i = findObjIndex(editedUserData.giftLists, 'name', nameInDb, editedUserData);
-    editedUserData.giftLists = removeItemAtIndexFromArr(i, editedUserData.giftLists);
+    result.giftLists = removeItemAtIndexFromArr(i, editedUserData.giftLists);
   }
-  return editedUserData;
+  return result;
 }
 
 // Checks names in edit panel against names in db
@@ -868,10 +910,11 @@ function createNewGiftList(nameInEditPanel, currentNamesInDbArr, editedUserData)
 
 // If a name is in edit panel but not in db, save to db
 function saveNamesAddedToEditPanel(namesInPanel, namesInUserData, editedUserData) {
-  a = namesInPanel
+  const result = editedUserData;
+  const a = namesInPanel
     .map(nameInEditPanel => createNewGiftList(nameInEditPanel, namesInUserData, editedUserData));
-  editedUserData.giftLists = a;
-  return editedUserData;
+  result.giftLists = a;
+  return result;
 }
 
 function createArrOfNamesInUserData(userData) {
@@ -1116,6 +1159,10 @@ function showEditPanel(editHtml) {
   shadePage();
 }
 
+function focusOnAppropriateElement() {
+  $('.js-focus').focus();
+}
+
 function handleOpenEditPanelClicks(event, userData) {
   let editHtml = '';
   // First resets the edit panel - in case panel is already open
@@ -1140,6 +1187,7 @@ function handleOpenEditPanelClicks(event, userData) {
   }
   // ... And finally uses the appropriate html to populate the edit panel
   showEditPanel(editHtml);
+  focusOnAppropriateElement();
   listenForClicksWithinEditPanel(userData);
 }
 
@@ -1189,7 +1237,7 @@ function resetHtml(userData) {
 function generateConfirmDeleteHtml() {
   return `<p>This will permanently delete your profile!<br>Are you sure?</p>
           <button class="js-yes-button yes-no-button">Yes</button> 
-          <button class="js-no-button yes-no-button">No</button>`;
+          <button class="js-no-button js-focus yes-no-button">No</button>`;
 }
 
 // When user clicks 'delete profile'
@@ -1207,6 +1255,7 @@ function handleConfirmDeleteProfile(userData) {
 
 function handleDeleteProfile(userData) {
   showConfirmDeletePanel();
+  focusOnAppropriateElement();
   $('.js-confirm').on('click', (event) => {
     event.preventDefault();
     if ($(event.target).hasClass('js-yes-button')) {
@@ -1229,7 +1278,7 @@ function loadLoginOrRegisterHtml() {
   </nav>
   <form class="login-or-register-form">
     <label class="login-register-label" for="email-input">Email: </label>
-    <input type="text" id="email-input" name="email" class="js-email-input" required
+    <input type="text" id="email-input" name="email" class="js-email-input js-focus" required
     ><button class="js-login-button login-button login-register-buttons">Login</button
     ><p class="js-login-not-found login-not-found login-register-error"></p>
   </form>
@@ -1238,37 +1287,6 @@ function loadLoginOrRegisterHtml() {
   $('.js-login-or-register').html(loginOrRegisterHtml);
   hideLoadingMessage();
 }
-
-
-function revealLoginOrRegister() {
-  $('.js-login-or-register').show();
-  $('main').hide();
-}
-
-function revealMain() {
-  $('main').show();
-  $('.js-login-or-register').hide();
-}
-
-function showBurgerIcon() {
-  $('.burger-icon').show();
-}
-
-function hideBurgerIcon() {
-  $('.burger-icon').hide();
-}
-
-// From hamburger icon in top right of UI
-function hideDropDownMenu() {
-  $('.nav-drop-down-menu-contents').hide();
-}
-function showDropDownMenu() {
-  $('.nav-drop-down-menu-contents').show();
-}
-function toggleDropDownMenu() {
-  $('.nav-drop-down-menu-contents').toggle(); 
-}
-
 
 function checkTargetIsBurgerIcon(event) {
   if ($(event.target).hasClass('js-burger-icon')) {
@@ -1280,7 +1298,7 @@ function checkTargetIsBurgerIcon(event) {
 // Displays/hides drop-down menu
 function listenForClicksToBurgerIcon() {
   $('.banner').on('click', (event) => {
-    const isBurger = checkTargetIsBurgerIcon(event)
+    const isBurger = checkTargetIsBurgerIcon(event);
     if (isBurger && $('.nav-drop-down-menu-contents').is(':visible')) {
       hideDropDownMenu();
     } else if (isBurger) {
@@ -1296,6 +1314,7 @@ function logout(userData) {
   loadLoginOrRegisterHtml();
   revealLoginOrRegister();
   hideDropDownMenu();
+  focusOnAppropriateElement();
 }
 
 function listenForClicksToDropDownMenu(userData) {
@@ -1341,12 +1360,6 @@ function presentCalendarPage() {
   $('.js-calendar').show();
 }
 
-// special case for reloading budget page on edit
-function highlightBudgetNavTab() {
-  $('a.js-giftlist-nav-tab').removeClass('nav-tab-selected');
-  $('a.js-budget-nav-tab').addClass('nav-tab-selected');
-}
-
 // For clicks to nav tabs at top of <main>
 function highlightCurrentNavTab(event) {
   $('.nav-tab-selected').removeClass('nav-tab-selected');
@@ -1354,6 +1367,7 @@ function highlightCurrentNavTab(event) {
   $(navTabClicked).addClass('nav-tab-selected');
 }
 
+// Allows user to navigate between Giftlists, Budget and Calendar <section>
 function listenForMainNavClicks() {
   $('.js-main-nav').on('click', (event) => {
     if ($(event.target).hasClass('js-giftlist-nav-tab')) {
@@ -1419,7 +1433,7 @@ function loadRegisterHtml() {
         </nav>
         <form class="js-registration registration login-or-register-form">
           <label class="login-register-label" for="firstName">First Name: </label>
-          <input type="text" id="first-name" name="first name" class="js-first-name-input" required><br>
+          <input type="text" id="first-name" name="first name" class="js-first-name-input js-focus" required><br>
           <label class="login-register-label" for="email">Email: </label
           ><input type="text" name="email" id="email" class="js-email-input" required
           ><button class="js-register-submit-button register-button login-register-buttons">Register</button>
@@ -1436,19 +1450,6 @@ function checkPersonalisedPageHasLoaded() {
     return true;
   }
   return false;
-}
-
-function showLoadingMessage() {
-  shadePage();
-  $('.js-loading-message').html('<p>Loading...</p>');
-  $('.js-loading-message').show();
-}
-
-function hideLoadingMessage() {
-  unshadePage();
-  $('.js-loading-message').hide();
-  $('.js-loading-message').html('');
-  
 }
 
 function showLoginEmailValidationWarning() {
@@ -1490,8 +1491,6 @@ function listenForRegistrationClicks() {
 function handleLoginOrRegister() {
   $('.js-login-or-register').on('click', (event) => {
     event.preventDefault();
-
-    
     // For clicks to 'login': attempt login
     if ($(event.target).hasClass('js-login-button')) {
       const emailInput = $('.js-email-input').val().toLowerCase();
@@ -1500,9 +1499,11 @@ function handleLoginOrRegister() {
       // For clicks to 'register': load registration page
     } else if ($(event.target).hasClass('js-register-nav-tab')) {
       loadRegisterHtml();
+      focusOnAppropriateElement();
       listenForRegistrationClicks();
     } else if ($(event.target).hasClass('js-login-nav-tab')) {
       loadLoginOrRegisterHtml();
+      focusOnAppropriateElement();
     }
   });
 }
@@ -1521,7 +1522,6 @@ function startFunctionChain() {
   unshadePage();
   hideLoadingMessage();
   handleLoginOrRegister();
-  closeMenusOnEsc();
   closeDropDownMenuOnClickElsewhere();
 }
 startFunctionChain();
