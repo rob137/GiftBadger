@@ -2,6 +2,12 @@
 
 Allows users to register with email and create gift lists.  Gifts are automatically assigned Google Shopping search link (unless user provides their own url).  The App populates Google Calendar entries with details about the events - including date, occasion, gifts, recipient and associated urls.  Users are also encouraged to brainstorm gift ideas for each recipient, to be reviewed later.
 
+  ![Main gift list section](screenshots/screenshot1.png)
+  
+  ![Budget section](screenshots/screenshot2.png)
+
+  ![Automatically generated calendar entry](screenshots/screenshot3.png)
+
 Created using Node, MongoDb/Mlab, jQuery, Chai/Mocha.
 
 Initial round of user testing (wireframe stage):
