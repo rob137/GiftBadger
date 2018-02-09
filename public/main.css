@@ -528,6 +528,7 @@ hr {
   text-overflow: ellipsis;
 }
 
+/* prevents text-overflow bug in Safari */
 .validation-warning::after {
   content: " ";
   display: block;
