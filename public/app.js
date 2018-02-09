@@ -815,9 +815,12 @@ function addNewEvent() {
   $('.event-list').append(eventHtml);
 }
 
-
 function showAddEventValidationWarning() {
   $('.js-validation-warning').text('Please enter an event name and future date!');
+}
+
+function showAddEventDuplicateWarning() {
+  $('.js-validation-warning').text('Please enter a unique event!');
 }
 
 // Checks the event text is non-empty and in future
@@ -828,12 +831,27 @@ function validateAddEvent() {
   return false;
 }
 
+// On clicking 'add event'. Checks user's event against current list of events
+function checkEventIsUnique() {
+  const eventName = $('.js-user-event-name').val();
+  const eventDate = makeHumanReadableDate($('.js-user-event-date').val());
+  const eventStr = `${eventName} on ${eventDate}`;
+  const eventsList = $('.event-list').html();
+  if (eventsList.indexOf(eventStr) > -1) {
+    return false;
+  } else {
+    return true;
+  }
+}
+
 function handleAddToEventsList() {
-  if (validateAddEvent()) {
+  if (validateAddEvent() && checkEventIsUnique()) {
     addNewEvent();
     wipeFieldsAndWarnings();
-  } else {
+  } else if (!validateAddEvent()) {
     showAddEventValidationWarning();
+  } else if (!checkEventIsUnique()) {
+    showAddEventDuplicateWarning()
   }
 }
 
@@ -960,18 +978,35 @@ function makeEventDateArrFromString(string) {
   return eventDateObjArr;
 }
 
+
+// To retain info about gifts picked for an event: if a new event is already recorded in the user's profile, return that recorded entry.
+function addGiftsPickedToEventObj(event, eventArr) {
+  const match = eventArr.find(item => item.eventName === event.eventName && item.eventDate === event.eventDate); 
+  if (match) {
+    return match;
+  } else {
+    return event;
+  }
+}
+
 // Takes the edit panel text describing each event and uses it to make new event objects
-function createNewEventListObjArr() {
-  const newEventListArr = createArrFromHtmlClass('.js-event-list-input');
-  return newEventListArr.map(string => makeEventDateArrFromString(string));
+function createNewEventListObjArr(currentEventsArr) {
+  const newEventStrArr = createArrFromHtmlClass('.js-event-list-input');
+  return newEventStrArr
+    .map(string => makeEventDateArrFromString(string))
+    .map(newEvent => addGiftsPickedToEventObj(newEvent, currentEventsArr))
+    .filter(item => item !== undefined);
 }
 
 // When user clicks 'submit & close' on edit panel for events
 function saveChangesToEventList(userData) {
-  const newEventListObjArr = createNewEventListObjArr();
+  // Get index of appropriate giftList in user profile data
   const i = findObjIndexFromClassText(userData.giftLists, 'name', '.js-gift-list-name', userData);
+
+  const currentEventsArr = userData.giftLists[i].events;
+  const newEventsArr = createNewEventListObjArr(currentEventsArr);
   const editedData = userData;
-  editedData.giftLists[i].events = newEventListObjArr;
+  editedData.giftLists[i].events = newEventsArr;
   return editedData;
 }
 
@@ -1367,6 +1402,12 @@ function highlightCurrentNavTab(event) {
   $(navTabClicked).addClass('nav-tab-selected');
 }
 
+// Special case to refresh budget page
+function highlightBudgetNavTab() {
+  $('.nav-tab-selected').removeClass('nav-tab-selected');
+  $('.js-budget-nav-tab').addClass('nav-tab-selected');
+}
+
 // Allows user to navigate between Giftlists, Budget and Calendar <section>
 function listenForMainNavClicks() {
   $('.js-main-nav').on('click', (event) => {
@@ -1525,3 +1566,5 @@ function startFunctionChain() {
   closeDropDownMenuOnClickElsewhere();
 }
 startFunctionChain();
+
+attemptLogin('robertaxelkirby@gmail.com');

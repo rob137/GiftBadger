@@ -36,7 +36,6 @@ usersRouter.get('/:email', (req, res) => {
 
 // --------------------- POST ----------------------
 usersRouter.post('/', jsonParser, (req, res) => {
-  console.log(req.body);
   const requiredFields = ['firstName', 'email'];
   requiredFields.forEach((requiredField) => {
     if (!(requiredField in req.body)) {
