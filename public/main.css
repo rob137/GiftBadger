@@ -436,7 +436,7 @@ a:hover, a:focus, .edit-alt:hover, .edit-alt:focus, .js-edit:hover, .js-edit:foc
 .edit-panel .validation-warning {
 	position: relative;
 	margin: 0 auto;
-	top: 18px;
+	top: 15px;
 	font-size: 1em;
 	line-height: 0;
 	margin: 0 auto;
@@ -471,6 +471,7 @@ hr {
 
 .material-icons, .edit-alt {
 	color: #D06868;
+	background: none;
 }
 
 .material-icons {
@@ -524,6 +525,15 @@ hr {
 	width: 90%;
 	height: 1em;
 	text-align: center;
+  text-overflow: ellipsis;
+}
+
+.validation-warning::after {
+  content: " ";
+  display: block;
+  width: 0;
+  height: 0;
+  line-height: 0;
 }
 
 

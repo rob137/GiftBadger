@@ -266,17 +266,12 @@ function generateEditGiftPickedHtml(giftListName, userData, eventName, eventDate
   const giftIdeasUl = generateGiftIdeaUl(giftList.giftIdeas);
   return `<form>
             <h3><span class="js-gift-list-name">${giftListNameInTitleCase}</span>: <span class="js-event-header"><span class="js-event-name-edit">${userEventNameInTitleCase}</span> on <span class="js-event-date-edit">${eventDate}</span></span></h3>
-            <label class="gift-picked-label" for="gift-picked">Gift to add to this event: </label>
-            <br>
-            <input type="text" name="gift-picked" id="gift-picked" class="js-user-gift-picked js-focus" value="" required>
-            <br>
-            <label class="gift-picked-label" for="gift-picked-url">Link to shopping site: </label>
-            <br>
-            <input type="text" placeholder="Optional" name="gift-picked-url" id="gift-picked-url" class="js-user-gift-picked-url" required>
-            <br>
-            <label class="gift-picked-label" for="gift-picked-price">Price (£) for this gift: </label>
-            <br>
-            <input type="number" name="gift-picked-price" id="gift-picked-price" class="js-user-gift-picked-price" required>
+            <label class="gift-picked-label" for="gift-picked">Gift to add to this event: </label><br
+            ><input type="text" name="gift-picked" id="gift-picked" class="js-user-gift-picked js-focus" value="" required><br
+            ><label class="gift-picked-label" for="gift-picked-url">Link to shopping site: </label><br
+            ><input type="text" placeholder="Optional" name="gift-picked-url" id="gift-picked-url" class="js-user-gift-picked-url" required><br
+            ><label class="gift-picked-label" for="gift-picked-price">Price (£) for this gift: </label
+            ><br><input type="number" name="gift-picked-price" id="gift-picked-price" class="js-user-gift-picked-price" required>
             <button class="js-add-to-gift-picked-list js-check-url">Add</button>
             <p class="js-validation-warning validation-warning"></p>
             <p>... Or choose a gift from your ideas for ${giftListNameInTitleCase} so far: </p> 
@@ -701,7 +696,7 @@ function handleAddToGiftLists() {
     $('.js-giftlist-input').val('');
     // ... else, warn the user
   } else {
-    $('.js-validation-warning').text('Please enter a valid name.');
+    $('.js-validation-warning').text('Please enter a valid name! ');
   }
 }
 
@@ -1568,5 +1563,3 @@ function startFunctionChain() {
   closeDropDownMenuOnClickElsewhere();
 }
 startFunctionChain();
-
-attemptLogin('robertaxelkirby@gmail.com');
