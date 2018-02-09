@@ -434,11 +434,11 @@ a:hover, a:focus, .edit-alt:hover, .edit-alt:focus, .js-edit:hover, .js-edit:foc
 }
 
 .edit-panel .validation-warning {
+	position: relative;
 	margin: 0 auto;
-	margin-top: 10px;
+	top: 18px;
 	font-size: 1em;
 	line-height: 0;
-	padding-top: 15px;
 	margin: 0 auto;
 }
 

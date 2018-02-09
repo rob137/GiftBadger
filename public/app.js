@@ -229,8 +229,8 @@ function generateEditEventsHtml(giftListName, userData) {
   const ul = createUlFromArr(lisArr, 'event-list');
   return `<form>
             <label for="event">Add an event: </label><br>
-            <input type="text" name="event-name" id="event-name" class="js-user-event-name js-focus" required placeholder="Event name (e.g. Birthday)">
-            <input type="date" name="event-date" value="YYYY-MM-DD" id="event-date" class="js-user-event-date" required>
+            <input type="text" name="event-name" id="event-name" class="js-user-event-name js-focus" required placeholder="Event name (e.g. Birthday)"
+            ><br><input type="date" name="event-date" value="YYYY-MM-DD" id="event-date" class="js-user-event-date" required>
             <button class="js-add-to-event-list">Add</button>
             <p class="js-validation-warning validation-warning"></p>
             <br>
