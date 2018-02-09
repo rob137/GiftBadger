@@ -850,8 +850,10 @@ function handleAddToEventsList() {
     wipeFieldsAndWarnings();
   } else if (!validateAddEvent()) {
     showAddEventValidationWarning();
+    showAddEventValidationWarning();
   } else if (!checkEventIsUnique()) {
-    showAddEventDuplicateWarning()
+    showAddEventDuplicateWarning();
+    showAddEventDuplicateWarning();
   }
 }
 
