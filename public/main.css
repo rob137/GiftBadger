@@ -71,7 +71,7 @@ body {
 
 .burger-a-wrapper {
 	position: fixed;
-  color: #F0ECE6;
+  color: red !important;
 	top: 15px;
 	right: 20px;
 	width: 40px;
@@ -609,7 +609,7 @@ hr {
 		padding-right: 20%;
 	}
 
-  #burger-icon {
+  #burger-icon, .burger-a-wrapper {
   	right: 28%;
   }
 

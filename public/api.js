@@ -8,11 +8,11 @@ function getDataUsingEmail(emailInput) {
     })
       .done((response) => {
         loadPersonalisedPage(response);
+        setCookie('email', emailInput, 365);
         closeMenusOnEsc(response);
         resolve();
       })
       .fail(() => {
-        console.error('Error completing GET request');
         showLoginEmailValidationWarning();
         reject();
       });
@@ -105,10 +105,12 @@ function postNewAccount(firstNameInput, emailInput) {
       }),
       method: 'POST',
     })
-      .done(() => {
+      .done((response) => {
         resetHtml();
         // Load user's gift list!
         getDataUsingEmail(emailInput);
+        setCookie('email', emailInput, 365);
+        closeMenusOnEsc(response);
         resolve();
       })
       .fail(() => {

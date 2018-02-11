@@ -22,6 +22,47 @@ function GiftList(giftsListName) {
   this.giftIdeas = [];
 }
 
+// Cookie set on login/registration
+function setCookie(cname, cvalue, exdays) {
+  const d = new Date();
+  d.setTime(d.getTime() + (exdays * 24 * 60 * 60 * 1000));
+  const expires = `expires=${d.toUTCString()}`;
+  document.cookie = `${cname}=${cvalue};${expires};path=/`;
+}
+
+function getCookie(cname) {
+  const name = `${cname}=`;
+  const decodedCookie = decodeURIComponent(document.cookie);
+  // Create an array ca of cookie values
+  const ca = decodedCookie.split(';');
+  // Loop through the array, and for each value ...
+  for (let i = 0; i < ca.length; i++) {
+    let c = ca[i];
+    while(c.charAt(0) == ' ') {
+      c = c.substring(1);
+    }
+    // ... If the cookie is found, return its value.
+    if (c.indexOf(name) == 0) {
+      return c.substring(name.length, c.length);
+    }
+  }
+  return "";
+}
+
+// Cookie checked on pageload
+function checkCookie() {
+  const email = getCookie("email");
+  if (email != "") {
+    attemptLogin(email);
+  } else {
+    loadLoginOrRegisterHtml();
+  }
+}
+
+function deleteCookie() {
+  document.cookie = 'email=';
+}
+
 function shadePage() {
   $('.page-shader').show();
 }
@@ -1283,6 +1324,7 @@ function showConfirmDeletePanel() {
 // !!!!! Involve promises
 function handleConfirmDeleteProfile(userData) {
   deleteProfile(userData);
+  deleteCookie();
 }
 
 function handleDeleteProfile(userData) {
@@ -1347,6 +1389,7 @@ function logout(userData) {
   revealLoginOrRegister();
   hideDropDownMenu();
   focusOnAppropriateElement();
+  deleteCookie();
 }
 
 function listenForClicksToDropDownMenu(userData) {
@@ -1547,9 +1590,7 @@ function handleLoginOrRegister() {
 }
 
 function checkUserLoggedIn() {
-  // ===== Aspiration: app remembers whether user is logged in. =====
-  // for now, we assume user isn't logged in:
-  loadLoginOrRegisterHtml();
+  checkCookie();
 }
 
 // on pageload
@@ -1563,3 +1604,8 @@ function startFunctionChain() {
   closeDropDownMenuOnClickElsewhere();
 }
 startFunctionChain();
+
+
+
+
+
