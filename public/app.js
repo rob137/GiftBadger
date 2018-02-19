@@ -1,3 +1,6 @@
+// Formatted using ESLint; to read this js file for function calls, 
+// scroll to  bottom line and work up.
+
 const monthNames = ['January', 'February', 'March', 'April', 'May', 'June',
   'July', 'August', 'September', 'October', 'November', 'December'];
 const weekDaysArr = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
@@ -1603,9 +1606,5 @@ function startFunctionChain() {
   handleLoginOrRegister();
   closeDropDownMenuOnClickElsewhere();
 }
+
 startFunctionChain();
-
-
-
-
-
