@@ -22,4 +22,5 @@ Travis CI: https://travis-ci.org/rob137/GiftBadger
   ![Automatically generated calendar entry](screenshots/screenshot3.png)
 
   ![BrowserStack](public/images/browserstack-logo-600x315.png)
-  [BrowserStack][http://browserstack.com/] was used for cross-browser testing.
+
+	[BrowserStack](http://browserstack.com/) was used for cross-browser testing.
