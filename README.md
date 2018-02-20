@@ -15,9 +15,14 @@ https://gist.github.com/rob137/b165456ecc23251124b489b2034d77fa
 
 Travis CI: https://travis-ci.org/rob137/GiftBadger
 
+<p align="center">
   ![Main gift list section](screenshots/screenshot1.png)
-  
+  <br>
   ![Budget section](screenshots/screenshot2.png)
-
+  <br>
   ![Automatically generated calendar entry](screenshots/screenshot3.png)
-
+  <br>
+  <img src="./public/images/browserstack-logo-600x315.png" href="http://browserstack.com/" alt="BrowserStack"/>
+  <br>
+  <span>BrowserStack used for cross-browser testing.</span> 
+</p>
